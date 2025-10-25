@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.7.2 PWA</title>
+  <title>PDA DEDRA v1.7.3 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -67,13 +67,13 @@
     
     .search-separator{width:1px;height:32px;background:#d1d5db;margin:0 4px;flex-shrink:0}
     
-    .search-icons-v2{display:flex;align-items:center;gap:10px;flex-shrink:0}
-    .search-icon-v2{width:44px;height:44px;border:none;outline:none;border-radius:10px;background:#f3f4f6;color:#374151;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px;transition:background .2s,transform .1s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
-    .search-icon-v2:active{transform:scale(.95)}
-    .search-icon-v2:hover{background:#e5e7eb}
-    .search-icon-v2.mode-scanner{background:#dcfce7;color:#059669}
-    .search-icon-v2.clear-btn{background:#374151;color:#fff}
-    .search-icon-v2.clear-btn:hover{background:#1f2937}
+    .search-icons{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .search-icon-btn{width:44px!important;height:44px!important;border:none!important;outline:none!important;border-radius:10px;background:#f3f4f6;color:#374151;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px!important;transition:background .2s,transform .1s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+    .search-icon-btn:active{transform:scale(.95)}
+    .search-icon-btn:hover{background:#e5e7eb}
+    .search-icon-btn.mode-scanner{background:#dcfce7;color:#059669}
+    .search-icon-btn.clear-btn{background:#374151!important;color:#fff!important}
+    .search-icon-btn.clear-btn:hover{background:#1f2937}
 
     #productList{padding:8px 12px calc(var(--nav-h) + 20px)}
     .product{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:background .15s,box-shadow .15s;max-width:100%}
@@ -235,7 +235,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.7.2 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.7.3 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
