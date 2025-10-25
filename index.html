@@ -61,19 +61,11 @@
     .badge-blue{background:#0ea5e9}
 
     .topbar-search{background:transparent;padding:8px 12px 12px;border-top:1px solid #dbeafe33;display:flex;align-items:center;gap:8px}
-    .search-wrap{position:relative;flex:1;display:flex;align-items:center;background:#fff;border-radius:12px;padding-right:8px;border:2px solid #d1d5db;transition:border-color .2s,box-shadow .2s}
-    .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
-    #searchInput{flex:1;padding:16px 14px;border:none;border-radius:12px;outline:none;background:transparent;font-size:16px}
-    
-    .search-separator{width:1px;height:32px;background:#d1d5db;margin:0 4px;flex-shrink:0}
-    
-    .search-icons{display:flex;align-items:center;gap:6px;flex-shrink:0}
-    .search-icon-btn{width:40px;height:40px;border:none;border-radius:10px;background:#f3f4f6;color:#374151;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:22px;transition:background .2s,transform .1s;flex-shrink:0}
-    .search-icon-btn:active{transform:scale(.95)}
-    .search-icon-btn:hover{background:#e5e7eb}
-    .search-icon-btn.mode-scanner{background:#dcfce7;color:#059669}
-    .search-icon-btn.clear-btn{background:#374151;color:#fff}
-    .search-icon-btn.clear-btn:hover{background:#1f2937}
+    .search-wrap{position:relative;flex:1}
+    #searchInput{width:100%;padding:16px 48px 16px 14px;border-radius:12px;border:2px solid #d1d5db;outline:none;background:#fff;transition:border-color .2s,box-shadow .2s}
+    #searchInput:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
+    .clear-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:none;border-radius:8px;background:#f3f4f6;color:#111;display:none;align-items:center;justify-content:center;cursor:pointer}
+    .clear-x:hover{background:#e5e7eb}
 
     #productList{padding:8px 12px calc(var(--nav-h) + 20px)}
     .product{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:background .15s,box-shadow .15s;max-width:100%}
@@ -224,6 +216,13 @@
     font-size: 22px !important;
   }
 }
+.ean-switch{display:inline-block;width:56px;height:36px;cursor:pointer;flex-shrink:0;position:relative}
+.ean-switch input{opacity:0;width:0;height:0}
+.ean-slider{position:absolute;top:0;left:0;right:0;bottom:0;background-color:#d1d5db;transition:.3s;border-radius:18px;display:flex;align-items:center;justify-content:center}
+.ean-text{font-size:12px;font-weight:900;color:transparent;transition:.3s;letter-spacing:0.5px}
+.ean-switch input:checked + .ean-slider{background-color:#10b981}
+.ean-switch input:checked + .ean-slider .ean-text{color:#fff}
+.ean-switch:active .ean-slider{transform:scale(0.95)}
   </style>
 </head>
 <body>
@@ -259,15 +258,15 @@
       </div>
      <div class="topbar-search">
   <div class="search-wrap">
-    <span class="material-symbols-rounded" style="color:#6b7280;margin-left:12px;font-size:20px;flex-shrink:0">search</span>
-    <input id="searchInput" type="search" placeholder="Szukaj..." autocomplete="off" inputmode="text">
-    <div class="search-separator"></div>
-    <div class="search-icons">
-      <button class="search-icon-btn" id="toggleModeBtn" title="Przełącz tryb">keyboard</button>
-      <button class="search-icon-btn" title="Skanuj aparatem">photo_camera</button>
-      <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść">close</button>
-    </div>
+    <input id="searchInput" type="text" placeholder="Szukaj" />
+    <button id="clearX" class="clear-x" title="Wyczyść"><span class="material-symbols-rounded" style="font-size:18px;">close</span></button>
   </div>
+  <label class="ean-switch">
+    <input type="checkbox" id="scannerSwitch" onchange="toggleScanner()">
+    <span class="ean-slider">
+      <span class="ean-text">EAN</span>
+    </span>
+  </label>
 </div>
     </div>
     <div id="productList"></div>
