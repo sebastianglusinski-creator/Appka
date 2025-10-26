@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.0.2 PWA</title>
+  <title>PDA DEDRA v2.0.1 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -251,7 +251,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.0.2 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.0.1 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -1319,21 +1319,11 @@ function openCamera() {
     html5QrCode = new Html5Qrcode("cameraReader");
   }
   
-  // Konfiguracja skanera - OPTYMALIZACJA!
+  // Konfiguracja skanera
   const config = {
-    fps: 15, // Więcej klatek = szybsze wykrywanie
-    qrbox: function(viewfinderWidth, viewfinderHeight) {
-      // Dynamiczny rozmiar - 70% szerokości ekranu
-      let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-      let qrboxSize = Math.floor(minEdge * 0.7);
-      return { width: qrboxSize, height: qrboxSize };
-    },
-    disableFlip: false, // Skanuj też odwrócone kody
-    videoConstraints: {
-      facingMode: "environment",
-      focusMode: "continuous", // Autofocus
-      advanced: [{ zoom: 1.0 }]
-    }
+    fps: 10,
+    qrbox: { width: 250, height: 250 },
+    aspectRatio: 1.0
   };
   
   // Start skanowania
@@ -1343,7 +1333,7 @@ function openCamera() {
     onScanSuccess,
     onScanError
   ).then(() => {
-    status.textContent = 'Trzymaj telefon 15-20cm od kodu';
+    status.textContent = 'Przybliż kod do kamery';
   }).catch(err => {
     console.error('Błąd kamery:', err);
     status.textContent = 'Nie można uruchomić kamery';
@@ -1373,9 +1363,6 @@ function onScanSuccess(decodedText, decodedResult) {
   
   console.log('Zeskanowano:', decodedText);
   
-  // Wibracja sukcesu
-  if (navigator.vibrate) navigator.vibrate(100);
-  
   // Szukaj produktu po EAN
   const ean = decodedText.replace(/\s+/g, '');
   const product = products.find(p => (p.ean || '').replace(/\s+/g, '') === ean);
@@ -1384,19 +1371,14 @@ function onScanSuccess(decodedText, decodedResult) {
     // Zatrzymaj kamerę
     closeCamera();
     
-    // Wibracja sukcesu
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    
     // Otwórz kalkulator
-    toast('✅ ' + product.nazwa.substring(0, 40));
-    setTimeout(() => {
-      openCalc(product);
-      clearSearch(true);
-    }, 100);
+    toast('✅ Znaleziono produkt!');
+    openCalc(product);
+    clearSearch(true);
   } else {
-    // Nie znaleziono - mocniejsza wibracja
-    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-    toast('❌ Brak w bazie: ' + ean);
+    // Nie znaleziono - wibracja + dźwięk
+    if (navigator.vibrate) navigator.vibrate(200);
+    toast('❌ Nie znaleziono produktu: ' + ean);
   }
 }
 
