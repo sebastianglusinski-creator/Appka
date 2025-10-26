@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.0.1 PWA</title>
+  <title>PDA DEDRA v2.0.4 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -251,7 +251,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.0.1 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.0.4 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -987,6 +987,13 @@ function openCalc(p){
 
   updDisp(); 
   updAddBtn();
+  
+  // Ukryj overlay kamery wizualnie (ale nie zatrzymuj)
+  const cameraOverlay = document.getElementById('cameraOverlay');
+  if (cameraOverlay && cameraOverlay.style.display === 'flex') {
+    cameraOverlay.style.visibility = 'hidden'; // Ukryj ale nie zamykaj
+  }
+  
   show($('calcOverlay'));
 }
 
@@ -1050,12 +1057,22 @@ $('calcAdd').onclick = function(){
       closeCalc(); 
       toast('Usunięto z koszyka'); 
       clearSearch(true); 
-      focusSearch();
+      
+      // Focusuj search TYLKO jeśli kamera NIE jest aktywna
+      const cameraOverlay = document.getElementById('cameraOverlay');
+      if (!cameraOverlay || cameraOverlay.style.display !== 'flex') {
+        focusSearch();
+      }
     } else {
       closeCalc(); 
       toast('Produkt nie był w koszyku');
       clearSearch(true); 
-      focusSearch();
+      
+      // Focusuj search TYLKO jeśli kamera NIE jest aktywna
+      const cameraOverlay = document.getElementById('cameraOverlay');
+      if (!cameraOverlay || cameraOverlay.style.display !== 'flex') {
+        focusSearch();
+      }
     }
     return;
   }
@@ -1064,11 +1081,25 @@ $('calcAdd').onclick = function(){
   closeCalc(); 
   toast('Dodano do koszyka'); 
   clearSearch(true);
-  focusSearch();
+  
+  // Focusuj search TYLKO jeśli kamera NIE jest aktywna
+  const cameraOverlay = document.getElementById('cameraOverlay');
+  if (!cameraOverlay || cameraOverlay.style.display !== 'flex') {
+    focusSearch();
+  }
 };
 
 function closeCalc(){ 
   hide($('calcOverlay')); 
+  
+  // Jeśli kamera była otwarta - przywróć widoczność i wznów
+  const cameraOverlay = document.getElementById('cameraOverlay');
+  if (cameraOverlay && cameraOverlay.style.display === 'flex') {
+    cameraOverlay.style.visibility = 'visible'; // Przywróć widoczność
+    isCameraOpen = true; // Wznów wykrywanie
+    const status = document.getElementById('cameraStatus');
+    if (status) status.textContent = 'Gotowy do kolejnego skanu';
+  }
 }
 
 function addToCart(p, qty){
@@ -1231,7 +1262,7 @@ function activateTab(el){
 // Rejestracja Service Workera
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('/Appka/service-worker.js')
       .then(registration => {
         console.log('✅ Service Worker zarejestrowany:', registration.scope);
       })
@@ -1319,21 +1350,36 @@ function openCamera() {
     html5QrCode = new Html5Qrcode("cameraReader");
   }
   
-  // Konfiguracja skanera
+  // Konfiguracja skanera - OPTYMALIZACJA!
   const config = {
-    fps: 10,
-    qrbox: { width: 250, height: 250 },
-    aspectRatio: 1.0
+    fps: 15, // Więcej klatek = szybsze wykrywanie
+    qrbox: function(viewfinderWidth, viewfinderHeight) {
+      // Dynamiczny rozmiar - 70% szerokości ekranu
+      let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+      let qrboxSize = Math.floor(minEdge * 0.7);
+      return { width: qrboxSize, height: qrboxSize };
+    },
+    disableFlip: false // Skanuj też odwrócone kody
+  };
+  
+  // Camera constraints z NAJLEPSZYM autofocusem
+  const cameraConstraints = {
+    facingMode: "environment",
+    advanced: [
+      { focusMode: "continuous" },
+      { focusDistance: 0.2 }, // 20cm - idealne dla kodów
+      { zoom: 1.5 } // Lekki zoom dla lepszej czytelności
+    ]
   };
   
   // Start skanowania
   html5QrCode.start(
-    { facingMode: "environment" }, // Tylna kamera
+    cameraConstraints, // Używamy zaawansowanych ustawień!
     config,
     onScanSuccess,
     onScanError
   ).then(() => {
-    status.textContent = 'Przybliż kod do kamery';
+    status.textContent = 'Trzymaj telefon 15-20cm od kodu';
   }).catch(err => {
     console.error('Błąd kamery:', err);
     status.textContent = 'Nie można uruchomić kamery';
@@ -1363,22 +1409,29 @@ function onScanSuccess(decodedText, decodedResult) {
   
   console.log('Zeskanowano:', decodedText);
   
+  // Wibracja sukcesu
+  if (navigator.vibrate) navigator.vibrate(100);
+  
   // Szukaj produktu po EAN
   const ean = decodedText.replace(/\s+/g, '');
   const product = products.find(p => (p.ean || '').replace(/\s+/g, '') === ean);
   
   if (product) {
-    // Zatrzymaj kamerę
-    closeCamera();
+    // NIE zamykaj kamery - tylko pauzuj na czas kalkulatora
+    isCameraOpen = false; // Pauzuj wykrywanie
+    
+    // Wibracja sukcesu
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     
     // Otwórz kalkulator
-    toast('✅ Znaleziono produkt!');
     openCalc(product);
     clearSearch(true);
+      // Kamera dalej działa w tle, czeka na zamknięcie kalkulatora
+    }, 100);
   } else {
-    // Nie znaleziono - wibracja + dźwięk
-    if (navigator.vibrate) navigator.vibrate(200);
-    toast('❌ Nie znaleziono produktu: ' + ean);
+    // Nie znaleziono - mocniejsza wibracja
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    toast('❌ Brak w bazie: ' + ean);
   }
 }
 
