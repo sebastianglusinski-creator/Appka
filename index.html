@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.9.8 PWA</title>
+  <title>PDA DEDRA v2.1.0 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -76,6 +76,7 @@
     .search-icon-btn.mode-scanner{background:transparent!important;color:#059669!important}
     .search-icon-btn.clear-btn{background:transparent!important;color:#374151!important}
     .search-icon-btn.clear-btn:hover{background:rgba(0,0,0,0.05)!important;color:#111!important}
+    @media (min-width: 768px) { .camera-btn-mobile{display:none!important} }
 
     #productList{padding:8px 12px calc(var(--nav-h) + 20px)}
     .product{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:background .15s,box-shadow .15s;max-width:100%}
@@ -98,6 +99,8 @@
     .nav-item.active .icon,.nav-item:hover .icon{background:#e0e7ff;color:#2563eb}
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+    .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
+    #cameraOverlay .modal-x{background:#374151}
 
     .modal-box{width:100%;max-width:720px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative;max-height:85vh;overflow-y:auto}
     .modal-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:none;border-radius:12px;background:#111827;color:#fff;font-size:20px;font-weight:900;cursor:pointer;z-index:1}
@@ -227,6 +230,7 @@
   }
 }
   </style>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -237,7 +241,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.9.8 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.0 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -266,7 +270,7 @@
     <div class="search-separator"></div>
     <div class="search-icons" style="display:flex;align-items:center;gap:10px">
       <button class="search-icon-btn" id="toggleModeBtn" onclick="toggleScannerMode()" title="Przełącz tryb" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">keyboard</button>
-      <button class="search-icon-btn" title="Skanuj aparatem" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">photo_camera</button>
+      <button class="search-icon-btn camera-btn-mobile" onclick="openCamera()" title="Skanuj aparatem" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">photo_camera</button>
       <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#374151;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">close</button>
     </div>
   </div>
@@ -281,6 +285,16 @@
     <div class="nav-item" data-tab="promo" onclick="activateTab(this)"><span class="icon">sell</span><span>Promo</span></div>
     <div class="nav-item" data-tab="zestawy" onclick="activateTab(this)"><span class="icon">redeem</span><span>Zestawy</span></div>
     <div class="nav-item" data-tab="pos" onclick="activateTab(this)"><span class="icon">folder_open</span><span>POS</span></div>
+  </div>
+
+  <!-- KAMERA OVERLAY -->
+  <div id="cameraOverlay" class="overlay" style="display:none">
+    <div class="camera-box">
+      <button class="modal-x" onclick="closeCamera()">✕</button>
+      <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:16px;text-align:center">Skanuj kod</div>
+      <div id="cameraReader" style="width:100%;aspect-ratio:1;background:#000;border-radius:12px;overflow:hidden"></div>
+      <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:14px">Przybliż kod do kamery</div>
+    </div>
   </div>
 
   <div id="cartOverlay" class="overlay">
@@ -1266,6 +1280,66 @@ function forceShowKeyboard() {
     }, 150);
   }, 100);
 }
+
+// === KAMERA ===
+let html5QrCode = null;
+let cameraActive = false;
+
+function openCamera() {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobile) { toast('📷 Tylko na telefonie'); return; }
+  
+  const overlay = document.getElementById('cameraOverlay');
+  overlay.style.display = 'flex';
+  cameraActive = true;
+  
+  if (!html5QrCode) html5QrCode = new Html5Qrcode("cameraReader");
+  
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 15, qrbox: { width: 280, height: 280 } },
+    (code) => {
+      if (!cameraActive) return;
+      const ean = code.replace(/\s+/g, '');
+      const p = products.find(x => (x.ean||'').replace(/\s+/g, '') === ean);
+      if (p) {
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        cameraActive = false;
+        overlay.style.visibility = 'hidden';
+        openCalc(p);
+      } else {
+        if (navigator.vibrate) navigator.vibrate(200);
+        toast('❌ Brak w bazie');
+      }
+    }
+  ).catch(() => toast('❌ Błąd kamery'));
+}
+
+function closeCamera() {
+  cameraActive = false;
+  const overlay = document.getElementById('cameraOverlay');
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      overlay.style.display = 'none';
+    }).catch(() => {
+      overlay.style.display = 'none';
+    });
+  } else {
+    overlay.style.display = 'none';
+  }
+}
+
+// Hook closeCalc - przywróć kamerę po dodaniu
+const origCloseCalc = closeCalc;
+closeCalc = function() {
+  origCloseCalc();
+  const overlay = document.getElementById('cameraOverlay');
+  if (overlay && overlay.style.display === 'flex') {
+    overlay.style.visibility = 'visible';
+    cameraActive = true;
+  }
+};
+
 </script>
 <!-- Ukryty trigger do wymuszania klawiatury -->
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
