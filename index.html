@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.1.1 PWA</title>
+  <title>PDA DEDRA v2.1.2 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -242,7 +242,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.1 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.2 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -314,8 +314,7 @@
       <table class="cart-table">
         <thead><tr>
           <th class="cart-th" style="width:44px">LP</th>
-          <th class="cart-th" style="width:220px">Nazwa/Symbol</th>
-          <th class="cart-th" style="width:210px;text-align:right">Ilość</th>
+          <th class="cart-th">Nazwa/Symbol</th>
           <th class="cart-th" style="width:54px"></th>
         </tr></thead>
         <tbody id="cartList"></tbody>
@@ -372,8 +371,7 @@
       <table class="cart-table">
         <thead><tr>
           <th class="cart-th" style="width:44px">LP</th>
-          <th class="cart-th" style="width:220px">Nazwa/Symbol</th>
-          <th class="cart-th" style="width:210px;text-align:right">Ilość</th>
+          <th class="cart-th">Nazwa/Symbol</th>
           <th class="cart-th" style="width:54px"></th>
         </tr></thead>
         <tbody id="setList"></tbody>
@@ -766,19 +764,64 @@ function openCart(){ renderCart(); show($('cartOverlay')); }
 function closeCart(){ hide($('cartOverlay')); }
 function renderCart(){
   const body=$('cartList'); body.innerHTML='';
-  if(!cart.length){ body.innerHTML='<tr class="cart-row"><td colspan="4" style="text-align:center;padding:12px;opacity:.7">Koszyk jest pusty</td></tr>'; return; }
+  if(!cart.length){ body.innerHTML='<tr class="cart-row"><td colspan="3" style="text-align:center;padding:12px;opacity:.7">Koszyk jest pusty</td></tr>'; return; }
   cart.forEach((item,idx)=>{
     const tr=document.createElement('tr'); tr.className='cart-row';
-    const lp=document.createElement('td'); lp.textContent=String(idx+1)+'.';
-    const symname=document.createElement('td'); symname.className='symname'; symname.innerHTML=`<div style="font-weight:900">${item.nazwa||''}</div><div class="codes">${item.symbol||''}</div>`;
-    const qty=document.createElement('td'); qty.innerHTML='';
-    const wrap=document.createElement('div'); wrap.className='qty-wrap';
+    
+    // Kolumna 1: LP
+    const lp=document.createElement('td'); 
+    lp.textContent=String(idx+1)+'.';
+    lp.style.verticalAlign = 'top';
+    lp.style.paddingTop = '12px';
+    
+    // Kolumna 2: Nazwa (cała) + Symbol z przyciskami
+    const main=document.createElement('td');
+    main.style.width = '100%';
+    
+    // Nazwa na górze
+    const nameDiv = document.createElement('div');
+    nameDiv.style.fontWeight = '900';
+    nameDiv.style.marginBottom = '6px';
+    nameDiv.style.wordBreak = 'break-word';
+    nameDiv.textContent = item.nazwa || '';
+    
+    // Symbol + przyciski w jednej linii
+    const controlRow = document.createElement('div');
+    controlRow.style.display = 'flex';
+    controlRow.style.alignItems = 'center';
+    controlRow.style.justifyContent = 'space-between';
+    controlRow.style.gap = '8px';
+    
+    // Symbol po lewej
+    const symbolDiv = document.createElement('div');
+    symbolDiv.className = 'codes';
+    symbolDiv.style.flex = '0 1 auto';
+    symbolDiv.style.minWidth = '0';
+    symbolDiv.textContent = item.symbol || '';
+    
+    // Przyciski po prawej
+    const wrap=document.createElement('div'); 
+    wrap.className='qty-wrap';
+    wrap.style.flex = '0 0 auto';
     const minus=document.createElement('button'); minus.textContent='−'; minus.onclick=()=>{ changeCartQty(idx,-1); };
     const input=document.createElement('input'); input.type='number'; input.min=0; input.step=1; input.value=item.ilosc; input.onchange=()=>setCartQty(idx, parseInt(input.value,10)||0);
     const plus=document.createElement('button'); plus.textContent='+'; plus.onclick=()=>{ changeCartQty(idx,1); };
-    wrap.append(minus,input,plus); qty.append(wrap);
-    const del=document.createElement('td'); const delBtn=document.createElement('button'); delBtn.className='cart-del'; delBtn.textContent='✕'; delBtn.onclick=()=>askDel(idx); del.append(delBtn);
-    tr.append(lp,symname,qty,del);
+    wrap.append(minus,input,plus);
+    
+    controlRow.append(symbolDiv, wrap);
+    main.append(nameDiv, controlRow);
+    
+    // Kolumna 3: Usuń
+    const del=document.createElement('td'); 
+    del.style.verticalAlign = 'top';
+    del.style.paddingTop = '8px';
+    const delBtn=document.createElement('button'); 
+    delBtn.className='cart-del'; 
+    delBtn.textContent='✕'; 
+    delBtn.onclick=()=>askDel(idx); 
+    del.append(delBtn);
+    
+    tr.append(lp,main,del);
     body.append(tr);
   });
 }
@@ -1143,21 +1186,66 @@ function renderSetPopup(){
 
   const body=$('setList'); body.innerHTML='';
   if(!setWorking || !setWorking.items?.length){
-    body.innerHTML='<tr class="cart-row"><td colspan="4" style="text-align:center;padding:12px;opacity:.7">Brak pozycji</td></tr>';
+    body.innerHTML='<tr class="cart-row"><td colspan="3" style="text-align:center;padding:12px;opacity:.7">Brak pozycji</td></tr>';
     return;
   }
   setWorking.items.forEach((it,idx)=>{
     const tr=document.createElement('tr'); tr.className='cart-row';
-    const lp=document.createElement('td'); lp.textContent=String(idx+1)+'.';
-    const symname=document.createElement('td'); symname.className='symname'; symname.innerHTML=`<div style="font-weight:900">${it.nazwa||''}</div><div class="codes">${it.symbol||''}</div>`;
-    const qty=document.createElement('td'); qty.innerHTML='';
-    const wrap=document.createElement('div'); wrap.className='qty-wrap';
+    
+    // Kolumna 1: LP
+    const lp=document.createElement('td'); 
+    lp.textContent=String(idx+1)+'.';
+    lp.style.verticalAlign = 'top';
+    lp.style.paddingTop = '12px';
+    
+    // Kolumna 2: Nazwa (cała) + Symbol z przyciskami
+    const main=document.createElement('td');
+    main.style.width = '100%';
+    
+    // Nazwa na górze
+    const nameDiv = document.createElement('div');
+    nameDiv.style.fontWeight = '900';
+    nameDiv.style.marginBottom = '6px';
+    nameDiv.style.wordBreak = 'break-word';
+    nameDiv.textContent = it.nazwa || '';
+    
+    // Symbol + przyciski w jednej linii
+    const controlRow = document.createElement('div');
+    controlRow.style.display = 'flex';
+    controlRow.style.alignItems = 'center';
+    controlRow.style.justifyContent = 'space-between';
+    controlRow.style.gap = '8px';
+    
+    // Symbol po lewej
+    const symbolDiv = document.createElement('div');
+    symbolDiv.className = 'codes';
+    symbolDiv.style.flex = '0 1 auto';
+    symbolDiv.style.minWidth = '0';
+    symbolDiv.textContent = it.symbol || '';
+    
+    // Przyciski po prawej
+    const wrap=document.createElement('div'); 
+    wrap.className='qty-wrap';
+    wrap.style.flex = '0 0 auto';
     const minus=document.createElement('button'); minus.textContent='−'; minus.onclick=()=>{ changeSetQty(idx,-it.min); };
     const input=document.createElement('input'); input.type='number'; input.min=0; input.step=it.min; input.value=it.ilosc; input.onchange=()=>setSetQty(idx, parseInt(input.value,10)||0);
     const plus=document.createElement('button'); plus.textContent='+'; plus.onclick=()=>{ changeSetQty(idx,it.min); };
-    wrap.append(minus,input,plus); qty.append(wrap);
-    const del=document.createElement('td'); const delBtn=document.createElement('button'); delBtn.className='cart-del'; delBtn.textContent='✕'; delBtn.onclick=()=>removeSetItem(idx); del.append(delBtn);
-    tr.append(lp,symname,qty,del);
+    wrap.append(minus,input,plus);
+    
+    controlRow.append(symbolDiv, wrap);
+    main.append(nameDiv, controlRow);
+    
+    // Kolumna 3: Usuń
+    const del=document.createElement('td'); 
+    del.style.verticalAlign = 'top';
+    del.style.paddingTop = '8px';
+    const delBtn=document.createElement('button'); 
+    delBtn.className='cart-del'; 
+    delBtn.textContent='✕'; 
+    delBtn.onclick=()=>removeSetItem(idx); 
+    del.append(delBtn);
+    
+    tr.append(lp,main,del);
     body.append(tr);
   });
 }
