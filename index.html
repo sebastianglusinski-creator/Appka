@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.9.4 PWA</title>
+  <title>PDA DEDRA v1.9.5 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -60,10 +60,10 @@
     .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--blue-dark)}
     .badge-blue{background:#0ea5e9}
 
-    .topbar-search{position:sticky;top:0;z-index:100;background:var(--blue);padding:8px 12px 12px;border-top:1px solid #dbeafe33;display:flex;align-items:center;gap:8px;min-height:76px;max-height:76px}
-    .search-wrap{position:relative;flex:1;display:flex;align-items:center;background:#fff;border-radius:12px;padding-right:8px;border:2px solid #d1d5db;transition:border-color .2s,box-shadow .2s;min-height:56px;max-height:56px}
+    .topbar-search{position:sticky;top:0;z-index:100;background:var(--blue);padding:8px 12px 12px;border-top:1px solid #dbeafe33;display:flex;align-items:center;gap:8px}
+    .search-wrap{position:relative;flex:1;display:flex;align-items:center;background:#fff;border-radius:12px;padding-right:8px;border:2px solid #d1d5db;transition:border-color .2s,box-shadow .2s;height:52px;min-height:52px;max-height:52px}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
-    #searchInput{flex:1;padding:16px 14px;border:none;border-radius:12px;outline:none;background:transparent;font-size:16px;-webkit-appearance:none}
+    #searchInput{flex:1;padding:12px 14px;border:none;border-radius:12px;outline:none;background:transparent;font-size:16px;-webkit-appearance:none;height:100%}
     #searchInput::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
     #searchInput::-webkit-search-decoration{display:none;-webkit-appearance:none}
     
@@ -237,7 +237,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.9.4 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.9.5 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
