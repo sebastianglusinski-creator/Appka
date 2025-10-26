@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.8.1 PWA</title>
+  <title>PDA DEDRA v1.9.2 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -237,7 +237,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.8.1 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.9.2 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -265,7 +265,7 @@
     <input id="searchInput" type="text" placeholder="Szukaj..." autocomplete="off" inputmode="text">
     <div class="search-separator"></div>
     <div class="search-icons" style="display:flex;align-items:center;gap:10px">
-      <button class="search-icon-btn" id="toggleModeBtn" title="Przełącz tryb" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">keyboard</button>
+      <button class="search-icon-btn" id="toggleModeBtn" onclick="toggleScannerMode()" title="Przełącz tryb" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">keyboard</button>
       <button class="search-icon-btn" title="Skanuj aparatem" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">photo_camera</button>
       <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#374151;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">close</button>
     </div>
@@ -408,6 +408,7 @@ const LS_PRODUCTS='DR_PRODUCTS_V2';
 const LS_CART='DR_CART_V2';
 const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
+let scannerMode = false; // Globalny tryb: false=klawiatura, true=czytnik
 
 const $=id=>document.getElementById(id);
 const show=el=>{el.style.display='flex';};
@@ -628,7 +629,6 @@ function renderSets(data){
 function initSearch(){
   const input=$('searchInput'); const clearX=$('clearX');
   let scanBuffer='', lastKeyTime=0;
-let scannerMode = false;
 
   input.addEventListener('input',()=>{ clearX.style.display = input.value ? 'flex' : 'none'; });
 
@@ -638,12 +638,17 @@ let scannerMode = false;
    if (/^\d$/.test(key)) {
   if (now - lastKeyTime < 35) { 
     scanBuffer += key;
+    // AUTOMATYCZNE WYKRYWANIE CZYTNIKA
     if (scanBuffer.length >= 3 && !scannerMode) {
-      const checkbox = document.getElementById('scannerSwitch');
-      if (checkbox) {
-        scannerMode = true;
-        checkbox.checked = true;
+      scannerMode = true;
+      const btn = document.getElementById('toggleModeBtn');
+      if (btn) {
+        btn.textContent = 'barcode';
+        btn.style.color = '#059669';
       }
+      const input = document.getElementById('searchInput');
+      if (input) input.inputMode = 'none';
+      toast('📊 Wykryto czytnik kodów');
     }
   } else { 
     scanBuffer = key; 
@@ -685,6 +690,37 @@ let scannerMode = false;
     });
     renderProducts(filtered);
   },300));
+  
+  // OBSŁUGA WKLEJANIA (Ctrl+V) - wykrywa kod EAN
+  input.addEventListener('paste', (e) => {
+    setTimeout(() => {
+      const value = input.value.trim();
+      // Jeśli wklejono 13 cyfr (kod EAN)
+      if (/^\d{13}$/.test(value)) {
+        // Przełącz na tryb czytnika (jeśli jeszcze nie)
+        if (!scannerMode) {
+          scannerMode = true;
+          const btn = document.getElementById('toggleModeBtn');
+          if (btn) {
+            btn.textContent = 'barcode';
+            btn.style.color = '#059669';
+          }
+          input.inputMode = 'none';
+          toast('📊 Wykryto kod EAN');
+        }
+        
+        // Szukaj produktu ZAWSZE (nawet jeśli scannerMode był już true)
+        const cand = products.find(p => (p.ean||'').replace(/\s+/g,'') === value);
+        if (cand) {
+          openCalc(cand);
+          clearSearch(true);
+          focusSearch();
+        } else {
+          toast('Nie znaleziono produktu');
+        }
+      }
+    }, 50);
+  });
 }
 
 function clearSearch(keepFocus=false){ const input=$('searchInput'); input.value=''; if(!keepFocus){input.focus();} $('clearX').style.display='none'; renderCurrentTab(); }
@@ -1180,23 +1216,59 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
-function toggleScanner() {
+// TOGGLE TRYBU: Klawiatura ⌨️ ↔️ Czytnik |||||
+function toggleScannerMode() {
   const input = document.getElementById('searchInput');
-  const checkbox = document.getElementById('scannerSwitch');
+  const btn = document.getElementById('toggleModeBtn');
   
-  scannerMode = checkbox.checked;
+  scannerMode = !scannerMode;
   
   if (scannerMode) {
-    toast('📷 Tryb czytnika kodów EAN');
+    // TRYB CZYTNIKA
+    btn.textContent = 'barcode';
+    btn.style.color = '#059669';
+    input.inputMode = 'none';
+    input.blur();
+    toast('📊 Tryb czytnika EAN');
   } else {
-    toast('✋ Wpisywanie ręczne');
-    setTimeout(() => {
-      input.value = '';
-      input.focus();
-      input.click();
-    }, 100);
+    // TRYB KLAWIATURY - wymuszamy pokazanie
+    btn.textContent = 'keyboard';
+    btn.style.color = '#6b7280';
+    input.inputMode = 'text';
+    forceShowKeyboard();
+    toast('⌨️ Klawiatura włączona');
   }
 }
+
+// WYMUSZENIE POKAZANIA KLAWIATURY (3 metody fallback)
+function forceShowKeyboard() {
+  const input = document.getElementById('searchInput');
+  const trigger = document.getElementById('keyboardTrigger');
+  
+  // METODA 1: Blur + Focus
+  input.blur();
+  input.setAttribute('readonly', 'readonly');
+  
+  setTimeout(() => {
+    input.removeAttribute('readonly');
+    input.focus();
+    input.click();
+    
+    // Scroll do góry
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    
+    // METODA 2 (fallback): ContentEditable trigger
+    setTimeout(() => {
+      if (document.activeElement !== input && trigger) {
+        trigger.focus();
+        setTimeout(() => input.focus(), 100);
+      }
+    }, 150);
+  }, 100);
+}
 </script>
+<!-- Ukryty trigger do wymuszania klawiatury -->
+<div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
+
 </body>
 </html>
