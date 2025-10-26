@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.1.5 PWA</title>
+  <title>PDA DEDRA v2.1.6 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -154,8 +154,8 @@
     .symname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
     .qty-wrap{display:flex;align-items:center;gap:4px;justify-content:flex-end}
     .qty-wrap button{width:32px;height:32px;border:none;border-radius:8px;background:#e5e7eb;font-size:18px;font-weight:900;cursor:pointer}
-    .qty-wrap .qty-minus, .qty-wrap .qty-plus{background:#e5e7eb;color:#374151}
-    .qty-wrap .cart-del{background:var(--danger);color:#fff}
+    .qty-wrap .qty-minus, .qty-wrap .qty-plus{background:#e5e7eb;color:#374151;display:flex;align-items:center;justify-content:center}
+    .qty-wrap .cart-del{background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center}
     .qty-wrap input{width:64px;height:34px;text-align:center;border:2px solid #d1d5db;border-radius:8px;font-size:16px}
     .cart-del{width:32px;height:32px;border:none;border-radius:8px;background:var(--danger);color:#fff;font-size:18px;cursor:pointer}
     .cart-bottom{display:flex;flex-direction:column;gap:10px;margin-top:12px}
@@ -244,7 +244,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.5 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.6 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
