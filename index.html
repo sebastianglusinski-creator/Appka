@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.1.1 PWA</title>
+  <title>PDA DEDRA v2.2.0 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -232,6 +232,7 @@
 }
   </style>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 </head>
 <body>
 
@@ -242,7 +243,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.1 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.2.0 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -304,6 +305,7 @@
       <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:16px;text-align:center">Skanuj kod</div>
       <div id="cameraReader" style="width:100%;aspect-ratio:1;background:#000;border-radius:12px;overflow:hidden"></div>
       <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:14px">Przybliż kod do kamery</div>
+      <button id="ocrBtn" onclick="captureForOCR()" style="width:100%;margin-top:12px;padding:14px;background:#10b981;color:#fff;border:none;border-radius:10px;font-weight:900;font-size:15px;cursor:pointer;display:none">📸 Nie skanuje? Zrób zdjęcie</button>
     </div>
   </div>
 
@@ -1322,12 +1324,18 @@ function openCamera() {
         toast('❌ Brak w bazie');
       }
     }
-  ).catch(() => toast('❌ Błąd kamery'));
+  ).then(() => {
+    showOCRButton(); // Pokaż przycisk OCR po 3 sek
+  }).catch(() => toast('❌ Błąd kamery'));
 }
 
 function closeCamera() {
   cameraActive = false;
+  clearTimeout(ocrTimeout);
   const overlay = document.getElementById('cameraOverlay');
+  const ocrBtn = document.getElementById('ocrBtn');
+  if (ocrBtn) ocrBtn.style.display = 'none';
+  
   if (html5QrCode) {
     html5QrCode.stop().then(() => {
       overlay.style.display = 'none';
@@ -1349,6 +1357,150 @@ closeCalc = function() {
     cameraActive = true;
   }
 };
+
+// === OCR ===
+let ocrTimeout = null;
+
+function showOCRButton() {
+  clearTimeout(ocrTimeout);
+  ocrTimeout = setTimeout(() => {
+    const btn = document.getElementById('ocrBtn');
+    if (btn && cameraActive) btn.style.display = 'block';
+  }, 3000); // Pokaż po 3 sekundach bez skanu
+}
+
+function captureForOCR() {
+  const video = document.querySelector('#cameraReader video');
+  if (!video) { toast('❌ Błąd kamery'); return; }
+  
+  // Zatrzymaj skanowanie
+  cameraActive = false;
+  document.getElementById('ocrBtn').style.display = 'none';
+  document.getElementById('cameraStatus').textContent = '📸 Przetwarzam zdjęcie...';
+  
+  // Zrób snapshot (tylko w RAM!)
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  
+  // OCR
+  Tesseract.recognize(
+    canvas.toDataURL(),
+    'pol+eng', // Polski + Angielski
+    { 
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          document.getElementById('cameraStatus').textContent = `📸 ${Math.round(m.progress * 100)}%`;
+        }
+      }
+    }
+  ).then(({ data: { text } }) => {
+    console.log('OCR:', text);
+    canvas = null; // Wyczyść pamięć!
+    searchByOCR(text);
+  }).catch(err => {
+    console.error('OCR error:', err);
+    canvas = null;
+    toast('❌ Błąd OCR');
+    cameraActive = true;
+    document.getElementById('cameraStatus').textContent = 'Przybliż kod do kamery';
+    document.getElementById('ocrBtn').style.display = 'block';
+  });
+}
+
+function searchByOCR(text) {
+  // Wyciągnij potencjalne EAN (13 cyfr)
+  const eanMatch = text.match(/\b(\d{13})\b/);
+  const ean = eanMatch ? eanMatch[1] : '';
+  
+  // Wyciągnij słowa (nazwa, symbol)
+  const words = text.toLowerCase()
+    .replace(/[^a-ząćęłńóśźż0-9\s]/gi, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 2);
+  
+  console.log('OCR szuka:', { ean, words });
+  
+  // 1. Szukaj po EAN
+  if (ean) {
+    const p = products.find(x => (x.ean||'').replace(/\s+/g, '') === ean);
+    if (p) {
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      closeCamera();
+      openCalc(p);
+      return;
+    }
+  }
+  
+  // 2. Szukaj po słowach w nazwie/symbolu
+  let matches = [];
+  products.forEach(p => {
+    const name = (p.nazwa || '').toLowerCase();
+    const symbol = (p.symbol || '').toLowerCase();
+    let score = 0;
+    
+    words.forEach(w => {
+      if (name.includes(w)) score += 2;
+      if (symbol.includes(w)) score += 3;
+    });
+    
+    if (score > 0) matches.push({ product: p, score });
+  });
+  
+  // Sortuj po score
+  matches.sort((a, b) => b.score - a.score);
+  
+  if (matches.length === 1) {
+    // Jeden wynik - od razu otwórz
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    closeCamera();
+    openCalc(matches[0].product);
+  } else if (matches.length > 1) {
+    // Wiele wyników - pokaż listę
+    showOCRResults(matches.slice(0, 5));
+  } else {
+    // Brak wyników
+    toast('❌ Nie znaleziono produktu');
+    cameraActive = true;
+    document.getElementById('cameraStatus').textContent = 'Spróbuj ponownie';
+    document.getElementById('ocrBtn').style.display = 'block';
+  }
+}
+
+function showOCRResults(matches) {
+  // Ukryj kamerę wizualnie
+  const overlay = document.getElementById('cameraOverlay');
+  overlay.style.visibility = 'hidden';
+  
+  // Pokaż wyniki w alertBox
+  let html = '<div style="text-align:left">';
+  html += '<div style="margin-bottom:12px;font-weight:900">Znaleziono ' + matches.length + ' produktów:</div>';
+  
+  matches.forEach((m, i) => {
+    const p = m.product;
+    html += `<div onclick="selectOCRProduct('${p.symbol}')" style="padding:12px;margin:6px 0;background:#f3f4f6;border-radius:8px;cursor:pointer;transition:background .2s" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">`;
+    html += `<div style="font-weight:900;margin-bottom:4px">${p.nazwa}</div>`;
+    html += `<div style="font-size:13px;color:#6b7280">${p.symbol}</div>`;
+    html += `</div>`;
+  });
+  
+  html += '</div>';
+  
+  $('uiTitle').textContent = 'Wybierz produkt';
+  $('uiText').innerHTML = html;
+  $('uiOverlay').style.display = 'flex';
+}
+
+function selectOCRProduct(symbol) {
+  const p = products.find(x => x.symbol === symbol);
+  if (p) {
+    $('uiOverlay').style.display = 'none';
+    closeCamera();
+    openCalc(p);
+  }
+}
 
 </script>
 <!-- Ukryty trigger do wymuszania klawiatury -->
