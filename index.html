@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.8.0 PWA</title>
+  <title>PDA DEDRA v1.8.1 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -64,6 +64,8 @@
     .search-wrap{position:relative;flex:1;display:flex;align-items:center;background:#fff;border-radius:12px;padding-right:8px;border:2px solid #d1d5db;transition:border-color .2s,box-shadow .2s}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
     #searchInput{flex:1;padding:16px 14px;border:none;border-radius:12px;outline:none;background:transparent;font-size:16px}
+    #searchInput::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
+    #searchInput::-webkit-search-decoration{display:none;-webkit-appearance:none}
     
     .search-separator{width:1px;height:32px;background:#d1d5db;margin:0 4px;flex-shrink:0}
     
@@ -235,7 +237,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.8.0 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.8.1 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -260,7 +262,7 @@
      <div class="topbar-search">
   <div class="search-wrap">
     <span class="material-symbols-rounded" style="color:#6b7280;margin-left:12px;font-size:20px;flex-shrink:0">search</span>
-    <input id="searchInput" type="search" placeholder="Szukaj..." autocomplete="off" inputmode="text">
+    <input id="searchInput" type="text" placeholder="Szukaj..." autocomplete="off" inputmode="text">
     <div class="search-separator"></div>
     <div class="search-icons" style="display:flex;align-items:center;gap:10px">
       <button class="search-icon-btn" id="toggleModeBtn" title="Przełącz tryb" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">keyboard</button>
