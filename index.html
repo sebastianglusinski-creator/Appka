@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.0.5 PWA</title>
+  <title>PDA DEDRA v2.0.6 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -251,7 +251,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.0.5 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.0.6 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -1442,8 +1442,6 @@ function onScanSuccess(decodedText, decodedResult) {
     // Otwórz kalkulator
     openCalc(product);
     clearSearch(true);
-      // Kamera dalej działa w tle, czeka na zamknięcie kalkulatora
-    }, 100);
   } else {
     // Nie znaleziono - mocniejsza wibracja
     if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
