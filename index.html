@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.9.6 PWA</title>
+  <title>PDA DEDRA v1.9.7 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -48,10 +48,10 @@
     .login-footer{margin-top:14px;font-size:14px;opacity:.9;text-align:center;color:#e5e7eb}
 
     .topbar{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15);display:flex;flex-direction:column}
-    .topbar-header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:8px 10px;gap:8px;max-width:100%}
+    .topbar-header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:8px 10px;gap:8px;max-width:100%;position:relative}
     .avatar{width:36px;height:36px;border-radius:999px;background:#1f2a60;display:flex;align-items:center;justify-content:center;font-weight:900}
     .avatar span{font-size:14px}
-    .brand{height:26px;max-width:190px;object-fit:contain;justify-self:center}
+    .brand{height:26px;max-width:190px;object-fit:contain;position:absolute;left:50%;transform:translateX(-50%);top:50%;margin-top:-13px;pointer-events:none}
     .topbar-actions{display:flex;gap:8px;justify-content:flex-end;align-items:center}
     .icon-top{font-family:'Material Symbols Rounded';font-size:22px;color:#fff;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.25);cursor:pointer;transition:background .2s,transform .1s}
     .icon-top:hover{background:rgba(255,255,255,.12)}
@@ -60,7 +60,7 @@
     .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--blue-dark)}
     .badge-blue{background:#0ea5e9}
 
-    .topbar-search{position:sticky;top:0;z-index:100;background:var(--blue);padding:8px 12px 12px;border-top:1px solid #dbeafe33}
+    .topbar-search{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:8px 12px 12px;border-top:1px solid #dbeafe33}
     .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:48px;overflow:hidden}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
     #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 14px;height:48px;line-height:48px;-webkit-appearance:none}
@@ -237,7 +237,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.9.6 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v1.9.7 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
