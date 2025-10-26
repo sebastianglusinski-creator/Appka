@@ -1,14 +1,14 @@
 const CACHE_NAME = 'dedra-pwa-v1.9.2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  '/Appka/',
+  '/Appka/index.html',
+  '/Appka/manifest.json',
   'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded'
 ];
 
 // Instalacja Service Workera - cachowanie plików
 self.addEventListener('install', event => {
-  console.log('[SW] Instalacja...');
+  console.log('[SW] Instalacja v1.9.2...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -21,7 +21,7 @@ self.addEventListener('install', event => {
 
 // Aktywacja - czyszczenie starych cache'y
 self.addEventListener('activate', event => {
-  console.log('[SW] Aktywacja...');
+  console.log('[SW] Aktywacja v1.9.2...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -38,7 +38,7 @@ self.addEventListener('activate', event => {
 
 // Fetch - strategia: Network First, potem Cache
 self.addEventListener('fetch', event => {
-  // Ignoruj zapytania do Google Apps Script (zawsze muszą iść online)
+  // Ignoruj zapytania do Google Apps Script
   if (event.request.url.includes('script.google.com') || 
       event.request.url.includes('googleapis.com')) {
     return;
@@ -61,9 +61,9 @@ self.addEventListener('fetch', event => {
             if (response) {
               return response;
             }
-            // Jeśli to HTML i nie ma w cache, pokaż offline page
+            // Fallback do głównej strony
             if (event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('/index.html');
+              return caches.match('/Appka/index.html');
             }
           });
       })
