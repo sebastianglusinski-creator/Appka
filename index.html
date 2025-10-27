@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.1.8 PWA</title>
+  <title>PDA DEDRA v2.1.9 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -24,7 +24,7 @@
     :root{
       --blue:#2563eb;--blue-dark:#1e40af;--ink:#111827;--muted:#6b7280;--bg:#f5f7fb;
       --success:#10b981;--danger:#ef4444;--ring:rgba(37,99,235,.15);
-      --nav-h:82px;
+      --nav-h:calc(82px + env(safe-area-inset-bottom));
       --q1:#e0f2fe;--q2:#dcfce7;--q3:#fee2e2;
       --orange:#f97316;
     }
@@ -92,7 +92,7 @@
     .add-btn:active{transform:scale(.97)}
     .add-btn.orange{background:var(--orange)}
 
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;padding:4px 0}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;padding:4px 0 calc(4px + env(safe-area-inset-bottom)) 0}
     .bottom-nav.hide{transform:translateY(100%)}
     .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;transition:all .2s;min-width:19%;padding:4px;-webkit-tap-highlight-color:transparent}
     .nav-item .icon{font-family:'Material Symbols Rounded';font-size:32px;line-height:1;width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:transparent;margin-bottom:4px;color:#6b7280;transition:all .25s}
@@ -244,7 +244,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.8 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.9 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
