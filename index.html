@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.3.2 PWA</title>
+  <title>PDA DEDRA v2.3.3 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -243,7 +243,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.3.2 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.3.3 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -644,8 +644,29 @@ function renderProducts(data){
   const list=$('productList'); list.innerHTML='';
   if(!data.length){ list.innerHTML='<div style="padding:6px 0;opacity:.8">Brak produktów</div>'; return; }
   
-  // Renderuj paczkami po 50 dla płynności
-  const BATCH_SIZE = 50;
+  // Jeśli mało produktów (<100) - renderuj od razu bez batching
+  if (data.length < 100) {
+    data.forEach(p=>{
+      const row=document.createElement('div'); row.className='product';
+      const left=document.createElement('div'); left.className='product-left';
+      const info=document.createElement('div'); info.className='product-info';
+      info.innerHTML = `
+        <div class="name">${p.nazwa||'—'}</div>
+        <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>`;
+      left.append(info);
+      const actions=document.createElement('div'); actions.className='actions';
+      const qtyIn=getQtyInCart(p.symbol);
+      const add=document.createElement('button'); add.className='add-btn'; add.textContent=(qtyIn || '+');
+      add.style.background = qtyIn>0 ? '#2563eb' : 'var(--success)';
+      add.onclick=()=>openCalc(p);
+      actions.append(add); row.append(left,actions);
+      list.append(row);
+    });
+    return;
+  }
+  
+  // Duże listy (>100): renderuj paczkami po 20
+  const BATCH_SIZE = 20;
   let index = 0;
   
   function renderBatch() {
