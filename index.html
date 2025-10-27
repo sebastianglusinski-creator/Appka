@@ -380,6 +380,7 @@
         <div id="setComment" style="font-weight:900"></div>
         <div class="cart-actions">
           <button class="btn" style="background:#e5e7eb;border-radius:10px;font-weight:900" onclick="closeSet()">Anuluj</button>
+          <button class="btn" style="background:#10b981;color:#fff;border-radius:10px;font-weight:900" onclick="fillEmptySetItems()">✨ Wypełnij po 1 szt</button>
           <button class="btn orange" style="background:var(--orange);color:#fff;border-radius:10px;font-weight:900" onclick="confirmSet()">🟧 Zatwierdź</button>
         </div>
       </div>
@@ -1295,6 +1296,23 @@ function setSetQty(idx, val){
 function removeSetItem(idx){
   if(!setWorking?.items[idx]) return;
   setWorking.items.splice(idx,1); renderSetPopup();
+}
+
+function fillEmptySetItems(){
+  if(!setWorking || !setWorking.items) return;
+  let changed = 0;
+  setWorking.items.forEach(it => {
+    if(Number(it.ilosc) === 0){
+      it.ilosc = 1;
+      changed++;
+    }
+  });
+  if(changed > 0){
+    renderSetPopup();
+    toast(`✅ Wypełniono ${changed} pozycji po 1 szt`);
+  } else {
+    toast('ℹ️ Brak pustych pozycji');
+  }
 }
 
 function confirmSet(){
