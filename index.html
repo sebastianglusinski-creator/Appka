@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.3.3 PWA</title>
+  <title>PDA DEDRA v2.2.2 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -91,10 +91,10 @@
     .add-btn:active{transform:scale(.97)}
     .add-btn.orange{background:var(--orange)}
 
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;background:#f9fafb;display:flex;justify-content:space-around;align-items:flex-start;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;padding:0px 0 max(2px, env(safe-area-inset-bottom)) 0}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;background:#f9fafb;display:flex;justify-content:space-around;align-items:flex-start;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;padding:4px 0 max(4px, env(safe-area-inset-bottom)) 0}
     .bottom-nav.hide{transform:translateY(100%)}
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-size:11px;font-weight:700;color:#6b7280;cursor:pointer;transition:all .2s;min-width:19%;padding:0px 4px 2px;-webkit-tap-highlight-color:transparent}
-    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:26px;line-height:1;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:transparent;margin-bottom:0px;color:#6b7280;transition:all .25s}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;transition:all .2s;min-width:19%;padding:2px 4px;-webkit-tap-highlight-color:transparent}
+    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:30px;line-height:1;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:transparent;margin-bottom:2px;color:#6b7280;transition:all .25s}
     .nav-item.active,.nav-item:hover{color:#2563eb}
     .nav-item.active .icon,.nav-item:hover .icon{background:#e0e7ff;color:#2563eb}
 
@@ -243,7 +243,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.3.3 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.2.2 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -255,7 +255,7 @@
             <button class="icon-top" id="userAvatar" title="Użytkownik"><span>SG</span></button>
           </div>
           <div class="icon-wrap">
-            <button class="icon-top" id="refreshBtn" title="Odśwież dane" onclick="manualSync()"><span class="material-symbols-rounded">autorenew</span></button>
+            <button class="icon-top" id="refreshBtn" title="Odśwież"><span class="material-symbols-rounded">autorenew</span></button>
           </div>
         </div>
         
@@ -426,9 +426,6 @@ document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false}
 let currentUser=null,currentEmail=null;
 let products=[],posItems=[],sets=[];
 const LS_PRODUCTS='DR_PRODUCTS_V2';
-const LS_POS='DR_POS_V2';
-const LS_SETS='DR_SETS_V2';
-const LS_SYNC_TIME='DR_SYNC_TIME';
 const LS_CART='DR_CART_V2';
 const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
@@ -513,48 +510,6 @@ async function loadHandlowcy() {
   }
 }
 
-// === SMART CACHE FUNCTIONS ===
-function needsSync() {
-  const lastSync = localStorage.getItem(LS_SYNC_TIME);
-  if (!lastSync) return true;
-  const hoursSince = (Date.now() - parseInt(lastSync)) / (1000 * 60 * 60);
-  return hoursSince > 24; // Sync jeśli minęło >24h
-}
-
-function loadFromCache() {
-  try {
-    const prodData = localStorage.getItem(LS_PRODUCTS);
-    const posData = localStorage.getItem(LS_POS);
-    const setsData = localStorage.getItem(LS_SETS);
-    
-    if (prodData) products = JSON.parse(prodData);
-    if (posData) posItems = JSON.parse(posData);
-    if (setsData) sets = JSON.parse(setsData);
-    
-    return products.length > 0;
-  } catch(e) {
-    console.error('Cache load failed:', e);
-    return false;
-  }
-}
-
-function saveToCache() {
-  try {
-    localStorage.setItem(LS_PRODUCTS, JSON.stringify(products));
-    localStorage.setItem(LS_POS, JSON.stringify(posItems));
-    localStorage.setItem(LS_SETS, JSON.stringify(sets));
-    localStorage.setItem(LS_SYNC_TIME, String(Date.now()));
-  } catch(e) {
-    console.error('Cache save failed:', e);
-  }
-}
-
-function manualSync() {
-  if (confirm('Pobrać najnowsze dane z serwera?\n\nZajmie to kilka sekund.')) {
-    syncAllBlocking();
-  }
-}
-
 function login(){
   const select=$('handlowiecSelect');
   if(!select.value){ alertBox('Uwaga','Wybierz handlowca.'); return; }
@@ -563,23 +518,9 @@ function login(){
   $('userAvatar').textContent = getInitials(currentUser);
   $('loginScreen').style.display='none';
   $('mainScreen').style.display='block';
-  
-  // SMART LOADING: Cache lub sync
-  if (needsSync()) {
-    syncAllBlocking();
-  } else {
-    const loaded = loadFromCache();
-    if (loaded) {
-      renderCurrentTab();
-      toast('💾 Dane z cache (odśwież: 🔄)');
-      focusSearch();
-    } else {
-      // Cache pusty, wymuszony sync
-      syncAllBlocking();
-    }
-  }
-  
+  syncAllBlocking();
   initSearch();
+  focusSearch();
 }
 
 function getInitials(name=''){ const p=name.trim().split(/\s+/); const a=(p[0]||'')[0]||''; const b=(p[1]||'')[0]||''; return (a+b).toUpperCase(); }
@@ -619,12 +560,12 @@ async function syncAllBlocking(){
     const zs = await callAPI('getZestawy');
     sets = (zs||[]).map(s=>({ ...s }));
     
-    saveToCache(); // Zapisz wszystko do cache
+    localStorage.setItem(LS_PRODUCTS, JSON.stringify(products));
     setSyncProgress(100);
     setSyncStep('Gotowe!');
     renderCurrentTab();
     setTimeout(()=>hide($('syncOverlay')),250);
-    toast('✅ Dane zaktualizowane');
+    toast('Dane zaktualizowane');
     focusSearch();
   } catch (error) {
     $('syncTitle').textContent='Błąd synchronizacji';
@@ -643,63 +584,22 @@ function renderCurrentTab(){
 function renderProducts(data){
   const list=$('productList'); list.innerHTML='';
   if(!data.length){ list.innerHTML='<div style="padding:6px 0;opacity:.8">Brak produktów</div>'; return; }
-  
-  // Jeśli mało produktów (<100) - renderuj od razu bez batching
-  if (data.length < 100) {
-    data.forEach(p=>{
-      const row=document.createElement('div'); row.className='product';
-      const left=document.createElement('div'); left.className='product-left';
-      const info=document.createElement('div'); info.className='product-info';
-      info.innerHTML = `
-        <div class="name">${p.nazwa||'—'}</div>
-        <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>`;
-      left.append(info);
-      const actions=document.createElement('div'); actions.className='actions';
-      const qtyIn=getQtyInCart(p.symbol);
-      const add=document.createElement('button'); add.className='add-btn'; add.textContent=(qtyIn || '+');
-      add.style.background = qtyIn>0 ? '#2563eb' : 'var(--success)';
-      add.onclick=()=>openCalc(p);
-      actions.append(add); row.append(left,actions);
-      list.append(row);
-    });
-    return;
-  }
-  
-  // Duże listy (>100): renderuj paczkami po 20
-  const BATCH_SIZE = 20;
-  let index = 0;
-  
-  function renderBatch() {
-    const end = Math.min(index + BATCH_SIZE, data.length);
-    const fragment = document.createDocumentFragment();
-    
-    for (let i = index; i < end; i++) {
-      const p = data[i];
-      const row=document.createElement('div'); row.className='product';
-      const left=document.createElement('div'); left.className='product-left';
-      const info=document.createElement('div'); info.className='product-info';
-      info.innerHTML = `
-        <div class="name">${p.nazwa||'—'}</div>
-        <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>`;
-      left.append(info);
-      const actions=document.createElement('div'); actions.className='actions';
-      const qtyIn=getQtyInCart(p.symbol);
-      const add=document.createElement('button'); add.className='add-btn'; add.textContent=(qtyIn || '+');
-      add.style.background = qtyIn>0 ? '#2563eb' : 'var(--success)';
-      add.onclick=()=>openCalc(p);
-      actions.append(add); row.append(left,actions);
-      fragment.append(row);
-    }
-    
-    list.append(fragment);
-    index = end;
-    
-    if (index < data.length) {
-      requestAnimationFrame(renderBatch);
-    }
-  }
-  
-  renderBatch();
+  data.forEach(p=>{
+    const row=document.createElement('div'); row.className='product';
+    const left=document.createElement('div'); left.className='product-left';
+    const info=document.createElement('div'); info.className='product-info';
+    info.innerHTML = `
+      <div class="name">${p.nazwa||'—'}</div>
+      <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>`;
+    left.append(info);
+    const actions=document.createElement('div'); actions.className='actions';
+    const qtyIn=getQtyInCart(p.symbol);
+    const add=document.createElement('button'); add.className='add-btn'; add.textContent=(qtyIn || '+');
+    add.style.background = qtyIn>0 ? '#2563eb' : 'var(--success)';
+    add.onclick=()=>openCalc(p);
+    actions.append(add); row.append(left,actions);
+    list.append(row);
+  });
 }
 
 function renderPOS(data){
@@ -1449,31 +1349,10 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {
         console.log('✅ Service Worker zarejestrowany:', registration.scope);
-        
-        // Wymuszaj sprawdzenie aktualizacji przy każdym otwarciu
-        registration.update();
-        
-        // Gdy nowa wersja czeka, aktywuj ją automatycznie
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Nowa wersja gotowa - przeładuj stronę
-              console.log('🔄 Nowa wersja dostępna - przeładuję...');
-              window.location.reload();
-            }
-          });
-        });
       })
       .catch(error => {
         console.log('❌ Błąd rejestracji SW:', error);
       });
-  });
-  
-  // Nasłuchuj na wiadomości od SW
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    console.log('🔄 Service Worker zaktualizowany - przeładuję stronę');
-    window.location.reload();
   });
 }
 // TOGGLE TRYBU: Klawiatura ⌨️ ↔️ Czytnik |||||
