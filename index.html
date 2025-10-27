@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.1.6 PWA</title>
+  <title>PDA DEDRA v2.1.8 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -157,7 +157,7 @@
     .qty-wrap .qty-minus, .qty-wrap .qty-plus{background:#e5e7eb;color:#374151;display:flex;align-items:center;justify-content:center}
     .qty-wrap .cart-del{background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center}
     .qty-wrap input{width:64px;height:34px;text-align:center;border:2px solid #d1d5db;border-radius:8px;font-size:16px}
-    .cart-del{width:32px;height:32px;border:none;border-radius:8px;background:var(--danger);color:#fff;font-size:18px;cursor:pointer}
+    .cart-del{width:32px;height:32px;border:none;border-radius:8px;background:var(--danger);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
     .cart-bottom{display:flex;flex-direction:column;gap:10px;margin-top:12px}
     .comment-wrap{position:relative}
     .comment-wrap input{width:100%;padding:12px 40px 12px 14px;border:2px solid #d1d5db;border-radius:10px}
@@ -244,7 +244,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.6 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.1.8 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -789,7 +789,6 @@ function renderCart(){
     const controlRow = document.createElement('div');
     controlRow.style.display = 'flex';
     controlRow.style.alignItems = 'center';
-    controlRow.style.justifyContent = 'space-between';
     controlRow.style.gap = '8px';
     
     // Symbol po lewej
@@ -806,6 +805,7 @@ function renderCart(){
     wrap.style.display = 'flex';
     wrap.style.gap = '4px';
     wrap.style.alignItems = 'center';
+    wrap.style.marginLeft = 'auto';
     
     const minus=document.createElement('button'); 
     minus.className='qty-minus';
@@ -1227,7 +1227,6 @@ function renderSetPopup(){
     const controlRow = document.createElement('div');
     controlRow.style.display = 'flex';
     controlRow.style.alignItems = 'center';
-    controlRow.style.justifyContent = 'space-between';
     controlRow.style.gap = '8px';
     
     // Symbol po lewej
@@ -1244,6 +1243,7 @@ function renderSetPopup(){
     wrap.style.display = 'flex';
     wrap.style.gap = '4px';
     wrap.style.alignItems = 'center';
+    wrap.style.marginLeft = 'auto';
     
     const minus=document.createElement('button'); 
     minus.className='qty-minus';
@@ -1364,47 +1364,76 @@ function toggleScannerMode() {
   scannerMode = !scannerMode;
   
   if (scannerMode) {
-    // TRYB CZYTNIKA
+    // TRYB CZYTNIKA - ukryj klawiaturę
     btn.textContent = 'barcode';
     btn.style.color = '#059669';
     input.inputMode = 'none';
+    input.setAttribute('readonly', 'readonly');
     input.blur();
     toast('📊 Tryb czytnika EAN');
   } else {
-    // TRYB KLAWIATURY - wymuszamy pokazanie
+    // TRYB KLAWIATURY - WYMUŚ pokazanie
     btn.textContent = 'keyboard';
     btn.style.color = '#6b7280';
+    input.removeAttribute('readonly');
     input.inputMode = 'text';
+    
+    // Natychmiastowe wymuszenie klawiatury
     forceShowKeyboard();
-    toast('⌨️ Klawiatura włączona');
+    toast('⌨️ Wymuszam klawiaturę...');
   }
 }
 
-// WYMUSZENIE POKAZANIA KLAWIATURY (3 metody fallback)
+// WYMUSZENIE POKAZANIA KLAWIATURY - nawet z czytnikiem BT!
 function forceShowKeyboard() {
   const input = document.getElementById('searchInput');
   const trigger = document.getElementById('keyboardTrigger');
   
-  // METODA 1: Blur + Focus
-  input.blur();
-  input.setAttribute('readonly', 'readonly');
+  // Scroll na górę NATYCHMIAST
+  window.scrollTo({top: 0, behavior: 'instant'});
   
+  // KROK 1: Wymuś blur
+  input.blur();
+  if (document.activeElement === input) {
+    document.body.focus();
+  }
+  
+  // KROK 2: Usuń readonly + ustaw inputMode
+  input.removeAttribute('readonly');
+  input.inputMode = 'text';
+  
+  // KROK 3: Agresywne wymuszenie po 50ms
   setTimeout(() => {
-    input.removeAttribute('readonly');
     input.focus();
     input.click();
     
-    // Scroll do góry
-    window.scrollTo({top: 0, behavior: 'smooth'});
-    
-    // METODA 2 (fallback): ContentEditable trigger
+    // KROK 4: Fallback przez contenteditable (dla czytników BT)
     setTimeout(() => {
-      if (document.activeElement !== input && trigger) {
+      if (trigger && document.activeElement !== input) {
         trigger.focus();
-        setTimeout(() => input.focus(), 100);
+        trigger.click();
+        setTimeout(() => {
+          input.focus();
+          input.click();
+          
+          // KROK 5: Ostatnia próba - symuluj touch
+          setTimeout(() => {
+            const rect = input.getBoundingClientRect();
+            const touchEvent = new TouchEvent('touchstart', {
+              bubbles: true,
+              cancelable: true,
+              touches: [{
+                clientX: rect.left + rect.width / 2,
+                clientY: rect.top + rect.height / 2
+              }]
+            });
+            input.dispatchEvent(touchEvent);
+            input.focus();
+          }, 100);
+        }, 100);
       }
     }, 150);
-  }, 100);
+  }, 50);
 }
 
 // === KAMERA ===
