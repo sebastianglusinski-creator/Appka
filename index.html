@@ -572,7 +572,9 @@ async function syncAllBlocking(){
       q1:Number(p.Q1||p.q1)||1, q2:Number(p.Q2||p.q2)||0, q3:Number(p.Q3||p.q3)||0,
       qco1:String(p.QCO1||p.qco1||'szt.'), qco2:String(p.QCO2||p.qco2||''), qco3:String(p.QCO3||p.qco3||''),
       min: Number(p.MinimumZam||p.minimumZam||p.Q1||p.q1||1) || 1,
-      hashtag: String(p.Hashtag||p.hashtag||'')
+      hashtag: String(p.Hashtag||p.hashtag||''),
+      new: String(p.new||p.NEW||'').toUpperCase() === 'NEW' ? 'NEW' : '',
+      promo: String(p.promo||p.PROMO||'').toUpperCase() === 'PROMO' ? 'PROMO' : ''
     }));
     
     setSyncProgress(40);
@@ -603,6 +605,16 @@ async function syncAllBlocking(){
 
 function renderCurrentTab(){
   if(currentTab==='produkty'){ renderProducts(products); return; }
+  if(currentTab==='nowosci'){ 
+    const nowosci = products.filter(p => p.new === 'NEW');
+    renderProducts(nowosci); 
+    return; 
+  }
+  if(currentTab==='promo'){ 
+    const promo = products.filter(p => p.promo === 'PROMO');
+    renderProducts(promo); 
+    return; 
+  }
   if(currentTab==='pos'){ renderPOS(posItems); return; }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
   renderProducts(products);
