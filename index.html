@@ -396,7 +396,10 @@
         <div class="calc-sub">Ile sztuk?</div>
       </div>
       
-      <div class="display" id="fillDisp">0<sub>szt. dla każdej pozycji</sub></div>
+      <div class="display" id="fillDisp" style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:48px;font-weight:900;line-height:1">1</div>
+        <div style="font-size:14px;opacity:0.6;font-weight:600">szt. dla każdej pozycji</div>
+      </div>
       
       <div class="pad">
         <button onclick="fillKey(7)">7</button><button onclick="fillKey(8)">8</button><button onclick="fillKey(9)">9</button>
@@ -1367,7 +1370,11 @@ function fillBack(){
 }
 
 function updateFillDisplay(){
-  $('fillDisp').innerHTML = fillValue + '<sub>szt. dla każdej pozycji</sub>';
+  const disp = $('fillDisp');
+  disp.innerHTML = `
+    <div style="font-size:48px;font-weight:900;line-height:1">${fillValue}</div>
+    <div style="font-size:14px;opacity:0.6;font-weight:600">szt. dla każdej pozycji</div>
+  `;
 }
 
 function confirmFill(){
