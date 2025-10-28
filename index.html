@@ -1321,21 +1321,73 @@ function removeSetItem(idx){
   setWorking.items.splice(idx,1); renderSetPopup();
 }
 
-function fillEmptySetItems(){
+// === KALKULATOR WYPEŁNIANIA ZESTAWU ===
+let fillValue = 0;
+
+function openFillCalc(){
   if(!setWorking || !setWorking.items) return;
+  const emptyCount = setWorking.items.filter(it => Number(it.ilosc) === 0).length;
+  if(emptyCount === 0){
+    toast('ℹ️ Brak pustych pozycji');
+    return;
+  }
+  fillValue = 1;
+  updateFillDisplay();
+  show($('fillCalcOverlay'));
+}
+
+function closeFillCalc(){
+  hide($('fillCalcOverlay'));
+  fillValue = 0;
+}
+
+function fillKey(n){
+  const str = String(fillValue);
+  if(str === '0'){
+    fillValue = n;
+  } else if(str.length < 6){
+    fillValue = parseInt(str + n, 10);
+  }
+  updateFillDisplay();
+}
+
+function fillClear(){
+  fillValue = 0;
+  updateFillDisplay();
+}
+
+function fillBack(){
+  const str = String(fillValue);
+  if(str.length === 1){
+    fillValue = 0;
+  } else {
+    fillValue = parseInt(str.slice(0, -1), 10) || 0;
+  }
+  updateFillDisplay();
+}
+
+function updateFillDisplay(){
+  $('fillDisp').innerHTML = fillValue + '<sub>szt. dla każdej pozycji</sub>';
+}
+
+function confirmFill(){
+  if(!setWorking || !setWorking.items) return;
+  if(fillValue <= 0){
+    toast('⚠️ Wpisz ilość większą od 0');
+    return;
+  }
+  
   let changed = 0;
   setWorking.items.forEach(it => {
     if(Number(it.ilosc) === 0){
-      it.ilosc = 1;
+      it.ilosc = fillValue;
       changed++;
     }
   });
-  if(changed > 0){
-    renderSetPopup();
-    toast(`✅ Wypełniono ${changed} pozycji po 1 szt`);
-  } else {
-    toast('ℹ️ Brak pustych pozycji');
-  }
+  
+  closeFillCalc();
+  renderSetPopup();
+  toast(`✅ Wypełniono ${changed} pozycji po ${fillValue} szt`);
 }
 
 function confirmSet(){
