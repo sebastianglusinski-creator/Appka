@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.4.0 PWA</title>
+  <title>PDA DEDRA v2.2.2 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -243,7 +243,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.2.2 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.5.0 PWA - FIX Q2/Q3</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -451,7 +451,7 @@ document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false}
 
 let currentUser=null,currentEmail=null;
 let products=[],posItems=[],sets=[];
-const LS_PRODUCTS='DR_PRODUCTS_V2';
+const LS_PRODUCTS='DR_PRODUCTS_V3'; // ← ZMIENIONE Z V2 NA V3 - wymusza odświeżenie!
 const LS_CART='DR_CART_V2';
 const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
