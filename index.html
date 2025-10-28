@@ -380,10 +380,32 @@
         <div id="setComment" style="font-weight:900"></div>
         <div class="cart-actions">
           <button class="btn" style="background:#e5e7eb;border-radius:10px;font-weight:900" onclick="closeSet()">Anuluj</button>
-          <button class="btn" style="background:#10b981;color:#fff;border-radius:10px;font-weight:900" onclick="fillEmptySetItems()">✨ Wypełnij po 1 szt</button>
+          <button class="btn" style="background:#10b981;color:#fff;border-radius:10px;font-weight:900" onclick="openFillCalc()">✨ Wypełnij</button>
           <button class="btn orange" style="background:var(--orange);color:#fff;border-radius:10px;font-weight:900" onclick="confirmSet()">🟧 Zatwierdź</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- KALKULATOR WYPEŁNIANIA ZESTAWU -->
+  <div id="fillCalcOverlay" class="overlay" style="display:none">
+    <div class="calc-box">
+      <button class="calc-close" onclick="closeFillCalc()">✕</button>
+      <div class="calc-header">
+        <div class="calc-title">Wypełnij puste pozycje</div>
+        <div class="calc-sub">Ile sztuk?</div>
+      </div>
+      
+      <div class="display" id="fillDisp">0<sub>szt. dla każdej pozycji</sub></div>
+      
+      <div class="pad">
+        <button onclick="fillKey(7)">7</button><button onclick="fillKey(8)">8</button><button onclick="fillKey(9)">9</button>
+        <button onclick="fillKey(4)">4</button><button onclick="fillKey(5)">5</button><button onclick="fillKey(6)">6</button>
+        <button onclick="fillKey(1)">1</button><button onclick="fillKey(2)">2</button><button onclick="fillKey(3)">3</button>
+        <button class="danger" onclick="fillClear()">C</button><button onclick="fillKey(0)">0</button><button class="back" onclick="fillBack()">←</button>
+      </div>
+      
+      <button id="fillConfirm" class="calc-add enabled" onclick="confirmFill()">✅ Wypełnij teraz</button>
     </div>
   </div>
 
@@ -478,6 +500,7 @@ window.onload=function(){
   $('calcOverlay').addEventListener('click', (e)=>{ if (e.target === $('calcOverlay')) closeCalc(); });
   $('queueOverlay').addEventListener('click', (e)=>{ if (e.target === $('queueOverlay')) closeQueue(); });
   $('setOverlay').addEventListener('click', (e)=>{ if (e.target === $('setOverlay')) closeSet(); });
+  $('fillCalcOverlay').addEventListener('click', (e)=>{ if (e.target === $('fillCalcOverlay')) closeFillCalc(); });
   $('clearX').addEventListener('click', clearSearch);
 
   window.addEventListener('online', trySendQueue);
