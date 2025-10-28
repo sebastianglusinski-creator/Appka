@@ -948,13 +948,15 @@ async function sendOrder(){
   }
   
   try{
-    const result = await callAPI('wyslijZamowienie', {
-      userName: currentUser,
-      userEmail: currentEmail,
-      cart: JSON.stringify(cart),
-      sklep: sklep,
+    const orderData = {
+      user: currentUser,
+      email: currentEmail,
+      items: cart,
+      title: sklep,
       promo: promo
-    });
+    };
+    
+    const result = await callAPI('sendOrder', { orderData: JSON.stringify(orderData) });
     
     if(result && result.success){
       cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
@@ -1015,13 +1017,15 @@ async function sendQueueItem(idx){
   const q=queue[idx];
   
   try{
-    const result = await callAPI('wyslijZamowienie', {
-      userName: q.user,
-      userEmail: q.email,
-      cart: JSON.stringify(q.cart),
-      sklep: q.title,
-      promo: q.promo||''
-    });
+    const orderData = {
+      user: q.user,
+      email: q.email,
+      items: q.cart,
+      title: q.title,
+      promo: q.promo || ''
+    };
+    
+    const result = await callAPI('sendOrder', { orderData: JSON.stringify(orderData) });
     
     if(result && result.success){
       queue.splice(idx,1); saveQueue(); updateBadges(); renderQueue();
