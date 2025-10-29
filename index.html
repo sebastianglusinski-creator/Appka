@@ -102,7 +102,10 @@
     .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
     #cameraOverlay .modal-x{background:#374151}
 
-    .modal-box{width:100%;max-width:720px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative;max-height:85vh;overflow-y:auto}
+    .modal-box{width:100%;max-width:720px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+    .cart-table{display:block;overflow-y:auto;max-height:calc(85vh - 240px)}
+    .cart-table thead{display:table;width:100%;table-layout:fixed}
+    .cart-table tbody{display:table;width:100%;table-layout:fixed}
     .modal-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:none;border-radius:12px;background:#111827;color:#fff;font-size:20px;font-weight:900;cursor:pointer;z-index:1}
 
     #syncOverlay{position:fixed;inset:0;background:rgba(17,24,39,.88);color:#fff;display:none;z-index:400;align-items:center;justify-content:center;padding:24px;text-align:center}
@@ -243,7 +246,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v3.0.0 STABLE PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.2.2 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -443,7 +446,7 @@
 
 <script>
 // API URL do Google Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbw9rPNCgtoSzExMliJJ7RLB6E09dsU1U2oeKC64D5tDYTp3nRZVvarS18QrEwlUpfca8A/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw55_nmJxmAHzX2pAVepbiQqTVxFc7-XI2OYrFEylr-iBPSPEc3rw3ybZyhxqgAkabx/exec';
 
 document.addEventListener('contextmenu', e=>e.preventDefault(), {passive:false});
 document.addEventListener('touchstart', e=>{ if(e.touches.length>1) e.preventDefault(); }, {passive:false});
@@ -572,9 +575,7 @@ async function syncAllBlocking(){
       q1:Number(p.Q1||p.q1)||1, q2:Number(p.Q2||p.q2)||0, q3:Number(p.Q3||p.q3)||0,
       qco1:String(p.QCO1||p.qco1||'szt.'), qco2:String(p.QCO2||p.qco2||''), qco3:String(p.QCO3||p.qco3||''),
       min: Number(p.MinimumZam||p.minimumZam||p.Q1||p.q1||1) || 1,
-      hashtag: String(p.Hashtag||p.hashtag||''),
-      new: String(p.new||p.NEW||'').toUpperCase() === 'NEW' ? 'NEW' : '',
-      promo: String(p.promo||p.PROMO||'').toUpperCase() === 'PROMO' ? 'PROMO' : ''
+      hashtag: String(p.Hashtag||p.hashtag||'')
     }));
     
     setSyncProgress(40);
@@ -605,16 +606,6 @@ async function syncAllBlocking(){
 
 function renderCurrentTab(){
   if(currentTab==='produkty'){ renderProducts(products); return; }
-  if(currentTab==='nowosci'){ 
-    const nowosci = products.filter(p => p.new === 'NEW');
-    renderProducts(nowosci); 
-    return; 
-  }
-  if(currentTab==='promo'){ 
-    const promo = products.filter(p => p.promo === 'PROMO');
-    renderProducts(promo); 
-    return; 
-  }
   if(currentTab==='pos'){ renderPOS(posItems); return; }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
   renderProducts(products);
@@ -946,15 +937,13 @@ async function sendOrder(){
   }
   
   try{
-    const orderData = {
-      user: currentUser,
-      email: currentEmail,
-      items: cart,
-      title: sklep,
+    const result = await callAPI('wyslijZamowienie', {
+      userName: currentUser,
+      userEmail: currentEmail,
+      cart: JSON.stringify(cart),
+      sklep: sklep,
       promo: promo
-    };
-    
-    const result = await callAPI('sendOrder', { orderData: JSON.stringify(orderData) });
+    });
     
     if(result && result.success){
       cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
@@ -1015,15 +1004,13 @@ async function sendQueueItem(idx){
   const q=queue[idx];
   
   try{
-    const orderData = {
-      user: q.user,
-      email: q.email,
-      items: q.cart,
-      title: q.title,
-      promo: q.promo || ''
-    };
-    
-    const result = await callAPI('sendOrder', { orderData: JSON.stringify(orderData) });
+    const result = await callAPI('wyslijZamowienie', {
+      userName: q.user,
+      userEmail: q.email,
+      cart: JSON.stringify(q.cart),
+      sklep: q.title,
+      promo: q.promo||''
+    });
     
     if(result && result.success){
       queue.splice(idx,1); saveQueue(); updateBadges(); renderQueue();
