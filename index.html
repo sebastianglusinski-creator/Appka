@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v3.0.0 PWA</title>
+  <title>PDA DEDRA v2.2.2 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -446,7 +446,7 @@
 
 <script>
 // API URL do Google Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbyG8d5YTwGKwY2kFw8BZWKpLUrsIo37KrePelXGTuG9sRS7EaXxjkqkAigMlGAAapbKvw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw55_nmJxmAHzX2pAVepbiQqTVxFc7-XI2OYrFEylr-iBPSPEc3rw3ybZyhxqgAkabx/exec';
 
 document.addEventListener('contextmenu', e=>e.preventDefault(), {passive:false});
 document.addEventListener('touchstart', e=>{ if(e.touches.length>1) e.preventDefault(); }, {passive:false});
@@ -572,6 +572,8 @@ async function syncAllBlocking(){
     const prod = await callAPI('getProdukty');
     products = (prod||[]).map(p=>({
       symbol:p.symbol||'', ean:p.ean||'', nazwa:p.nazwa||'',
+      NEW: p.NEW || '',
+      PROMO: p.PROMO || '',
       q1:Number(p.Q1||p.q1)||1, q2:Number(p.Q2||p.q2)||0, q3:Number(p.Q3||p.q3)||0,
       qco1:String(p.QCO1||p.qco1||'szt.'), qco2:String(p.QCO2||p.qco2||''), qco3:String(p.QCO3||p.qco3||''),
       min: Number(p.MinimumZam||p.minimumZam||p.Q1||p.q1||1) || 1,
