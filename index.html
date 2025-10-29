@@ -606,6 +606,16 @@ async function syncAllBlocking(){
 
 function renderCurrentTab(){
   if(currentTab==='produkty'){ renderProducts(products); return; }
+  if(currentTab==='nowosci'){ 
+    const filtered = products.filter(p => p.NEW === 'NEW');
+    renderProducts(filtered); 
+    return; 
+  }
+  if(currentTab==='promo'){ 
+    const filtered = products.filter(p => p.PROMO === 'PROMO');
+    renderProducts(filtered); 
+    return; 
+  }
   if(currentTab==='pos'){ renderPOS(posItems); return; }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
   renderProducts(products);
