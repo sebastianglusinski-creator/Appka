@@ -510,8 +510,28 @@ const $=id=>document.getElementById(id);
 const show=el=>{el.style.display='flex';};
 const hide=el=>{el.style.display='none';};
 function toast(msg, ms=1500){ const w=$('toastWrap'), t=$('toast'); t.textContent=msg; w.style.display='block'; clearTimeout(w._t); w._t=setTimeout(()=>w.style.display='none',ms); }
-function alertBox(t,x){$('uiTitle').textContent=t;$('uiText').textContent=x;$('uiOverlay').style.display='flex';}
-function hideUi(){ $('uiOverlay').style.display='none'; }
+function alertBox(t,x){
+  $('uiTitle').textContent=t;
+  $('uiText').textContent=x;
+  // Reset przycisków do domyślnego "OK" v3.0.3
+  const act=$('uiActions');
+  act.innerHTML='';
+  const okBtn=document.createElement('button');
+  okBtn.className='btn';
+  okBtn.style.cssText='background:#e5e7eb;font-weight:900;border-radius:10px;padding:12px 24px';
+  okBtn.textContent='OK';
+  okBtn.onclick=hideUi;
+  act.append(okBtn);
+  $('uiOverlay').style.display='flex';
+}
+function hideUi(){ 
+  $('uiOverlay').style.display='none';
+  // Wyczyść zawartość po zamknięciu v3.0.3
+  setTimeout(() => {
+    $('uiText').textContent = '';
+    $('uiActions').innerHTML = '';
+  }, 300);
+}
 function stripDiacritics(s=''){return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replaceAll('ł','l').replaceAll('Ł','L');}
 function normalize(str){ return stripDiacritics(String(str||'')).toLowerCase().replace(/\s+/g,''); }
 const digitsOnly=s=>/^\d+$/.test(s);
