@@ -446,7 +446,7 @@
 
 <script>
 // API URL do Google Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbw55_nmJxmAHzX2pAVepbiQqTVxFc7-XI2OYrFEylr-iBPSPEc3rw3ybZyhxqgAkabx/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxGs9BRL0yDahMzTAsCRGnA8AUi38-ePiZKjOFZ0NX1SySs_qqvZwm5JUMa4YBWtMIxTQ/exec';
 
 document.addEventListener('contextmenu', e=>e.preventDefault(), {passive:false});
 document.addEventListener('touchstart', e=>{ if(e.touches.length>1) e.preventDefault(); }, {passive:false});
@@ -1458,18 +1458,6 @@ function activateTab(el){
   }, {passive:true});
 })();
 
-// Rejestracja Service Workera
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('✅ Service Worker zarejestrowany:', registration.scope);
-      })
-      .catch(error => {
-        console.log('❌ Błąd rejestracji SW:', error);
-      });
-  });
-}
 // TOGGLE TRYBU: Klawiatura ⌨️ ↔️ Czytnik |||||
 function toggleScannerMode() {
   const input = document.getElementById('searchInput');
