@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -460,6 +461,9 @@ const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
 let scannerMode = false; // Globalny tryb: false=klawiatura, true=czytnik
 
+// Indeks wyszukiwania dla maksymalnej szybkości
+let productIndex = new Map();
+
 const $=id=>document.getElementById(id);
 const show=el=>{el.style.display='flex';};
 const hide=el=>{el.style.display='none';};
@@ -473,6 +477,20 @@ function getMinForSymbol(sym){
   const p = products.find(x=>String(x.symbol)===String(sym));
   const min = Number(p?.MinimumZam || p?.q1 || 1) || 1;
   return Math.max(1, min);
+}
+
+// Budowanie indeksu wyszukiwania dla maksymalnej szybkości
+function rebuildIndex() {
+  productIndex.clear();
+  products.forEach(p => {
+    const searchText = normalize(
+      (p.symbol || '') + ' ' + 
+      (p.nazwa || '') + ' ' + 
+      (p.hashtag || '') + ' ' + 
+      ((p.ean || '').replace(/\s+/g, ''))
+    );
+    productIndex.set(p.symbol, searchText);
+  });
 }
 
 function debounce(fn, delay=300){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
@@ -593,6 +611,11 @@ async function syncAllBlocking(){
     sets = (zs||[]).map(s=>({ ...s }));
     
     localStorage.setItem(LS_PRODUCTS, JSON.stringify(products));
+    
+    setSyncProgress(85);
+    setSyncStep('Budowanie indeksu…');
+    rebuildIndex(); // Budowanie indeksu dla szybkiego wyszukiwania
+    
     setSyncProgress(100);
     setSyncStep('Gotowe!');
     renderCurrentTab();
@@ -741,18 +764,21 @@ function initSearch(){
   input.addEventListener('input', debounce(()=>{
     const raw = input.value.trim(); const q = normalize(raw);
     if (!q){ renderCurrentTab(); return; }
+    
     if (digitsOnly(q)){
-      if (q.length < 7){ renderCurrentTab(); return; }
-      const f = products.filter(p => (p.ean||'').replace(/\s+/g,'').includes(q));
-      renderProducts(f); return;
+      // Jeśli zaczyna się od 590262 (prefix EAN) → wymagaj 7+ cyfr
+      if (q.startsWith('590262')){
+        if (q.length < 7){ renderCurrentTab(); return; }
+        // Szukaj po EAN używając indeksu
+        const filtered = products.filter(p => productIndex.get(p.symbol).includes(q));
+        renderProducts(filtered); return;
+      }
     }
-    const filtered = products.filter(p=>{
-      const n = normalize(p.nazwa), s = normalize(p.symbol), e = (p.ean||'').replace(/\s+/g,'');
-      const tag = normalize(p.hashtag||'');
-      return n.includes(q) || s.includes(q) || e.includes(q) || tag.includes(q);
-    });
+    
+    // Wszystkie inne wyszukiwania (tekst lub cyfry nie-EAN) używają indeksu
+    const filtered = products.filter(p => productIndex.get(p.symbol).includes(q));
     renderProducts(filtered);
-  },300));
+  },200));
   
   // OBSŁUGA WKLEJANIA (Ctrl+V) - wykrywa kod EAN
   input.addEventListener('paste', (e) => {
@@ -1458,6 +1484,18 @@ function activateTab(el){
   }, {passive:true});
 })();
 
+// Rejestracja Service Workera
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('✅ Service Worker zarejestrowany:', registration.scope);
+      })
+      .catch(error => {
+        console.log('❌ Błąd rejestracji SW:', error);
+      });
+  });
+}
 // TOGGLE TRYBU: Klawiatura ⌨️ ↔️ Czytnik |||||
 function toggleScannerMode() {
   const input = document.getElementById('searchInput');
