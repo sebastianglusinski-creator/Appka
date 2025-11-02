@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.2.2 PWA</title>
+  <title>PDA DEDRA v3.0.1 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -460,6 +460,45 @@ const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
 let scannerMode = false; // Globalny tryb: false=klawiatura, true=czytnik
 
+// === SYSTEM KOLORÓW v3.0.1 ===
+const COLOR_MAP = {
+  // Polski
+  'czerwony': '#EF4444', 'niebieski': '#3B82F6', 'zielony': '#10B981',
+  'żółty': '#F59E0B', 'zolty': '#F59E0B', 'pomarańczowy': '#F97316',
+  'pomaranczowy': '#F97316', 'fioletowy': '#A855F7', 'różowy': '#EC4899',
+  'rozowy': '#EC4899', 'brązowy': '#92400E', 'brazowy': '#92400E',
+  'szary': '#6B7280', 'czarny': '#111827',
+  // Angielski
+  'red': '#EF4444', 'blue': '#3B82F6', 'green': '#10B981',
+  'yellow': '#F59E0B', 'orange': '#F97316', 'purple': '#A855F7',
+  'pink': '#EC4899', 'brown': '#92400E', 'gray': '#6B7280',
+  'grey': '#6B7280', 'black': '#111827'
+};
+
+function parseColor(colorInput) {
+  if (!colorInput || typeof colorInput !== 'string') return null;
+  const c = colorInput.trim().toLowerCase();
+  // Sprawdź słownik PL/EN
+  if (COLOR_MAP[c]) return COLOR_MAP[c];
+  // Sprawdź HEX (#ff0000 lub ff0000)
+  if (/^#?[0-9A-Fa-f]{6}$/.test(c)) {
+    return c.startsWith('#') ? c.toUpperCase() : '#' + c.toUpperCase();
+  }
+  // Sprawdź RGB rgb(255,0,0)
+  const rgbMatch = c.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+  if (rgbMatch) {
+    const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0');
+    const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0');
+    const b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+    return '#' + r + g + b;
+  }
+  // Nierozpoznany format
+  console.warn('Nierozpoznany kolor:', colorInput);
+  return null;
+}
+// === KONIEC SYSTEMU KOLORÓW ===
+
+
 // Indeks wyszukiwania
 let productIndex = new Map();
 
@@ -594,7 +633,8 @@ async function syncAllBlocking(){
       q1:Number(p.Q1||p.q1)||1, q2:Number(p.Q2||p.q2)||0, q3:Number(p.Q3||p.q3)||0,
       qco1:String(p.QCO1||p.qco1||'szt.'), qco2:String(p.QCO2||p.qco2||''), qco3:String(p.QCO3||p.qco3||''),
       min: Number(p.MinimumZam||p.minimumZam||p.Q1||p.q1||1) || 1,
-      hashtag: String(p.Hashtag||p.hashtag||'')
+      hashtag: String(p.Hashtag||p.hashtag||''),
+      kolor: String(p.kolor || p.Kolor || '') // NOWA KOLUMNA KOLOR v3.0.1
     }));
     
     setSyncProgress(40);
@@ -652,8 +692,13 @@ function renderProducts(data){
     const row=document.createElement('div'); row.className='product';
     const left=document.createElement('div'); left.className='product-left';
     const info=document.createElement('div'); info.className='product-info';
+    
+    // SYSTEM KOLORÓW v3.0.1 - zastosuj kolor do nazwy
+    const colorHex = parseColor(p.kolor);
+    const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
+    
     info.innerHTML = `
-      <div class="name">${p.nazwa||'—'}</div>
+      <div class="name" ${nameStyle}>${p.nazwa||'—'}</div>
       <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>`;
     left.append(info);
     const actions=document.createElement('div'); actions.className='actions';
@@ -698,8 +743,13 @@ function renderSets(data){
     const row=document.createElement('div'); row.className='product';
     const left=document.createElement('div'); left.className='product-left';
     const info=document.createElement('div'); info.className='product-info';
+    
+    // SYSTEM KOLORÓW v3.0.1 - zastosuj kolor do nazwy zestawu
+    const colorHex = parseColor(s.kolor);
+    const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
+    
     info.innerHTML = `
-      <div class="name">${s.nazwa||'—'}</div>
+      <div class="name" ${nameStyle}>${s.nazwa||'—'}</div>
       <div class="codes"><div>${s.symbol||''}</div></div>`;
     left.append(info);
     const actions=document.createElement('div'); actions.className='actions';
