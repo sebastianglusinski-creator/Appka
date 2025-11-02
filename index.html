@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v3.1.0 PWA</title>
+  <title>PDA DEDRA v3.1.1 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -485,7 +485,10 @@ function checkVersion() {
   const savedVersion = localStorage.getItem(LS_VERSION);
   if (savedVersion !== APP_VERSION) {
     console.log('Nowa wersja aplikacji: ' + APP_VERSION + ' (poprzednia: ' + savedVersion + ')');
-    localStorage.clear(); // Czyści cache
+    // Usuń TYLKO dane produktów, zachowaj logowanie
+    localStorage.removeItem(LS_PRODUCTS);
+    localStorage.removeItem(LS_CART);
+    localStorage.removeItem(LS_QUEUE);
     localStorage.setItem(LS_VERSION, APP_VERSION);
     toast('Zaktualizowano do wersji ' + APP_VERSION);
   }
