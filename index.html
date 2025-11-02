@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v3.0.2 PWA</title>
+  <title>PDA DEDRA v3.0.3 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -1049,6 +1049,12 @@ async function sendOrder(){
   const sklep = $('orderTitle').value.trim();
   const promo = $('orderPromo').value.trim();
   
+  // WALIDACJA: Sprawdź pole sklep v3.0.3
+  if (!sklep || sklep === '') {
+    alertBox('Brak nazwy sklepu', 'Wpisz nazwę sklepu/odbiorcę przed wysłaniem zamówienia.');
+    return;
+  }
+  
   // MODAL POTWIERDZENIA v3.0.2
   const confirmed = await confirmSendOrder();
   if (!confirmed) return;
@@ -1103,10 +1109,21 @@ async function sendOrder(){
       $('orderTitle').value=''; $('orderPromo').value='';
       toast('✅ Zamówienie wysłane');
     } else {
+      // Rozróżnij błędy walidacji od błędów serwera v3.0.3
+      const errorMsg = result && result.message ? result.message : 'Serwer nie potwierdził wysyłki';
+      
+      // Jeśli to błąd walidacji (np. brak sklepu) - NIE dodawaj do bufora
+      if (errorMsg.includes('sklep') || errorMsg.includes('odbiorcę')) {
+        resetButton();
+        alertBox('Błąd walidacji', errorMsg);
+        return; // Nie czyść koszyka, pozwól poprawić
+      }
+      
+      // Inne błędy - dodaj do bufora
       queue.push({ user:currentUser, email:currentEmail, cart:[...cart], title:sklep, promo:promo, ts:Date.now() }); 
       saveQueue(); updateBadges();
       resetButton();
-      alertBox('Dodano do buforu','Serwer nie potwierdził wysyłki.');
+      alertBox('Dodano do buforu', errorMsg);
       cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
       $('orderTitle').value=''; $('orderPromo').value='';
     }
@@ -1161,24 +1178,44 @@ function renderQueue(){
   queue.forEach((q,idx)=>{
     const wrap=document.createElement('div');
     wrap.style.cssText='border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin:10px 0;background:#fff';
+    
     const head=document.createElement('div');
     head.style.cssText='font-weight:900;margin-bottom:6px';
-    head.textContent = `${new Date(q.ts).toLocaleString()} — ${q.title||'(bez komentarza)'} (${q.cart.length} poz.)`;
+    head.textContent = `${new Date(q.ts).toLocaleString()} — ${q.title||'(bez nazwy sklepu)'} (${q.cart.length} poz.)`;
+    
+    // Komentarz (jeśli jest) v3.0.3
+    const commentDiv=document.createElement('div');
+    commentDiv.style.cssText='font-size:12px;color:#6b7280;margin-bottom:6px;font-style:italic';
+    commentDiv.textContent = q.promo ? `Komentarz: ${q.promo}` : 'Brak komentarza';
+    
     const list=document.createElement('div');
     list.style.cssText='font-size:13px;color:#374151;white-space:pre-line';
     list.textContent = q.cart.map((it,i)=>`${i+1}. ${it.symbol} — ${it.nazwa} — ${it.ilosc} szt.`).join('\n') || '—';
+    
     const actions=document.createElement('div');
-    actions.style.cssText='display:flex;gap:8px;justify-content:flex-end;margin-top:8px';
+    actions.style.cssText='display:flex;gap:8px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap';
+    
+    // Przycisk EDYTUJ v3.0.3
+    const editBtn=document.createElement('button');
+    editBtn.className='btn'; 
+    editBtn.style.cssText='background:#f59e0b;color:#fff;border-radius:10px;font-weight:900;font-size:14px;padding:8px 16px';
+    editBtn.textContent='✏️ Edytuj';
+    editBtn.onclick=()=>editQueueItem(idx);
+    
     const sendBtn=document.createElement('button');
-    sendBtn.className='btn'; sendBtn.style.cssText='background:#2563eb;color:#fff;border-radius:10px;font-weight:900';
+    sendBtn.className='btn'; 
+    sendBtn.style.cssText='background:#2563eb;color:#fff;border-radius:10px;font-weight:900;font-size:14px;padding:8px 16px';
     sendBtn.textContent='Wyślij teraz';
     sendBtn.onclick=()=>sendQueueItem(idx);
+    
     const delBtn=document.createElement('button');
-    delBtn.className='btn'; delBtn.style.cssText='background:#ef4444;color:#fff;border-radius:10px;font-weight:900';
+    delBtn.className='btn'; 
+    delBtn.style.cssText='background:#ef4444;color:#fff;border-radius:10px;font-weight:900;font-size:14px;padding:8px 16px';
     delBtn.textContent='Usuń';
     delBtn.onclick=()=>removeQueueItem(idx);
-    actions.append(sendBtn,delBtn);
-    wrap.append(head,list,actions);
+    
+    actions.append(editBtn,sendBtn,delBtn);
+    wrap.append(head,commentDiv,list,actions);
     body.append(wrap);
   });
 }
@@ -1222,6 +1259,74 @@ function removeQueueItem(idx){
   const c=document.createElement('button'); c.className='btn'; c.style.cssText='background:#e5e7eb;border-radius:10px;font-weight:900'; c.textContent='Anuluj'; c.onclick=hideUi;
   const y=document.createElement('button'); y.className='btn'; y.style.cssText='background:#ef4444;color:#fff;border-radius:10px;font-weight:900'; y.textContent='Usuń'; y.onclick=()=>{ hideUi(); queue.splice(idx,1); saveQueue(); updateBadges(); renderQueue(); toast('Usunięto'); };
   act.append(c,y); $('uiOverlay').style.display='flex';
+}
+
+// Edycja zamówienia w buforze v3.0.3
+function editQueueItem(idx){
+  if(!queue[idx]) return;
+  const q = queue[idx];
+  
+  $('uiTitle').textContent='Edytuj zamówienie';
+  
+  // Formularz edycji
+  const form = document.createElement('div');
+  form.style.cssText='display:flex;flex-direction:column;gap:12px;margin:16px 0';
+  
+  // Input nazwa sklepu
+  const sklepLabel = document.createElement('div');
+  sklepLabel.textContent = 'Nazwa sklepu/odbiorca:';
+  sklepLabel.style.cssText = 'font-weight:700;font-size:14px';
+  
+  const sklepInput = document.createElement('input');
+  sklepInput.type = 'text';
+  sklepInput.value = q.title || '';
+  sklepInput.placeholder = 'Wpisz nazwę sklepu...';
+  sklepInput.style.cssText = 'padding:12px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;outline:none';
+  sklepInput.onfocus = () => { sklepInput.style.borderColor = '#2563eb'; };
+  sklepInput.onblur = () => { sklepInput.style.borderColor = '#e5e7eb'; };
+  
+  // Input komentarz
+  const promoLabel = document.createElement('div');
+  promoLabel.textContent = 'Komentarz (opcjonalny):';
+  promoLabel.style.cssText = 'font-weight:700;font-size:14px';
+  
+  const promoInput = document.createElement('textarea');
+  promoInput.value = q.promo || '';
+  promoInput.placeholder = 'Dodaj komentarz...';
+  promoInput.rows = 3;
+  promoInput.style.cssText = 'padding:12px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;outline:none;resize:vertical';
+  promoInput.onfocus = () => { promoInput.style.borderColor = '#2563eb'; };
+  promoInput.onblur = () => { promoInput.style.borderColor = '#e5e7eb'; };
+  
+  form.append(sklepLabel, sklepInput, promoLabel, promoInput);
+  $('uiText').innerHTML = '';
+  $('uiText').append(form);
+  
+  // Przyciski
+  const act = $('uiActions');
+  act.innerHTML = '';
+  
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn';
+  cancelBtn.style.cssText = 'background:#e5e7eb;border-radius:10px;font-weight:900;padding:12px 20px';
+  cancelBtn.textContent = 'Anuluj';
+  cancelBtn.onclick = hideUi;
+  
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn';
+  saveBtn.style.cssText = 'background:#10b981;color:#fff;border-radius:10px;font-weight:900;padding:12px 20px';
+  saveBtn.textContent = 'Zapisz';
+  saveBtn.onclick = () => {
+    queue[idx].title = sklepInput.value.trim();
+    queue[idx].promo = promoInput.value.trim();
+    saveQueue();
+    renderQueue();
+    hideUi();
+    toast('✅ Zapisano zmiany');
+  };
+  
+  act.append(cancelBtn, saveBtn);
+  $('uiOverlay').style.display = 'flex';
 }
 
 let calcProduct=null, calcVal=0, calcMin=1;
