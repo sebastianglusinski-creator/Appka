@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.2.2 PWA</title>
+  <title>PDA DEDRA v3.1.0 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -455,9 +454,11 @@ document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false}
 
 let currentUser=null,currentEmail=null;
 let products=[],posItems=[],sets=[];
-const LS_PRODUCTS='DR_PRODUCTS_V2';
+const APP_VERSION = '3.1.0'; // Wersja aplikacji - zmień żeby wymusić przeładowanie
+const LS_PRODUCTS='DR_PRODUCTS_V3'; // Zmieniona nazwa dla nowej wersji
 const LS_CART='DR_CART_V2';
 const LS_QUEUE='DR_QUEUE_V1';
+const LS_VERSION='DR_VERSION';
 let cart=[],queue=[],currentTab='produkty';
 let scannerMode = false; // Globalny tryb: false=klawiatura, true=czytnik
 
@@ -477,6 +478,17 @@ function getMinForSymbol(sym){
   const p = products.find(x=>String(x.symbol)===String(sym));
   const min = Number(p?.MinimumZam || p?.q1 || 1) || 1;
   return Math.max(1, min);
+}
+
+// Sprawdzenie wersji - wymusza przeładowanie gdy wersja się zmieni
+function checkVersion() {
+  const savedVersion = localStorage.getItem(LS_VERSION);
+  if (savedVersion !== APP_VERSION) {
+    console.log('Nowa wersja aplikacji: ' + APP_VERSION + ' (poprzednia: ' + savedVersion + ')');
+    localStorage.clear(); // Czyści cache
+    localStorage.setItem(LS_VERSION, APP_VERSION);
+    toast('Zaktualizowano do wersji ' + APP_VERSION);
+  }
 }
 
 // Budowanie indeksu wyszukiwania dla maksymalnej szybkości
@@ -614,7 +626,7 @@ async function syncAllBlocking(){
     
     setSyncProgress(85);
     setSyncStep('Budowanie indeksu…');
-    rebuildIndex(); // Budowanie indeksu dla szybkiego wyszukiwania
+    rebuildIndex();
     
     setSyncProgress(100);
     setSyncStep('Gotowe!');
@@ -769,15 +781,37 @@ function initSearch(){
       // Jeśli zaczyna się od 590262 (prefix EAN) → wymagaj 7+ cyfr
       if (q.startsWith('590262')){
         if (q.length < 7){ renderCurrentTab(); return; }
-        // Szukaj po EAN używając indeksu
-        const filtered = products.filter(p => productIndex.get(p.symbol).includes(q));
-        renderProducts(filtered); return;
       }
     }
     
-    // Wszystkie inne wyszukiwania (tekst lub cyfry nie-EAN) używają indeksu
-    const filtered = products.filter(p => productIndex.get(p.symbol).includes(q));
-    renderProducts(filtered);
+    // Wyszukiwanie z indeksem i priorytetem: Symbol > Nazwa > Hashtag > EAN
+    const results = [];
+    
+    products.forEach(p => {
+      const searchText = productIndex.get(p.symbol);
+      if (!searchText || !searchText.includes(q)) return;
+      
+      // Oblicz priorytet (niższy = ważniejszy)
+      let priority = 99;
+      const symbolNorm = normalize(p.symbol);
+      const nazwaNorm = normalize(p.nazwa);
+      const hashtagNorm = normalize(p.hashtag || '');
+      const eanNorm = (p.ean || '').replace(/\s+/g,'');
+      
+      if (symbolNorm === q) priority = 0; // Dokładne dopasowanie symbolu
+      else if (symbolNorm.includes(q)) priority = 1; // Symbol zawiera
+      else if (nazwaNorm.includes(q)) priority = 2; // Nazwa zawiera
+      else if (hashtagNorm.includes(q)) priority = 3; // Hashtag zawiera
+      else if (eanNorm.includes(q)) priority = 4; // EAN zawiera
+      
+      results.push({ product: p, priority: priority });
+    });
+    
+    // Sortuj według priorytetu
+    results.sort((a, b) => a.priority - b.priority);
+    
+    // Renderuj tylko produkty (bez priorytetu)
+    renderProducts(results.map(r => r.product));
   },200));
   
   // OBSŁUGA WKLEJANIA (Ctrl+V) - wykrywa kod EAN
@@ -1639,8 +1673,10 @@ closeCalc = function() {
   if (overlay && overlay.style.display === 'flex') {
     overlay.style.visibility = 'visible';
     cameraActive = true;
-  }
-};
+  }\n};
+
+// Sprawdzenie wersji przy starcie aplikacji
+checkVersion();
 
 </script>
 <!-- Ukryty trigger do wymuszania klawiatury -->
