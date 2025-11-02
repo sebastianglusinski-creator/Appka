@@ -1,8 +1,8 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.7.0 PWA</title>
+  <title>PDA DEDRA v2.2.2 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -1458,18 +1458,6 @@ function activateTab(el){
   }, {passive:true});
 })();
 
-// Rejestracja Service Workera
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('✅ Service Worker zarejestrowany:', registration.scope);
-      })
-      .catch(error => {
-        console.log('❌ Błąd rejestracji SW:', error);
-      });
-  });
-}
 // TOGGLE TRYBU: Klawiatura ⌨️ ↔️ Czytnik |||||
 function toggleScannerMode() {
   const input = document.getElementById('searchInput');
