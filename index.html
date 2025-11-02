@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v2.9.9 PWA</title>
+  <title>PDA DEDRA v2.2.2 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -460,6 +460,9 @@ const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
 let scannerMode = false; // Globalny tryb: false=klawiatura, true=czytnik
 
+// Indeks wyszukiwania
+let productIndex = new Map();
+
 const $=id=>document.getElementById(id);
 const show=el=>{el.style.display='flex';};
 const hide=el=>{el.style.display='none';};
@@ -473,6 +476,20 @@ function getMinForSymbol(sym){
   const p = products.find(x=>String(x.symbol)===String(sym));
   const min = Number(p?.MinimumZam || p?.q1 || 1) || 1;
   return Math.max(1, min);
+}
+
+// Budowanie indeksu wyszukiwania
+function rebuildIndex() {
+  productIndex.clear();
+  products.forEach(p => {
+    const searchText = normalize(
+      (p.symbol || '') + ' ' + 
+      (p.nazwa || '') + ' ' + 
+      (p.hashtag || '') + ' ' + 
+      ((p.ean || '').replace(/\s+/g, ''))
+    );
+    productIndex.set(p.symbol, searchText);
+  });
 }
 
 function debounce(fn, delay=300){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
@@ -593,6 +610,11 @@ async function syncAllBlocking(){
     sets = (zs||[]).map(s=>({ ...s }));
     
     localStorage.setItem(LS_PRODUCTS, JSON.stringify(products));
+    
+    setSyncProgress(85);
+    setSyncStep('Budowanie indeksu…');
+    rebuildIndex();
+    
     setSyncProgress(100);
     setSyncStep('Gotowe!');
     renderCurrentTab();
@@ -741,18 +763,44 @@ function initSearch(){
   input.addEventListener('input', debounce(()=>{
     const raw = input.value.trim(); const q = normalize(raw);
     if (!q){ renderCurrentTab(); return; }
+    
     if (digitsOnly(q)){
-      if (q.length < 7){ renderCurrentTab(); return; }
-      const f = products.filter(p => (p.ean||'').replace(/\s+/g,'').includes(q));
-      renderProducts(f); return;
+      // Jeśli zaczyna się od 590262 (EAN) → czekaj na 7+ cyfr
+      if (q.startsWith('590262')){
+        if (q.length < 7){ renderCurrentTab(); return; }
+      }
+      // Inne cyfry (np. 1201) → szukaj od razu
     }
-    const filtered = products.filter(p=>{
-      const n = normalize(p.nazwa), s = normalize(p.symbol), e = (p.ean||'').replace(/\s+/g,'');
-      const tag = normalize(p.hashtag||'');
-      return n.includes(q) || s.includes(q) || e.includes(q) || tag.includes(q);
+    
+    // Wyszukiwanie z indeksem i priorytetem: Symbol > Nazwa > Hashtag > EAN
+    const results = [];
+    
+    products.forEach(p => {
+      const searchText = productIndex.get(p.symbol);
+      if (!searchText || !searchText.includes(q)) return;
+      
+      // Oblicz priorytet (niższy = ważniejszy)
+      let priority = 99;
+      const symbolNorm = normalize(p.symbol);
+      const nazwaNorm = normalize(p.nazwa);
+      const hashtagNorm = normalize(p.hashtag || '');
+      const eanNorm = (p.ean || '').replace(/\s+/g,'');
+      
+      if (symbolNorm === q) priority = 0; // Dokładne dopasowanie symbolu
+      else if (symbolNorm.includes(q)) priority = 1; // Symbol zawiera
+      else if (nazwaNorm.includes(q)) priority = 2; // Nazwa zawiera
+      else if (hashtagNorm.includes(q)) priority = 3; // Hashtag zawiera
+      else if (eanNorm.includes(q)) priority = 4; // EAN zawiera
+      
+      results.push({ product: p, priority: priority });
     });
-    renderProducts(filtered);
-  },300));
+    
+    // Sortuj według priorytetu
+    results.sort((a, b) => a.priority - b.priority);
+    
+    // Renderuj tylko produkty
+    renderProducts(results.map(r => r.product));
+  },200));
   
   // OBSŁUGA WKLEJANIA (Ctrl+V) - wykrywa kod EAN
   input.addEventListener('paste', (e) => {
