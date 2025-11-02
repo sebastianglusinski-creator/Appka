@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v3.0.3 PWA</title>
+  <title>PDA DEDRA v3.0.4 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -88,6 +88,11 @@
     .product-info{flex:1;min-width:0}
     .name{font-weight:900;font-size:18px;word-wrap:break-word}
     .codes{font-size:13px;color:var(--muted);margin-top:6px}
+    
+    .badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+    .badge-new{background:linear-gradient(135deg,#3B82F6,#60A5FA)}
+    .badge-promo{background:linear-gradient(135deg,#EF4444,#F87171)}
     .actions{display:flex;align-items:center;gap:12px;margin-left:8px}
     .add-btn{min-width:60px;height:60px;border:none;border-radius:14px;cursor:pointer;font-size:26px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;background:var(--success);box-shadow:0 2px 6px rgba(0,0,0,.15);transition:transform .08s}
     .add-btn:active{transform:scale(.97)}
@@ -722,9 +727,19 @@ function renderProducts(data){
     const colorHex = parseColor(p.kolor);
     const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
     
+    // BADGES v3.0.4 - generuj HTML dla badges
+    let badgesHTML = '';
+    if (p.NEW === 'NEW' || p.PROMO === 'PROMO') {
+      badgesHTML = '<div class="badges">';
+      if (p.NEW === 'NEW') badgesHTML += '<span class="badge badge-new">🌟 NOWOŚĆ</span>';
+      if (p.PROMO === 'PROMO') badgesHTML += '<span class="badge badge-promo">🔥 PROMOCJA</span>';
+      badgesHTML += '</div>';
+    }
+    
     info.innerHTML = `
       <div class="name" ${nameStyle}>${p.nazwa||'—'}</div>
-      <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>`;
+      <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>
+      ${badgesHTML}`;
     left.append(info);
     const actions=document.createElement('div'); actions.className='actions';
     const qtyIn=getQtyInCart(p.symbol);
