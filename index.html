@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v3.0.1 PWA</title>
+  <title>PDA DEDRA v3.0.2 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -35,6 +35,8 @@
       -webkit-user-select:none;user-select:none;touch-action:manipulation;
     }
     input,select,textarea{font-size:18px!important}
+    
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
     #loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:24px;color:#fff}
     .card{width:100%;max-width:600px;background:#fff;color:#111;border-radius:22px;padding:28px 26px;box-shadow:0 12px 36px rgba(0,0,0,.18)}
@@ -106,7 +108,9 @@
     .cart-table{display:block;overflow-y:auto;max-height:calc(85vh - 240px)}
     .cart-table thead{display:table;width:100%;table-layout:fixed}
     .cart-table tbody{display:table;width:100%;table-layout:fixed}
-    .modal-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:none;border-radius:12px;background:#111827;color:#fff;font-size:20px;font-weight:900;cursor:pointer;z-index:1}
+    .modal-x{position:absolute;top:12px;right:12px;width:56px;height:56px;border:none;border-radius:14px;background:#111827;color:#fff;font-size:24px;font-weight:900;cursor:pointer;z-index:1;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .2s}
+    .modal-x:active{transform:scale(.95)}
+    .modal-x:hover{background:#1f2937}
 
     #syncOverlay{position:fixed;inset:0;background:rgba(17,24,39,.88);color:#fff;display:none;z-index:400;align-items:center;justify-content:center;padding:24px;text-align:center}
     #syncBox{max-width:520px;background:#111827;border:1px solid #334155;border-radius:14px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
@@ -563,6 +567,7 @@ window.onload=function(){
   $('queueOverlay').addEventListener('click', (e)=>{ if (e.target === $('queueOverlay')) closeQueue(); });
   $('setOverlay').addEventListener('click', (e)=>{ if (e.target === $('setOverlay')) closeSet(); });
   $('fillCalcOverlay').addEventListener('click', (e)=>{ if (e.target === $('fillCalcOverlay')) closeFillCalc(); });
+  $('cameraOverlay').addEventListener('click', (e)=>{ if (e.target === $('cameraOverlay')) closeCamera(); }); // v3.0.2 Fix
   $('clearX').addEventListener('click', clearSearch);
 
   window.addEventListener('online', trySendQueue);
@@ -718,7 +723,12 @@ function renderPOS(data){
     const row=document.createElement('div'); row.className='product';
     const left=document.createElement('div'); left.className='product-left';
     if(p.zdjecie){
-      const thumb=document.createElement('img'); thumb.className='product-thumb'; thumb.src=p.zdjecie; thumb.alt=p.nazwa;
+      const thumb=document.createElement('img'); 
+      thumb.className='product-thumb'; 
+      thumb.src=p.zdjecie; 
+      thumb.alt=p.nazwa;
+      thumb.loading='lazy'; // Cache + lazy loading v3.0.2
+      thumb.decoding='async'; // Asynchroniczne dekodowanie
       left.append(thumb);
     }
     const info=document.createElement('div'); info.className='product-info';
@@ -1039,10 +1049,31 @@ async function sendOrder(){
   const sklep = $('orderTitle').value.trim();
   const promo = $('orderPromo').value.trim();
   
+  // MODAL POTWIERDZENIA v3.0.2
+  const confirmed = await confirmSendOrder();
+  if (!confirmed) return;
+  
+  // SPINNER + blokada przycisku
+  const sendBtn = document.querySelector('#cartOverlay button[onclick*="sendOrder"]');
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = '0.6';
+    sendBtn.style.cursor = 'not-allowed';
+    sendBtn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">⏳</span> Wysyłanie...';
+  }
+  
   if (!navigator.onLine){
     queue.push({ user:currentUser, email:currentEmail, cart:[...cart], title:sklep, promo:promo, ts:Date.now() });
     saveQueue(); updateBadges();
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.style.opacity = '1';
+      sendBtn.style.cursor = 'pointer';
+      sendBtn.textContent = 'Wyślij zamówienie';
+    }
     alertBox('Brak internetu','Zamówienie dodano do buforu. Zostanie wysłane, gdy wróci internet.');
+    cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
+    $('orderTitle').value=''; $('orderPromo').value='';
     return;
   }
   
@@ -1058,17 +1089,66 @@ async function sendOrder(){
     if(result && result.success){
       cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
       $('orderTitle').value=''; $('orderPromo').value='';
-      toast('Zamówienie wysłane');
+      toast('✅ Zamówienie wysłane');
     } else {
       queue.push({ user:currentUser, email:currentEmail, cart:[...cart], title:sklep, promo:promo, ts:Date.now() }); 
       saveQueue(); updateBadges();
+      if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '1';
+        sendBtn.style.cursor = 'pointer';
+        sendBtn.textContent = 'Wyślij zamówienie';
+      }
       alertBox('Dodano do buforu','Serwer nie potwierdził wysyłki.');
+      cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
+      $('orderTitle').value=''; $('orderPromo').value='';
     }
   } catch(e) {
     queue.push({ user:currentUser, email:currentEmail, cart:[...cart], title:sklep, promo:promo, ts:Date.now() }); 
     saveQueue(); updateBadges();
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.style.opacity = '1';
+      sendBtn.style.cursor = 'pointer';
+      sendBtn.textContent = 'Wyślij zamówienie';
+    }
     alertBox('Błąd wysyłki','Dodano do buforu. Spróbujemy później.');
+    cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
+    $('orderTitle').value=''; $('orderPromo').value='';
   }
+}
+
+// Modal potwierdzenia wysyłki v3.0.2
+function confirmSendOrder() {
+  return new Promise((resolve) => {
+    $('uiTitle').textContent = 'Wysłać zamówienie?';
+    const cartCount = cart.reduce((sum, item) => sum + (item.ilosc || 0), 0);
+    $('uiText').textContent = `Zamówienie zawiera ${cart.length} pozycji (${cartCount} szt.)`;
+    
+    const act = $('uiActions');
+    act.innerHTML = '';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn';
+    cancelBtn.style.cssText = 'background:#e5e7eb;border-radius:10px;font-weight:900;padding:14px 24px;font-size:16px';
+    cancelBtn.textContent = 'Anuluj';
+    cancelBtn.onclick = () => {
+      hideUi();
+      resolve(false);
+    };
+    
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'btn';
+    confirmBtn.style.cssText = 'background:#10b981;color:#fff;border-radius:10px;font-weight:900;padding:14px 24px;font-size:16px';
+    confirmBtn.textContent = 'Wyślij';
+    confirmBtn.onclick = () => {
+      hideUi();
+      resolve(true);
+    };
+    
+    act.append(cancelBtn, confirmBtn);
+    $('uiOverlay').style.display = 'flex';
+  });
 }
 
 function openQueue(){ renderQueue(); show($('queueOverlay')); }
