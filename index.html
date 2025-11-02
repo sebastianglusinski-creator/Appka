@@ -1053,24 +1053,35 @@ async function sendOrder(){
   const confirmed = await confirmSendOrder();
   if (!confirmed) return;
   
-  // SPINNER + blokada przycisku
-  const sendBtn = document.querySelector('#cartOverlay button[onclick*="sendOrder"]');
-  if (sendBtn) {
-    sendBtn.disabled = true;
-    sendBtn.style.opacity = '0.6';
-    sendBtn.style.cursor = 'not-allowed';
-    sendBtn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">⏳</span> Wysyłanie...';
+  // SPINNER + blokada przycisku - FIX v3.0.2
+  const sendBtn = document.querySelector('.btn-send');
+  const originalHTML = sendBtn ? sendBtn.innerHTML : '';
+  const originalDisabled = sendBtn ? sendBtn.disabled : false;
+  
+  function startSending() {
+    if (sendBtn) {
+      sendBtn.disabled = true;
+      sendBtn.style.opacity = '0.6';
+      sendBtn.style.cursor = 'not-allowed';
+      sendBtn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">⏳</span> Wysyłanie...';
+    }
   }
+  
+  function resetButton() {
+    if (sendBtn) {
+      sendBtn.disabled = originalDisabled;
+      sendBtn.style.opacity = '1';
+      sendBtn.style.cursor = 'pointer';
+      sendBtn.innerHTML = originalHTML;
+    }
+  }
+  
+  startSending();
   
   if (!navigator.onLine){
     queue.push({ user:currentUser, email:currentEmail, cart:[...cart], title:sklep, promo:promo, ts:Date.now() });
     saveQueue(); updateBadges();
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.style.opacity = '1';
-      sendBtn.style.cursor = 'pointer';
-      sendBtn.textContent = 'Wyślij zamówienie';
-    }
+    resetButton();
     alertBox('Brak internetu','Zamówienie dodano do buforu. Zostanie wysłane, gdy wróci internet.');
     cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
     $('orderTitle').value=''; $('orderPromo').value='';
@@ -1087,18 +1098,14 @@ async function sendOrder(){
     });
     
     if(result && result.success){
+      resetButton();
       cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
       $('orderTitle').value=''; $('orderPromo').value='';
       toast('✅ Zamówienie wysłane');
     } else {
       queue.push({ user:currentUser, email:currentEmail, cart:[...cart], title:sklep, promo:promo, ts:Date.now() }); 
       saveQueue(); updateBadges();
-      if (sendBtn) {
-        sendBtn.disabled = false;
-        sendBtn.style.opacity = '1';
-        sendBtn.style.cursor = 'pointer';
-        sendBtn.textContent = 'Wyślij zamówienie';
-      }
+      resetButton();
       alertBox('Dodano do buforu','Serwer nie potwierdził wysyłki.');
       cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
       $('orderTitle').value=''; $('orderPromo').value='';
@@ -1106,12 +1113,7 @@ async function sendOrder(){
   } catch(e) {
     queue.push({ user:currentUser, email:currentEmail, cart:[...cart], title:sklep, promo:promo, ts:Date.now() }); 
     saveQueue(); updateBadges();
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.style.opacity = '1';
-      sendBtn.style.cursor = 'pointer';
-      sendBtn.textContent = 'Wyślij zamówienie';
-    }
+    resetButton();
     alertBox('Błąd wysyłki','Dodano do buforu. Spróbujemy później.');
     cart=[]; saveCart(); renderCart(); updateBadges(); closeCart(); resetProductButtons();
     $('orderTitle').value=''; $('orderPromo').value='';
