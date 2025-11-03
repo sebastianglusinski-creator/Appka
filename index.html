@@ -89,10 +89,13 @@
     .name{font-weight:900;font-size:18px;word-wrap:break-word}
     .codes{font-size:13px;color:var(--muted);margin-top:6px}
     
-    .badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-    .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
-    .badge-new{background:linear-gradient(135deg,#3B82F6,#60A5FA)}
-    .badge-promo{background:linear-gradient(135deg,#EF4444,#F87171)}
+    /* BADGES v3.0.4 - NOWOŚĆ, PROMOCJA, GAZETKA */
+    .product-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+    .product-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+    .product-badge.badge-new{background:linear-gradient(135deg, #3B82F6, #60A5FA)}
+    .product-badge.badge-promo{background:linear-gradient(135deg, #EF4444, #F87171)}
+    .product-badge.badge-gazetka{background:linear-gradient(135deg, #059669, #10B981)}
+    
     .actions{display:flex;align-items:center;gap:12px;margin-left:8px}
     .add-btn{min-width:60px;height:60px;border:none;border-radius:14px;cursor:pointer;font-size:26px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;background:var(--success);box-shadow:0 2px 6px rgba(0,0,0,.15);transition:transform .08s}
     .add-btn:active{transform:scale(.97)}
@@ -130,7 +133,9 @@
     .calc-header{padding:6px 52px 10px 6px}
     .calc-title{font-weight:900;font-size:18px}
     .calc-sub{color:#6b7280;font-size:12px;margin-top:4px}
-    .calc-close{position:absolute;top:8px;right:8px;width:44px;height:44px;border:none;border-radius:12px;background:#111827;color:#fff;font-size:20px;font-weight:900;cursor:pointer}
+    .calc-close{position:absolute;top:8px;right:8px;width:56px;height:56px;border:none;border-radius:12px;background:#111827;color:#fff;font-size:24px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .2s}
+    .calc-close:active{transform:scale(.95)}
+    .calc-close:hover{background:#1f2937}
     
     .quick-grid{display:grid;gap:10px;margin:10px 0 12px}
     .quick-grid.one{grid-template-columns:1fr}
@@ -515,28 +520,8 @@ const $=id=>document.getElementById(id);
 const show=el=>{el.style.display='flex';};
 const hide=el=>{el.style.display='none';};
 function toast(msg, ms=1500){ const w=$('toastWrap'), t=$('toast'); t.textContent=msg; w.style.display='block'; clearTimeout(w._t); w._t=setTimeout(()=>w.style.display='none',ms); }
-function alertBox(t,x){
-  $('uiTitle').textContent=t;
-  $('uiText').textContent=x;
-  // Reset przycisków do domyślnego "OK" v3.0.3
-  const act=$('uiActions');
-  act.innerHTML='';
-  const okBtn=document.createElement('button');
-  okBtn.className='btn';
-  okBtn.style.cssText='background:#e5e7eb;font-weight:900;border-radius:10px;padding:12px 24px';
-  okBtn.textContent='OK';
-  okBtn.onclick=hideUi;
-  act.append(okBtn);
-  $('uiOverlay').style.display='flex';
-}
-function hideUi(){ 
-  $('uiOverlay').style.display='none';
-  // Wyczyść zawartość po zamknięciu v3.0.3
-  setTimeout(() => {
-    $('uiText').textContent = '';
-    $('uiActions').innerHTML = '';
-  }, 300);
-}
+function alertBox(t,x){$('uiTitle').textContent=t;$('uiText').textContent=x;$('uiOverlay').style.display='flex';}
+function hideUi(){ $('uiOverlay').style.display='none'; }
 function stripDiacritics(s=''){return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replaceAll('ł','l').replaceAll('Ł','L');}
 function normalize(str){ return stripDiacritics(String(str||'')).toLowerCase().replace(/\s+/g,''); }
 const digitsOnly=s=>/^\d+$/.test(s);
@@ -727,12 +712,23 @@ function renderProducts(data){
     const colorHex = parseColor(p.kolor);
     const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
     
-    // BADGES v3.0.4 - generuj HTML dla badges
+    // BADGES v3.0.4 - NOWOŚĆ, PROMOCJA, GAZETKA
     let badgesHTML = '';
-    if (p.NEW === 'NEW' || p.PROMO === 'PROMO') {
-      badgesHTML = '<div class="badges">';
-      if (p.NEW === 'NEW') badgesHTML += '<span class="badge badge-new">🌟 NOWOŚĆ</span>';
-      if (p.PROMO === 'PROMO') badgesHTML += '<span class="badge badge-promo">🔥 PROMOCJA</span>';
+    const isNew = p.NEW === 'NEW';
+    const isPromo = p.PROMO === 'PROMO';
+    const isGazetka = p.GAZETKA === 'GAZETKA';
+    
+    if (isNew || isPromo || isGazetka) {
+      badgesHTML = '<div class="product-badges">';
+      if (isNew) {
+        badgesHTML += '<span class="product-badge badge-new">🌟 NOWOŚĆ</span>';
+      }
+      if (isPromo) {
+        badgesHTML += '<span class="product-badge badge-promo">🔥 PROMOCJA</span>';
+      }
+      if (isGazetka) {
+        badgesHTML += '<span class="product-badge badge-gazetka">📄 W GAZETCE</span>';
+      }
       badgesHTML += '</div>';
     }
     
@@ -793,9 +789,30 @@ function renderSets(data){
     const colorHex = parseColor(s.kolor);
     const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
     
+    // BADGES v3.0.4 dla zestawów
+    let badgesHTML = '';
+    const isNew = s.NEW === 'NEW';
+    const isPromo = s.PROMO === 'PROMO';
+    const isGazetka = s.GAZETKA === 'GAZETKA';
+    
+    if (isNew || isPromo || isGazetka) {
+      badgesHTML = '<div class="product-badges">';
+      if (isNew) {
+        badgesHTML += '<span class="product-badge badge-new">🌟 NOWOŚĆ</span>';
+      }
+      if (isPromo) {
+        badgesHTML += '<span class="product-badge badge-promo">🔥 PROMOCJA</span>';
+      }
+      if (isGazetka) {
+        badgesHTML += '<span class="product-badge badge-gazetka">📄 W GAZETCE</span>';
+      }
+      badgesHTML += '</div>';
+    }
+    
     info.innerHTML = `
       <div class="name" ${nameStyle}>${s.nazwa||'—'}</div>
-      <div class="codes"><div>${s.symbol||''}</div></div>`;
+      <div class="codes"><div>${s.symbol||''}</div></div>
+      ${badgesHTML}`;
     left.append(info);
     const actions=document.createElement('div'); actions.className='actions';
     const add=document.createElement('button'); add.className='add-btn orange'; add.innerHTML='<span class="material-symbols-rounded" style="font-size:28px;">redeem</span>';
