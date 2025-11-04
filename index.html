@@ -649,11 +649,12 @@ async function syncAllBlocking(){
       symbol:p.symbol||'', ean:p.ean||'', nazwa:p.nazwa||'',
       NEW: p.NEW || '',
       PROMO: p.PROMO || '',
+      GAZETKA: p.GAZETKA || '',
       q1:Number(p.Q1||p.q1)||1, q2:Number(p.Q2||p.q2)||0, q3:Number(p.Q3||p.q3)||0,
       qco1:String(p.QCO1||p.qco1||'szt.'), qco2:String(p.QCO2||p.qco2||''), qco3:String(p.QCO3||p.qco3||''),
       min: Number(p.MinimumZam||p.minimumZam||p.Q1||p.q1||1) || 1,
       hashtag: String(p.Hashtag||p.hashtag||''),
-      kolor: String(p.kolor || p.Kolor || '') // NOWA KOLUMNA KOLOR v3.0.1
+      kolor: String(p.kolor || p.Kolor || '')
     }));
     
     setSyncProgress(40);
