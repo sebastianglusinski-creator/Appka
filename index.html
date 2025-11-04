@@ -535,8 +535,8 @@ function getMinForSymbol(sym){
 function rebuildIndex() {
   productIndex.clear();
   products.forEach(p => {
-    // Dodaj "gazetka" do wyszukiwania jeśli produkt ma GAZETKA
-    const gazetkaTag = (p.GAZETKA === 'GAZETKA') ? ' gazetka ' : '';
+    // Dodaj "gazetka" do wyszukiwania TYLKO jeśli produkt ma GAZETKA === 'GAZETKA'
+    const gazetkaTag = (p.GAZETKA && p.GAZETKA.toUpperCase() === 'GAZETKA') ? ' gazetka ' : '';
     
     const searchText = normalize(
       (p.symbol || '') + ' ' + 
@@ -547,6 +547,18 @@ function rebuildIndex() {
     );
     productIndex.set(p.symbol, searchText);
   });
+  
+  // DEBUG - sprawdź DED7739
+  const ded7739 = products.find(p => p.symbol === 'DED7739');
+  if (ded7739) {
+    const searchText = productIndex.get('DED7739');
+    console.log('🔍 DED7739 debug:', {
+      GAZETKA: ded7739.GAZETKA,
+      hasGazetka: ded7739.GAZETKA === 'GAZETKA',
+      searchText: searchText,
+      containsGazetka: searchText.includes('gazetka')
+    });
+  }
 }
 
 function debounce(fn, delay=300){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
