@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v3.0.4 PWA</title>
+  <title>PDA DEDRA v3.0.5 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -89,7 +89,7 @@
     .name{font-weight:900;font-size:18px;word-wrap:break-word}
     .codes{font-size:13px;color:var(--muted);margin-top:6px}
     
-    /* BADGES v3.0.4 - NOWOŚĆ, PROMOCJA, GAZETKA */
+    /* BADGES v3.0.5 - NOWOŚĆ, PROMOCJA, GAZETKA */
     .product-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
     .product-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
     .product-badge.badge-new{background:linear-gradient(135deg, #3B82F6, #60A5FA)}
@@ -535,10 +535,14 @@ function getMinForSymbol(sym){
 function rebuildIndex() {
   productIndex.clear();
   products.forEach(p => {
+    // Dodaj "gazetka" do wyszukiwania jeśli produkt ma GAZETKA v3.0.5
+    const gazetkaTag = (p.GAZETKA === 'GAZETKA') ? ' gazetka ' : '';
+    
     const searchText = normalize(
       (p.symbol || '') + ' ' + 
       (p.nazwa || '') + ' ' + 
       (p.hashtag || '') + ' ' + 
+      gazetkaTag + 
       ((p.ean || '').replace(/\s+/g, ''))
     );
     productIndex.set(p.symbol, searchText);
@@ -708,15 +712,15 @@ function renderProducts(data){
     const left=document.createElement('div'); left.className='product-left';
     const info=document.createElement('div'); info.className='product-info';
     
-    // SYSTEM KOLORÓW v3.0.1 - zastosuj kolor do nazwy
+    // SYSTEM KOLORÓW v3.0.1
     const colorHex = parseColor(p.kolor);
     const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
     
-    // BADGES v3.0.4 - NOWOŚĆ, PROMOCJA, GAZETKA
+    // BADGES v3.0.5 - NOWOŚĆ, PROMOCJA, GAZETKA
     let badgesHTML = '';
-    const isNew = p.NEW === 'NEW';
-    const isPromo = p.PROMO === 'PROMO';
-    const isGazetka = p.GAZETKA === 'GAZETKA';
+    const isNew = (p.NEW === 'NEW' || String(p.NEW).toUpperCase() === 'NEW');
+    const isPromo = (p.PROMO === 'PROMO' || String(p.PROMO).toUpperCase() === 'PROMO');
+    const isGazetka = (p.GAZETKA === 'GAZETKA' || String(p.GAZETKA).toUpperCase() === 'GAZETKA');
     
     if (isNew || isPromo || isGazetka) {
       badgesHTML = '<div class="product-badges">';
@@ -736,6 +740,7 @@ function renderProducts(data){
       <div class="name" ${nameStyle}>${p.nazwa||'—'}</div>
       <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>
       ${badgesHTML}`;
+    
     left.append(info);
     const actions=document.createElement('div'); actions.className='actions';
     const qtyIn=getQtyInCart(p.symbol);
@@ -785,15 +790,15 @@ function renderSets(data){
     const left=document.createElement('div'); left.className='product-left';
     const info=document.createElement('div'); info.className='product-info';
     
-    // SYSTEM KOLORÓW v3.0.1 - zastosuj kolor do nazwy zestawu
+    // SYSTEM KOLORÓW v3.0.1
     const colorHex = parseColor(s.kolor);
     const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
     
-    // BADGES v3.0.4 dla zestawów
+    // BADGES v3.0.5
     let badgesHTML = '';
-    const isNew = s.NEW === 'NEW';
-    const isPromo = s.PROMO === 'PROMO';
-    const isGazetka = s.GAZETKA === 'GAZETKA';
+    const isNew = (s.NEW === 'NEW' || String(s.NEW).toUpperCase() === 'NEW');
+    const isPromo = (s.PROMO === 'PROMO' || String(s.PROMO).toUpperCase() === 'PROMO');
+    const isGazetka = (s.GAZETKA === 'GAZETKA' || String(s.GAZETKA).toUpperCase() === 'GAZETKA');
     
     if (isNew || isPromo || isGazetka) {
       badgesHTML = '<div class="product-badges">';
