@@ -462,6 +462,18 @@
 // API URL do Google Apps Script
 const API_URL = 'https://script.google.com/macros/s/AKfycbwkYQ636LYu5Qc91_25ygvDPv55z1DnQtxqnhBcPZzKm2w0agGruDmHTH-Ff9w7IIgn7A/exec';
 
+// Wersja aplikacji - zmień gdy dodajesz GAZETKA lub inne ważne zmiany
+const APP_VERSION = 'v3.0.5';
+const LS_VERSION = 'DR_VERSION';
+
+// Sprawdź wersję i wyczyść stare dane jeśli wersja się zmieniła
+const savedVersion = localStorage.getItem(LS_VERSION);
+if (savedVersion !== APP_VERSION) {
+  console.log('🔄 Nowa wersja! Czyszczę stare dane...', savedVersion, '→', APP_VERSION);
+  localStorage.removeItem('DR_PRODUCTS_V2');
+  localStorage.setItem(LS_VERSION, APP_VERSION);
+}
+
 document.addEventListener('contextmenu', e=>e.preventDefault(), {passive:false});
 document.addEventListener('touchstart', e=>{ if(e.touches.length>1) e.preventDefault(); }, {passive:false});
 document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false});
