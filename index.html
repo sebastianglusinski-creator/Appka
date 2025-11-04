@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v3.0.5 PWA</title>
+  <title>PDA DEDRA v3.0.6 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -463,7 +463,7 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbwkYQ636LYu5Qc91_25ygvDPv55z1DnQtxqnhBcPZzKm2w0agGruDmHTH-Ff9w7IIgn7A/exec';
 
 // Wersja aplikacji - zmień gdy dodajesz GAZETKA lub inne ważne zmiany
-const APP_VERSION = 'v3.0.5';
+const APP_VERSION = 'v3.0.6';
 const LS_VERSION = 'DR_VERSION';
 
 // Sprawdź wersję i wyczyść stare dane jeśli wersja się zmieniła
@@ -891,6 +891,16 @@ function initSearch(){
     if (key==='Enter'){
       const raw = input.value.trim(); const q = normalize(raw);
       if (!q) return;
+      
+      // Wyszukiwanie w zależności od zakładki
+      if (currentTab === 'zestawy') {
+        // Szukaj zestawu
+        const candidate = sets.find(s => normalize(s.symbol).includes(q)) || sets.find(s => normalize(s.nazwa).includes(q));
+        if (candidate){ openSet(candidate.symbol); clearSearch(true); focusSearch(); } else { toast('Nie znaleziono zestawu'); }
+        return;
+      }
+      
+      // Szukaj produktu (domyślnie)
       let candidate = null;
       if (digitsOnly(q)){
         if (q.length>=7){ candidate = products.find(p => (p.ean||'').replace(/\s+/g,'').includes(q)); }
@@ -905,6 +915,19 @@ function initSearch(){
     const raw = input.value.trim(); const q = normalize(raw);
     if (!q){ renderCurrentTab(); return; }
     
+    // Wyszukiwanie w zależności od aktywnej zakładki
+    if (currentTab === 'zestawy') {
+      // WYSZUKIWANIE ZESTAWÓW
+      const results = sets.filter(s => {
+        const symbolMatch = normalize(s.symbol || '').includes(q);
+        const nazwaMatch = normalize(s.nazwa || '').includes(q);
+        return symbolMatch || nazwaMatch;
+      });
+      renderSets(results);
+      return;
+    }
+    
+    // WYSZUKIWANIE PRODUKTÓW (domyślnie)
     if (digitsOnly(q)){
       // Jeśli zaczyna się od 590262 (EAN) → czekaj na 7+ cyfr
       if (q.startsWith('590262')){
