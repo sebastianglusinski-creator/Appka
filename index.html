@@ -24,7 +24,7 @@
     :root{
       --blue:#2563eb;--blue-dark:#1e40af;--ink:#111827;--muted:#6b7280;--bg:#f5f7fb;
       --success:#10b981;--danger:#ef4444;--ring:rgba(37,99,235,.15);
-      --nav-h:82px;
+      --nav-h:90px;
       --q1:#e0f2fe;--q2:#dcfce7;--q3:#fee2e2;
       --orange:#f97316;
     }
@@ -102,24 +102,25 @@
     .add-btn.orange{background:var(--orange)}
 
     /* === KARUZELA Z PRZYKŁADU === */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;overflow:hidden;z-index:90;transition:transform .25s}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:90px;background:#f9fafb;overflow:hidden;z-index:90;transition:transform .25s;border-top:1px solid #e5e7eb}
     .bottom-nav.hide{transform:translateY(100%)}
     body.login-active .bottom-nav{display:none}
     
-    .bottom-nav::before{content:'';position:absolute;bottom:70px;left:0;right:0;height:1px;background:#e5e7eb;z-index:1}
-    .icons-slider{position:absolute;bottom:8px;left:0;height:90px;display:flex;align-items:flex-end;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);padding-bottom:8px;z-index:5}
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0}
-    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
-    .nav-item .icon{font-family:'Material Symbols Rounded';transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
-    .nav-item .label{font-size:11px;font-weight:700;margin-top:4px;opacity:1;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
-    .nav-item .icon-wrapper{width:40px;height:40px;border-radius:10px;background:transparent}
-    .nav-item .icon{font-size:24px;color:#9CA3AF}
-    .nav-item .label{color:#9CA3AF}
-    .nav-item.center .icon-wrapper{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4);transform:translateY(-6px);z-index:10;position:relative}
-    .nav-item.center .icon{font-size:32px;color:white}
+    .icons-slider{position:absolute;bottom:5px;left:0;height:85px;display:flex;align-items:center;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);z-index:5}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0}
+    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);width:40px;height:40px;border-radius:10px;background:transparent}
+    .nav-item .icon{font-family:'Material Symbols Rounded';transition:all .4s cubic-bezier(0.25,0.1,0.25,1);font-size:24px;color:#9CA3AF}
+    .nav-item .label{font-size:11px;font-weight:700;margin-top:4px;opacity:1;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);color:#9CA3AF}
+    .nav-item.center .icon-wrapper{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 6px 16px rgba(59,130,246,0.4);transform:translateY(0);z-index:10;position:relative}
+    .nav-item.center .icon{font-size:30px;color:white}
     .nav-item.center .label{color:white;font-weight:900}
-    .nav-badge{position:absolute;top:-2px;right:-2px;width:24px;height:24px;border-radius:50%;background:#EF4444;color:white;font-size:12px;font-weight:900;display:none;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .nav-badge{position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:#EF4444;color:white;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
     .nav-item.center .nav-badge{display:flex}
+    
+    @media (min-width:768px){
+      .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
+      .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
+    }
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
     .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
