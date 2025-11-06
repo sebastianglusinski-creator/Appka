@@ -2091,8 +2091,8 @@ closeCalc = function() {
   }
 
   function render() {
-    const containerWidth = document.getElementById('bottomNav').offsetWidth || 390;
-    const centerOffset = containerWidth / 2;
+    const CONTAINER_WIDTH = 390; // Stała szerokość - działa na mobile i desktop
+    const centerOffset = CONTAINER_WIDTH / 2;
     const offset = centerOffset - (currentPosition * ITEM_WIDTH) - (ITEM_WIDTH / 2);
     slider.style.transform = `translateX(${offset}px)`;
 
