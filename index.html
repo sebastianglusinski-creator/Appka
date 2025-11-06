@@ -38,8 +38,7 @@
     
     @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
-    #loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:24px;color:#fff;position:relative;z-index:999}
-    body.login-active #bottomNav{display:none!important}
+    #loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:24px;color:#fff}
     .card{width:100%;max-width:600px;background:#fff;color:#111;border-radius:22px;padding:28px 26px;box-shadow:0 12px 36px rgba(0,0,0,.18)}
     .title{font-size:30px;font-weight:900;margin-bottom:8px}
     .subtitle{opacity:.8;margin-bottom:16px;color:#374151}
@@ -102,38 +101,25 @@
     .add-btn:active{transform:scale(.97)}
     .add-btn.orange{background:var(--orange)}
 
-    /* KARUZELA - NOWY SYSTEM */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;overflow:hidden;z-index:90;transition:transform .25s;max-width:100vw}
+    /* === KARUZELA - CLEAN VERSION === */
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;overflow:hidden}
     .bottom-nav.hide{transform:translateY(100%)}
-    .bottom-nav::before{content:'';position:absolute;bottom:70px;left:0;right:0;height:1px;background:#e5e7eb;z-index:1}
     
-    /* Wrapper dla centrowania na desktop */
-    .carousel-wrapper{position:relative;width:100%;height:100%;max-width:600px;margin:0 auto}
+    body.login-active .bottom-nav{display:none}
     
-    .carousel-slider{position:absolute;bottom:8px;left:0;height:90px;display:flex;align-items:flex-end;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);padding-bottom:8px;z-index:5;width:100%}
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0}
-    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
-    .nav-item .icon{font-family:'Material Symbols Rounded';transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
-    .nav-item .label{font-size:11px;font-weight:700;margin-top:4px;opacity:1;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);white-space:nowrap}
-    .nav-item .icon-wrapper{width:40px;height:40px;border-radius:10px;background:transparent}
-    .nav-item .icon{font-size:24px;color:#9CA3AF}
-    .nav-item .label{color:#9CA3AF}
-    .nav-item.active .icon-wrapper{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4);transform:translateY(-6px);z-index:10;position:relative}
-    .nav-item.active .icon{font-size:32px;color:white}
-    .nav-item.active .label{color:white;font-weight:900}
-    .nav-badge{position:absolute;top:-2px;right:-2px;width:24px;height:24px;border-radius:50%;background:#EF4444;color:white;font-size:12px;font-weight:900;display:none;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
-    .nav-item.active .nav-badge{display:flex}
+    .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .3s ease}
     
-    /* Desktop - większe przyciski */
-    @media (min-width: 768px) {
-      .bottom-nav{max-width:600px;left:50%;transform:translateX(-50%);border-radius:20px 20px 0 0}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:75px;padding:8px 4px;cursor:pointer;transition:all .3s ease;flex-shrink:0}
+    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:26px;color:#9ca3af;margin-bottom:4px;transition:all .3s ease}
+    .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;transition:all .3s ease}
+    
+    .nav-item.active .icon{font-size:38px;color:#2563eb}
+    .nav-item.active .label{color:#2563eb;font-weight:900}
+    
+    @media (min-width:768px){
+      .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
       .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
-      .nav-item{min-width:90px}
-      .nav-item .icon-wrapper{width:48px;height:48px}
-      .nav-item .icon{font-size:28px}
-      .nav-item.active .icon-wrapper{width:72px;height:72px}
-      .nav-item.active .icon{font-size:36px}
-      .nav-item .label{font-size:12px}
     }
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
@@ -336,14 +322,41 @@
   </section>
 
   <div id="bottomNav" class="bottom-nav">
-    <div class="carousel-slider" id="carouselSlider"></div>
+    <div class="carousel-container">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="nav-item active" data-tab="produkty" onclick="switchTab(this)">
+          <span class="icon">inventory_2</span>
+          <span class="label">Produkty</span>
+        </div>
+        <div class="nav-item" data-tab="zadania" onclick="switchTab(this)">
+          <span class="icon">task_alt</span>
+          <span class="label">Zadania</span>
+        </div>
+        <div class="nav-item" data-tab="promo" onclick="switchTab(this)">
+          <span class="icon">sell</span>
+          <span class="label">Promo</span>
+        </div>
+        <div class="nav-item" data-tab="zestawy" onclick="switchTab(this)">
+          <span class="icon">redeem</span>
+          <span class="label">Zestawy</span>
+        </div>
+        <div class="nav-item" data-tab="pos" onclick="switchTab(this)">
+          <span class="icon">folder_open</span>
+          <span class="label">POS</span>
+        </div>
+        <div class="nav-item" data-tab="nowosci" onclick="switchTab(this)">
+          <span class="icon">schedule</span>
+          <span class="label">Nowości</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Biała strona dla zakładki ZADANIA -->
-  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85;padding:20px">
-    <div style="max-width:600px;margin:0 auto;padding-top:60px;text-align:center">
-      <div style="font-size:48px;margin-bottom:16px">✅</div>
-      <div style="font-size:24px;font-weight:900;color:#111827;margin-bottom:8px">Zadania</div>
+  <!-- Biała strona dla ZADANIA -->
+  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85">
+    <div style="max-width:600px;margin:0 auto;padding:80px 20px;text-align:center">
+      <div style="font-size:64px;margin-bottom:24px">✅</div>
+      <div style="font-size:28px;font-weight:900;color:#111827;margin-bottom:12px">Zadania</div>
       <div style="font-size:16px;color:#6b7280">Ta funkcja zostanie wkrótce dodana</div>
     </div>
   </div>
@@ -629,7 +642,6 @@ async function callAPI(action, params = {}) {
 }
 
 window.onload=function(){
-  // Dodaj klasę login-active na start
   document.body.classList.add('login-active');
   
   loadCart(); 
@@ -641,7 +653,7 @@ window.onload=function(){
   $('queueOverlay').addEventListener('click', (e)=>{ if (e.target === $('queueOverlay')) closeQueue(); });
   $('setOverlay').addEventListener('click', (e)=>{ if (e.target === $('setOverlay')) closeSet(); });
   $('fillCalcOverlay').addEventListener('click', (e)=>{ if (e.target === $('fillCalcOverlay')) closeFillCalc(); });
-  $('cameraOverlay').addEventListener('click', (e)=>{ if (e.target === $('cameraOverlay')) closeCamera(); }); // v3.0.2 Fix
+  $('cameraOverlay').addEventListener('click', (e)=>{ if (e.target === $('cameraOverlay')) closeCamera(); });
   $('clearX').addEventListener('click', clearSearch);
 
   window.addEventListener('online', trySendQueue);
@@ -649,7 +661,6 @@ window.onload=function(){
 
   hide($('syncOverlay'));
   
-  // Załaduj handlowców
   loadHandlowcy();
 };
 
@@ -684,7 +695,6 @@ function login(){
   $('loginScreen').style.display='none';
   $('mainScreen').style.display='block';
   
-  // Usuń klasę login-active - pokaż bottomNav
   document.body.classList.remove('login-active');
   
   syncAllBlocking();
@@ -755,22 +765,21 @@ async function syncAllBlocking(){
 function renderCurrentTab(){
   const zadaniaScreen = document.getElementById('zadaniaScreen');
   const productList = document.getElementById('productList');
-  const mainScreen = document.getElementById('mainScreen');
+  const topbar = document.querySelector('.topbar');
   
-  // Jeśli zakładka ZADANIA - pokaż białą stronę
+  // Jeśli ZADANIA - biała strona
   if(currentTab === 'zadania'){
     if(zadaniaScreen) zadaniaScreen.style.display = 'block';
     if(productList) productList.style.display = 'none';
-    if(mainScreen) mainScreen.querySelector('.topbar').style.display = 'none';
+    if(topbar) topbar.style.display = 'none';
     return;
   }
   
-  // Dla wszystkich innych zakładek - ukryj zadania, pokaż normalny widok
+  // Inne zakładki - normalny widok
   if(zadaniaScreen) zadaniaScreen.style.display = 'none';
   if(productList) productList.style.display = 'block';
-  if(mainScreen) mainScreen.querySelector('.topbar').style.display = 'flex';
+  if(topbar) topbar.style.display = 'flex';
   
-  // Reszta jak było
   if(currentTab==='produkty'){ renderProducts(products); return; }
   if(currentTab==='nowosci'){ 
     const filtered = products.filter(p => p.NEW === 'NEW');
@@ -1883,13 +1892,11 @@ function activateTab(el){
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
   el.classList.add('active');
   currentTab = el.getAttribute('data-tab') || 'produkty';
-  
-  // Update pozycji karuzeli
-  if(window.updateCarouselPosition) {
-    window.updateCarouselPosition();
-  }
-  
   renderCurrentTab();
+}
+
+function switchTab(el){
+  activateTab(el);
 }
 
 (function initBottomNavAutoHide(){
@@ -2060,157 +2067,6 @@ closeCalc = function() {
 </script>
 <!-- Ukryty trigger do wymuszania klawiatury -->
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
-
-<!-- Ukryty trigger do wymuszania klawiatury -->
-<div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
-
-<script>
-// === KARUZELA - NIESKOŃCZONA PĘTLA ===
-(function initCarousel(){
-  const carouselItems = [
-    { icon: 'inventory_2', label: 'Produkty', tab: 'produkty', badge: 0 },
-    { icon: 'task_alt', label: 'Zadania', tab: 'zadania', badge: 0 },
-    { icon: 'sell', label: 'Promo', tab: 'promo', badge: 0 },
-    { icon: 'redeem', label: 'Zestawy', tab: 'zestawy', badge: 0 },
-    { icon: 'folder_open', label: 'POS', tab: 'pos', badge: 0 },
-    { icon: 'schedule', label: 'Nowości', tab: 'nowosci', badge: 0 }
-  ];
-
-  const COPIES = 20;
-  const START_COPY = 10;
-  const ITEM_WIDTH = 78;
-  const CENTER_OFFSET = 195;
-
-  let currentPosition = START_COPY * carouselItems.length;
-  const slider = document.getElementById('carouselSlider');
-
-  function createCarousel() {
-    slider.innerHTML = '';
-    
-    for (let copy = 0; copy < COPIES; copy++) {
-      carouselItems.forEach((item, idx) => {
-        const globalIndex = copy * carouselItems.length + idx;
-        
-        const navItem = document.createElement('div');
-        navItem.className = 'nav-item';
-        navItem.dataset.globalIndex = globalIndex;
-        navItem.dataset.tab = item.tab;
-        
-        navItem.innerHTML = `
-          <div class="icon-wrapper">
-            <span class="icon">${item.icon}</span>
-            ${item.badge > 0 ? `<span class="nav-badge">${item.badge}</span>` : ''}
-          </div>
-          <span class="label">${item.label}</span>
-        `;
-        
-        navItem.addEventListener('click', () => {
-          const itemIndex = idx;
-          jumpToItem(itemIndex);
-          activateTab(navItem);
-        });
-        
-        slider.appendChild(navItem);
-      });
-    }
-    
-    render();
-  }
-
-  function render() {
-    const containerWidth = document.getElementById('bottomNav').offsetWidth;
-    const centerOffset = containerWidth / 2;
-    const offset = centerOffset - (currentPosition * ITEM_WIDTH) - (ITEM_WIDTH / 2);
-    slider.style.transform = `translateX(${offset}px)`;
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.remove('active');
-    });
-
-    const activeItem = document.querySelector(`[data-global-index="${currentPosition}"]`);
-    if (activeItem) {
-      activeItem.classList.add('active');
-    }
-  }
-
-  function slideLeft() {
-    currentPosition++;
-    render();
-  }
-
-  function slideRight() {
-    currentPosition--;
-    render();
-  }
-
-  function jumpToItem(itemIndex) {
-    const currentCopy = Math.floor(currentPosition / carouselItems.length);
-    const targetPosition = currentCopy * carouselItems.length + itemIndex;
-    
-    const distanceCurrent = Math.abs(targetPosition - currentPosition);
-    const distancePrev = Math.abs((currentCopy - 1) * carouselItems.length + itemIndex - currentPosition);
-    const distanceNext = Math.abs((currentCopy + 1) * carouselItems.length + itemIndex - currentPosition);
-    
-    if (distancePrev < distanceCurrent && distancePrev < distanceNext) {
-      currentPosition = (currentCopy - 1) * carouselItems.length + itemIndex;
-    } else if (distanceNext < distanceCurrent) {
-      currentPosition = (currentCopy + 1) * carouselItems.length + itemIndex;
-    } else {
-      currentPosition = targetPosition;
-    }
-    
-    render();
-  }
-
-  // Touch support
-  let startX = 0;
-  const container = document.getElementById('bottomNav');
-
-  container.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-  });
-
-  container.addEventListener('touchend', (e) => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = startX - endX;
-    
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) slideLeft();
-      else slideRight();
-    }
-  });
-
-  // Mouse support
-  let mouseDown = false;
-  let mouseStartX = 0;
-
-  container.addEventListener('mousedown', (e) => {
-    mouseDown = true;
-    mouseStartX = e.clientX;
-  });
-
-  document.addEventListener('mouseup', (e) => {
-    if (!mouseDown) return;
-    
-    const diff = mouseStartX - e.clientX;
-    
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) slideLeft();
-      else slideRight();
-    }
-    
-    mouseDown = false;
-  });
-
-  // Funkcja dostępna globalnie do aktualizacji pozycji
-  window.updateCarouselPosition = function() {
-    render();
-  };
-
-  // Init
-  createCarousel();
-})();
-</script>
 
 </body>
 </html>
