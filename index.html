@@ -1860,8 +1860,11 @@ function confirmSet(){
 }
 
 function activateTab(el){
-  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i=>{
+    i.classList.remove('active');
+    i.classList.remove('center');
+  });
+  el.classList.add('center');
   currentTab = el.getAttribute('data-tab') || 'produkty';
   renderCurrentTab();
 }
