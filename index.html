@@ -101,12 +101,23 @@
     .add-btn:active{transform:scale(.97)}
     .add-btn.orange{background:var(--orange)}
 
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;display:flex;justify-content:space-around;align-items:center;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;padding:4px 0}
+    /* KARUZELA - NOWY SYSTEM */
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;overflow:visible;z-index:90;transition:transform .25s}
     .bottom-nav.hide{transform:translateY(100%)}
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;transition:all .2s;min-width:19%;padding:4px;-webkit-tap-highlight-color:transparent}
-    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:32px;line-height:1;width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:transparent;margin-bottom:4px;color:#6b7280;transition:all .25s}
-    .nav-item.active,.nav-item:hover{color:#2563eb}
-    .nav-item.active .icon,.nav-item:hover .icon{background:#e0e7ff;color:#2563eb}
+    .bottom-nav::before{content:'';position:absolute;bottom:70px;left:0;right:0;height:1px;background:#e5e7eb;z-index:1}
+    .carousel-slider{position:absolute;bottom:8px;left:0;height:90px;display:flex;align-items:flex-end;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);padding-bottom:8px;z-index:5}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);-webkit-tap-highlight-color:transparent;position:relative}
+    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
+    .nav-item .icon{font-family:'Material Symbols Rounded';transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
+    .nav-item .label{font-size:11px;font-weight:700;margin-top:4px;opacity:1;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
+    .nav-item .icon-wrapper{width:40px;height:40px;border-radius:10px;background:transparent}
+    .nav-item .icon{font-size:24px;color:#9CA3AF}
+    .nav-item .label{color:#9CA3AF}
+    .nav-item.active .icon-wrapper{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4);transform:translateY(-6px);z-index:10;position:relative}
+    .nav-item.active .icon{font-size:32px;color:white}
+    .nav-item.active .label{color:white;font-weight:900}
+    .nav-badge{position:absolute;top:-2px;right:-2px;width:24px;height:24px;border-radius:50%;background:#EF4444;color:white;font-size:12px;font-weight:900;display:none;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .nav-item.active .nav-badge{display:flex}
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
     .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
@@ -308,11 +319,16 @@
   </section>
 
   <div id="bottomNav" class="bottom-nav">
-    <div class="nav-item active" data-tab="produkty" onclick="activateTab(this)"><span class="icon">inventory_2</span><span>Produkty</span></div>
-    <div class="nav-item" data-tab="nowosci" onclick="activateTab(this)"><span class="icon">schedule</span><span>Nowości</span></div>
-    <div class="nav-item" data-tab="promo" onclick="activateTab(this)"><span class="icon">sell</span><span>Promo</span></div>
-    <div class="nav-item" data-tab="zestawy" onclick="activateTab(this)"><span class="icon">redeem</span><span>Zestawy</span></div>
-    <div class="nav-item" data-tab="pos" onclick="activateTab(this)"><span class="icon">folder_open</span><span>POS</span></div>
+    <div class="carousel-slider" id="carouselSlider"></div>
+  </div>
+
+  <!-- Biała strona dla zakładki ZADANIA -->
+  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85;padding:20px">
+    <div style="max-width:600px;margin:0 auto;padding-top:60px;text-align:center">
+      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <div style="font-size:24px;font-weight:900;color:#111827;margin-bottom:8px">Zadania</div>
+      <div style="font-size:16px;color:#6b7280">Ta funkcja zostanie wkrótce dodana</div>
+    </div>
   </div>
 
   <!-- KAMERA OVERLAY -->
@@ -713,6 +729,24 @@ async function syncAllBlocking(){
 }
 
 function renderCurrentTab(){
+  const zadaniaScreen = document.getElementById('zadaniaScreen');
+  const productList = document.getElementById('productList');
+  const mainScreen = document.getElementById('mainScreen');
+  
+  // Jeśli zakładka ZADANIA - pokaż białą stronę
+  if(currentTab === 'zadania'){
+    if(zadaniaScreen) zadaniaScreen.style.display = 'block';
+    if(productList) productList.style.display = 'none';
+    if(mainScreen) mainScreen.querySelector('.topbar').style.display = 'none';
+    return;
+  }
+  
+  // Dla wszystkich innych zakładek - ukryj zadania, pokaż normalny widok
+  if(zadaniaScreen) zadaniaScreen.style.display = 'none';
+  if(productList) productList.style.display = 'block';
+  if(mainScreen) mainScreen.querySelector('.topbar').style.display = 'flex';
+  
+  // Reszta jak było
   if(currentTab==='produkty'){ renderProducts(products); return; }
   if(currentTab==='nowosci'){ 
     const filtered = products.filter(p => p.NEW === 'NEW');
@@ -1825,6 +1859,12 @@ function activateTab(el){
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
   el.classList.add('active');
   currentTab = el.getAttribute('data-tab') || 'produkty';
+  
+  // Update pozycji karuzeli
+  if(window.updateCarouselPosition) {
+    window.updateCarouselPosition();
+  }
+  
   renderCurrentTab();
 }
 
@@ -1996,6 +2036,155 @@ closeCalc = function() {
 </script>
 <!-- Ukryty trigger do wymuszania klawiatury -->
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
+
+<!-- Ukryty trigger do wymuszania klawiatury -->
+<div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
+
+<script>
+// === KARUZELA - NIESKOŃCZONA PĘTLA ===
+(function initCarousel(){
+  const carouselItems = [
+    { icon: 'inventory_2', label: 'Produkty', tab: 'produkty', badge: 0 },
+    { icon: 'task_alt', label: 'Zadania', tab: 'zadania', badge: 0 },
+    { icon: 'sell', label: 'Promo', tab: 'promo', badge: 0 },
+    { icon: 'redeem', label: 'Zestawy', tab: 'zestawy', badge: 0 },
+    { icon: 'folder_open', label: 'POS', tab: 'pos', badge: 0 },
+    { icon: 'schedule', label: 'Nowości', tab: 'nowosci', badge: 0 }
+  ];
+
+  const COPIES = 20;
+  const START_COPY = 10;
+  const ITEM_WIDTH = 78;
+  const CENTER_OFFSET = 195;
+
+  let currentPosition = START_COPY * carouselItems.length;
+  const slider = document.getElementById('carouselSlider');
+
+  function createCarousel() {
+    slider.innerHTML = '';
+    
+    for (let copy = 0; copy < COPIES; copy++) {
+      carouselItems.forEach((item, idx) => {
+        const globalIndex = copy * carouselItems.length + idx;
+        
+        const navItem = document.createElement('div');
+        navItem.className = 'nav-item';
+        navItem.dataset.globalIndex = globalIndex;
+        navItem.dataset.tab = item.tab;
+        
+        navItem.innerHTML = `
+          <div class="icon-wrapper">
+            <span class="icon">${item.icon}</span>
+            ${item.badge > 0 ? `<span class="nav-badge">${item.badge}</span>` : ''}
+          </div>
+          <span class="label">${item.label}</span>
+        `;
+        
+        navItem.addEventListener('click', () => {
+          const itemIndex = idx;
+          jumpToItem(itemIndex);
+          activateTab(navItem);
+        });
+        
+        slider.appendChild(navItem);
+      });
+    }
+    
+    render();
+  }
+
+  function render() {
+    const offset = CENTER_OFFSET - (currentPosition * ITEM_WIDTH) - (ITEM_WIDTH / 2);
+    slider.style.transform = `translateX(${offset}px)`;
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+
+    const activeItem = document.querySelector(`[data-global-index="${currentPosition}"]`);
+    if (activeItem) {
+      activeItem.classList.add('active');
+    }
+  }
+
+  function slideLeft() {
+    currentPosition++;
+    render();
+  }
+
+  function slideRight() {
+    currentPosition--;
+    render();
+  }
+
+  function jumpToItem(itemIndex) {
+    const currentCopy = Math.floor(currentPosition / carouselItems.length);
+    const targetPosition = currentCopy * carouselItems.length + itemIndex;
+    
+    const distanceCurrent = Math.abs(targetPosition - currentPosition);
+    const distancePrev = Math.abs((currentCopy - 1) * carouselItems.length + itemIndex - currentPosition);
+    const distanceNext = Math.abs((currentCopy + 1) * carouselItems.length + itemIndex - currentPosition);
+    
+    if (distancePrev < distanceCurrent && distancePrev < distanceNext) {
+      currentPosition = (currentCopy - 1) * carouselItems.length + itemIndex;
+    } else if (distanceNext < distanceCurrent) {
+      currentPosition = (currentCopy + 1) * carouselItems.length + itemIndex;
+    } else {
+      currentPosition = targetPosition;
+    }
+    
+    render();
+  }
+
+  // Touch support
+  let startX = 0;
+  const container = document.getElementById('bottomNav');
+
+  container.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  });
+
+  container.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = startX - endX;
+    
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) slideLeft();
+      else slideRight();
+    }
+  });
+
+  // Mouse support
+  let mouseDown = false;
+  let mouseStartX = 0;
+
+  container.addEventListener('mousedown', (e) => {
+    mouseDown = true;
+    mouseStartX = e.clientX;
+  });
+
+  document.addEventListener('mouseup', (e) => {
+    if (!mouseDown) return;
+    
+    const diff = mouseStartX - e.clientX;
+    
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) slideLeft();
+      else slideRight();
+    }
+    
+    mouseDown = false;
+  });
+
+  // Funkcja dostępna globalnie do aktualizacji pozycji
+  window.updateCarouselPosition = function() {
+    render();
+  };
+
+  // Init
+  createCarousel();
+})();
+</script>
 
 </body>
 </html>
