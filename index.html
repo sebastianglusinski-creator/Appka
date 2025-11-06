@@ -103,14 +103,18 @@
     .add-btn.orange{background:var(--orange)}
 
     /* KARUZELA - NOWY SYSTEM */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;overflow:hidden;z-index:90;transition:transform .25s}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;overflow:hidden;z-index:90;transition:transform .25s;max-width:100vw}
     .bottom-nav.hide{transform:translateY(100%)}
     .bottom-nav::before{content:'';position:absolute;bottom:70px;left:0;right:0;height:1px;background:#e5e7eb;z-index:1}
-    .carousel-slider{position:absolute;bottom:8px;left:0;height:90px;display:flex;align-items:flex-end;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);padding-bottom:8px;z-index:5}
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);-webkit-tap-highlight-color:transparent;position:relative}
+    
+    /* Wrapper dla centrowania na desktop */
+    .carousel-wrapper{position:relative;width:100%;height:100%;max-width:600px;margin:0 auto}
+    
+    .carousel-slider{position:absolute;bottom:8px;left:0;height:90px;display:flex;align-items:flex-end;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);padding-bottom:8px;z-index:5;width:100%}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0}
     .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
     .nav-item .icon{font-family:'Material Symbols Rounded';transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
-    .nav-item .label{font-size:11px;font-weight:700;margin-top:4px;opacity:1;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
+    .nav-item .label{font-size:11px;font-weight:700;margin-top:4px;opacity:1;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);white-space:nowrap}
     .nav-item .icon-wrapper{width:40px;height:40px;border-radius:10px;background:transparent}
     .nav-item .icon{font-size:24px;color:#9CA3AF}
     .nav-item .label{color:#9CA3AF}
@@ -119,6 +123,18 @@
     .nav-item.active .label{color:white;font-weight:900}
     .nav-badge{position:absolute;top:-2px;right:-2px;width:24px;height:24px;border-radius:50%;background:#EF4444;color:white;font-size:12px;font-weight:900;display:none;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
     .nav-item.active .nav-badge{display:flex}
+    
+    /* Desktop - większe przyciski */
+    @media (min-width: 768px) {
+      .bottom-nav{max-width:600px;left:50%;transform:translateX(-50%);border-radius:20px 20px 0 0}
+      .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
+      .nav-item{min-width:90px}
+      .nav-item .icon-wrapper{width:48px;height:48px}
+      .nav-item .icon{font-size:28px}
+      .nav-item.active .icon-wrapper{width:72px;height:72px}
+      .nav-item.active .icon{font-size:36px}
+      .nav-item .label{font-size:12px}
+    }
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
     .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
