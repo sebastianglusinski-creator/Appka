@@ -39,7 +39,7 @@
     @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
     #loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:24px;color:#fff;position:relative;z-index:999}
-    #loginScreen ~ #bottomNav{display:none}
+    body.login-active #bottomNav{display:none!important}
     .card{width:100%;max-width:600px;background:#fff;color:#111;border-radius:22px;padding:28px 26px;box-shadow:0 12px 36px rgba(0,0,0,.18)}
     .title{font-size:30px;font-weight:900;margin-bottom:8px}
     .subtitle{opacity:.8;margin-bottom:16px;color:#374151}
@@ -613,6 +613,9 @@ async function callAPI(action, params = {}) {
 }
 
 window.onload=function(){
+  // Dodaj klasę login-active na start
+  document.body.classList.add('login-active');
+  
   loadCart(); 
   loadQueue(); 
   updateBadges();
@@ -664,6 +667,10 @@ function login(){
   $('userAvatar').textContent = getInitials(currentUser);
   $('loginScreen').style.display='none';
   $('mainScreen').style.display='block';
+  
+  // Usuń klasę login-active - pokaż bottomNav
+  document.body.classList.remove('login-active');
+  
   syncAllBlocking();
   initSearch();
   focusSearch();
