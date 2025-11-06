@@ -2068,5 +2068,59 @@ closeCalc = function() {
 <!-- Ukryty trigger do wymuszania klawiatury -->
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
 
+<script>
+// === KARUZELA SYSTEM ===
+(function(){
+  const items = ['produkty','zadania','promo','zestawy','pos','nowosci'];
+  let currentIdx = 0;
+  const track = document.getElementById('carouselTrack');
+  const navItems = Array.from(track.querySelectorAll('.nav-item'));
+  
+  function update(){
+    const containerWidth = document.getElementById('bottomNav').offsetWidth;
+    const itemWidth = 75;
+    const offset = (containerWidth/2) - (currentIdx * itemWidth) - (itemWidth/2);
+    track.style.transform = `translateX(${offset}px)`;
+    
+    navItems.forEach((item,i)=>{
+      item.classList.toggle('active', i === currentIdx);
+    });
+  }
+  
+  function prev(){ currentIdx = (currentIdx-1+items.length)%items.length; update(); }
+  function next(){ currentIdx = (currentIdx+1)%items.length; update(); }
+  
+  // Touch
+  let startX=0;
+  const nav = document.getElementById('bottomNav');
+  nav.addEventListener('touchstart', e=>startX=e.touches[0].clientX);
+  nav.addEventListener('touchend', e=>{
+    const diff = startX - e.changedTouches[0].clientX;
+    if(Math.abs(diff)>50) diff>0 ? next() : prev();
+  });
+  
+  // Mouse
+  let mouseX=0, mouseDown=false;
+  nav.addEventListener('mousedown', e=>{mouseDown=true; mouseX=e.clientX});
+  document.addEventListener('mouseup', e=>{
+    if(!mouseDown) return;
+    const diff = mouseX - e.clientX;
+    if(Math.abs(diff)>50) diff>0 ? next() : prev();
+    mouseDown=false;
+  });
+  
+  // Click na ikonce
+  navItems.forEach((item,i)=>{
+    item.addEventListener('click', ()=>{
+      currentIdx = i;
+      update();
+      switchTab(item);
+    });
+  });
+  
+  update();
+})();
+</script>
+
 </body>
 </html>
