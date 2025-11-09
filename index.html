@@ -2,12 +2,18 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v3.0.6 PWA</title>
+  <title>PDA DEDRA v5.1.0 🔥 [09-11-2025 10:20]</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
+  
+  <!-- ANTY-CACHE -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="DEDRA">
+  <meta name="apple-mobile-web-app-title" content="DEDRA v5.1.0">
   <meta name="theme-color" content="#2563eb">
   
   <!-- Manifest -->
@@ -291,7 +297,10 @@
         </div>
         
         <!-- ŚRODEK - LOGO -->
-        <img id="brandLogo" class="brand" alt="DEDRA" src="https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/Dedra_logo_white%20red.png?alt=media&token=8041a041-abcd-4b4d-8c78-2e829056cf71" />
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <img id="brandLogo" class="brand" alt="DEDRA" src="https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/Dedra_logo_white%20red.png?alt=media&token=8041a041-abcd-4b4d-8c78-2e829056cf71" />
+          <div style="background:#10b981;color:white;font-size:9px;font-weight:900;padding:2px 8px;border-radius:8px;letter-spacing:0.5px">v5.1.0</div>
+        </div>
         
         <!-- PRAWA STRONA -->
         <div class="topbar-actions topbar-right">
@@ -347,6 +356,10 @@
         <div class="nav-item" data-tab="nowosci" onclick="switchTab(this)">
           <span class="icon">schedule</span>
           <span class="label">Nowości</span>
+        </div>
+        <div class="nav-item" data-tab="top" onclick="switchTab(this)">
+          <span class="icon">trending_up</span>
+          <span class="label">TOP</span>
         </div>
       </div>
     </div>
@@ -642,6 +655,10 @@ async function callAPI(action, params = {}) {
 }
 
 window.onload=function(){
+  console.log('%c🔥 PDA DEDRA v5.1.0 🔥', 'background:#10b981;color:white;font-size:20px;font-weight:900;padding:10px 20px;border-radius:8px');
+  console.log('Załadowano:', new Date().toLocaleString('pl-PL'));
+  console.log('Timestamp:', '09-11-2025 10:20');
+  
   document.body.classList.add('login-active');
   
   loadCart(); 
@@ -793,6 +810,7 @@ function renderCurrentTab(){
   }
   if(currentTab==='pos'){ renderPOS(posItems); return; }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
+  if(currentTab==='top'){ renderProducts(products); return; }
   renderProducts(products);
 }
 
