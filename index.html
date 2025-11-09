@@ -101,37 +101,25 @@
     .add-btn:active{transform:scale(.97)}
     .add-btn.orange{background:var(--orange)}
 
-    /* === KARUZELA - CLEAN VERSION === */
-    /* === KARUZELA 7 IKON === */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:90px;background:#f9fafb;border-top:1px solid #e5e7eb;overflow:hidden;z-index:90;transition:transform .25s}
+    /* === KARUZELA Z PRZYKŁADU === */
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:90px;background:#f9fafb;overflow:hidden;z-index:90;transition:transform .25s;border-top:1px solid #e5e7eb}
     .bottom-nav.hide{transform:translateY(100%)}
-    
     body.login-active .bottom-nav{display:none}
     
-    .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);height:100%}
-    
-    /* Pojedyncza ikona */
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);flex-shrink:0;position:relative}
-    
+    .icons-slider{position:absolute;bottom:5px;left:0;height:85px;display:flex;align-items:center;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);z-index:5}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0}
     .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);width:40px;height:40px;border-radius:10px;background:transparent}
-    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
-    .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;margin-top:4px;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);white-space:nowrap}
+    .nav-item .icon{font-family:'Material Symbols Rounded';transition:all .4s cubic-bezier(0.25,0.1,0.25,1);font-size:24px;color:#9CA3AF}
+    .nav-item .label{font-size:11px;font-weight:700;margin-top:4px;opacity:1;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);color:#9CA3AF}
+    .nav-item.center .icon-wrapper{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 6px 16px rgba(59,130,246,0.4);transform:translateY(0);z-index:10;position:relative}
+    .nav-item.center .icon{font-size:30px;color:white}
+    .nav-item.center .label{color:white;font-weight:900}
+    .nav-badge{position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:#EF4444;color:white;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
+    .nav-item.center .nav-badge{display:flex}
     
-    /* Środkowa - KÓŁKO + DUŻA IKONA + WYSTAWAJĄCA */
-    .nav-item.center{transform:translateY(-8px)}
-    .nav-item.center .icon-wrapper{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4);z-index:10;position:relative}
-    .nav-item.center .icon{font-size:32px;color:white}
-    .nav-item.center .label{color:white;font-weight:900;font-size:12px}
-    
-    /* Desktop */
     @media (min-width:768px){
       .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
       .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
-      .nav-item{min-width:85px}
-      .nav-item.center .icon-wrapper{width:70px;height:70px}
-      .nav-item.center .icon{font-size:36px}
-    }
     }
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
@@ -334,21 +322,10 @@
   </section>
 
   <div id="bottomNav" class="bottom-nav">
-    <div class="carousel-container">
-      <div class="carousel-track" id="carouselTrack"></div>
-    </div>
+    <div class="icons-slider" id="iconsSlider"></div>
   </div>
 
   <!-- Biała strona ZADANIA -->
-  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85;padding-top:80px">
-    <div style="max-width:600px;margin:0 auto;padding:40px 20px;text-align:center">
-      <div style="font-size:64px;margin-bottom:24px">✅</div>
-      <div style="font-size:28px;font-weight:900;color:#111827;margin-bottom:12px">Zadania</div>
-      <div style="font-size:16px;color:#6b7280">Ta funkcja zostanie wkrótce dodana</div>
-    </div>
-  </div>
-
-  <!-- Biała strona dla ZADANIA -->
   <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85">
     <div style="max-width:600px;margin:0 auto;padding:80px 20px;text-align:center">
       <div style="font-size:64px;margin-bottom:24px">✅</div>
@@ -649,7 +626,7 @@ window.onload=function(){
   $('queueOverlay').addEventListener('click', (e)=>{ if (e.target === $('queueOverlay')) closeQueue(); });
   $('setOverlay').addEventListener('click', (e)=>{ if (e.target === $('setOverlay')) closeSet(); });
   $('fillCalcOverlay').addEventListener('click', (e)=>{ if (e.target === $('fillCalcOverlay')) closeFillCalc(); });
-  $('cameraOverlay').addEventListener('click', (e)=>{ if (e.target === $('cameraOverlay')) closeCamera(); });
+  $('cameraOverlay').addEventListener('click', (e)=>{ if (e.target === $('cameraOverlay')) closeCamera(); }); // v3.0.2 Fix
   $('clearX').addEventListener('click', clearSearch);
 
   window.addEventListener('online', trySendQueue);
@@ -657,6 +634,7 @@ window.onload=function(){
 
   hide($('syncOverlay'));
   
+  // Załaduj handlowców
   loadHandlowcy();
 };
 
@@ -763,7 +741,6 @@ function renderCurrentTab(){
   const productList = document.getElementById('productList');
   const topbar = document.querySelector('.topbar');
   
-  // Jeśli ZADANIA - biała strona
   if(currentTab === 'zadania'){
     if(zadaniaScreen) zadaniaScreen.style.display = 'block';
     if(productList) productList.style.display = 'none';
@@ -771,7 +748,6 @@ function renderCurrentTab(){
     return;
   }
   
-  // Inne zakładki - normalny widok
   if(zadaniaScreen) zadaniaScreen.style.display = 'none';
   if(productList) productList.style.display = 'block';
   if(topbar) topbar.style.display = 'flex';
@@ -789,7 +765,6 @@ function renderCurrentTab(){
   }
   if(currentTab==='pos'){ renderPOS(posItems); return; }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
-  if(currentTab==='top'){ renderProducts(products); return; }
   renderProducts(products);
 }
 
@@ -1895,10 +1870,6 @@ function activateTab(el){
   renderCurrentTab();
 }
 
-function switchTab(el){
-  activateTab(el);
-}
-
 (function initBottomNavAutoHide(){
   const nav = $('bottomNav'); 
   let lastY = window.scrollY, ticking=false;
@@ -2069,28 +2040,26 @@ closeCalc = function() {
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
 
 <script>
-// === KARUZELA 7 IKON - NIESKOŃCZONA ===
+// === KARUZELA Z PRZYKŁADU - KOD IDENTYCZNY ===
 (function(){
   const items = [
-    { icon: 'folder_open', label: 'POS', tab: 'pos' },
-    { icon: 'local_offer', label: 'Promo', tab: 'promo' },
-    { icon: 'task_alt', label: 'Zadania', tab: 'zadania' },
-    { icon: 'inventory_2', label: 'Produkty', tab: 'produkty' },
-    { icon: 'schedule', label: 'Nowości', tab: 'nowosci' },
-    { icon: 'redeem', label: 'Zestawy', tab: 'zestawy' },
-    { icon: 'trending_up', label: 'TOP', tab: 'top' }
+    { icon: 'inventory_2', label: 'Produkty', tab: 'produkty', badge: 0 },
+    { icon: 'task_alt', label: 'Zadania', tab: 'zadania', badge: 0 },
+    { icon: 'local_offer', label: 'Promo', tab: 'promo', badge: 0 },
+    { icon: 'redeem', label: 'Zestawy', tab: 'zestawy', badge: 0 },
+    { icon: 'storefront', label: 'POS', tab: 'pos', badge: 0 },
+    { icon: 'auto_awesome', label: 'Nowości', tab: 'nowosci', badge: 0 }
   ];
 
-  const COPIES = 20; // Wiele kopii dla nieskończonej pętli
+  const COPIES = 20;
   const START_COPY = 10;
   const ITEM_WIDTH = 78;
 
-  let currentPosition = START_COPY * items.length + 3; // Start na PRODUKTY
-  const track = document.getElementById('carouselTrack');
+  let currentPosition = START_COPY * items.length;
+  const slider = document.getElementById('iconsSlider');
 
-  // Tworzenie ikon z kopiami
   function init() {
-    track.innerHTML = '';
+    slider.innerHTML = '';
     
     for (let copy = 0; copy < COPIES; copy++) {
       items.forEach((item, idx) => {
@@ -2104,63 +2073,49 @@ closeCalc = function() {
         navItem.innerHTML = `
           <div class="icon-wrapper">
             <span class="icon">${item.icon}</span>
+            ${item.badge > 0 ? `<span class="nav-badge">${item.badge}</span>` : ''}
           </div>
           <span class="label">${item.label}</span>
         `;
         
         navItem.addEventListener('click', () => {
           jumpToItem(idx);
+          activateTab(navItem);
         });
         
-        track.appendChild(navItem);
+        slider.appendChild(navItem);
       });
     }
     
     render();
   }
 
-  // Renderowanie pozycji
   function render() {
-    const isMobile = window.innerWidth < 768;
-    
-    if (isMobile) {
-      // MOBILE: wycentruj środkową
-      const containerWidth = window.innerWidth;
-      const centerOffset = containerWidth / 2;
-      const offset = centerOffset - (currentPosition * ITEM_WIDTH) - (ITEM_WIDTH / 2);
-      track.style.transform = `translateX(${offset}px)`;
-    } else {
-      // DESKTOP: wycentruj wszystkie 7
-      const visibleWidth = 7 * 85; // 7 ikon po 85px
-      const containerWidth = 650;
-      const baseOffset = (containerWidth - visibleWidth) / 2;
-      
-      // Znajdź która z 7 ikon jest aktywna
-      const activeInSet = currentPosition % items.length;
-      const offset = baseOffset - (activeInSet * 85);
-      track.style.transform = `translateX(${offset}px)`;
-    }
-    
-    // Usuń wszystkie .center
+    const CONTAINER_WIDTH = 390; // Stała szerokość - działa na mobile i desktop
+    const centerOffset = CONTAINER_WIDTH / 2;
+    const offset = centerOffset - (currentPosition * ITEM_WIDTH) - (ITEM_WIDTH / 2);
+    slider.style.transform = `translateX(${offset}px)`;
+
     document.querySelectorAll('.nav-item').forEach(item => {
       item.classList.remove('center');
     });
-    
-    // Dodaj .center do aktywnej
+
     const activeItem = document.querySelector(`[data-global-index="${currentPosition}"]`);
     if (activeItem) {
       activeItem.classList.add('center');
-      
-      // Aktualizuj currentTab
-      const tab = activeItem.dataset.tab;
-      if (tab && currentTab !== tab) {
-        currentTab = tab;
-        activateTab(activeItem);
-      }
     }
   }
 
-  // Skok do konkretnej ikony (najbliższa kopia)
+  function slideLeft() {
+    currentPosition++;
+    render();
+  }
+
+  function slideRight() {
+    currentPosition--;
+    render();
+  }
+
   function jumpToItem(itemIndex) {
     const currentCopy = Math.floor(currentPosition / items.length);
     const targetPosition = currentCopy * items.length + itemIndex;
@@ -2180,45 +2135,46 @@ closeCalc = function() {
     render();
   }
 
-  // Przesunięcia
-  function slideLeft() {
-    currentPosition++;
-    render();
-  }
-
-  function slideRight() {
-    currentPosition--;
-    render();
-  }
-
   // Touch
   let startX = 0;
-  const nav = document.getElementById('bottomNav');
-  
-  nav.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-  nav.addEventListener('touchend', e => {
-    const diff = startX - e.changedTouches[0].clientX;
+  const container = document.getElementById('bottomNav');
+
+  container.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  });
+
+  container.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = startX - endX;
+    
     if (Math.abs(diff) > 50) {
-      diff > 0 ? slideLeft() : slideRight();
+      if (diff > 0) slideLeft();
+      else slideRight();
     }
   });
 
   // Mouse
-  let mouseX = 0, mouseDown = false;
-  nav.addEventListener('mousedown', e => { mouseDown = true; mouseX = e.clientX; });
-  document.addEventListener('mouseup', e => {
+  let mouseDown = false;
+  let mouseStartX = 0;
+
+  container.addEventListener('mousedown', (e) => {
+    mouseDown = true;
+    mouseStartX = e.clientX;
+  });
+
+  document.addEventListener('mouseup', (e) => {
     if (!mouseDown) return;
-    const diff = mouseX - e.clientX;
+    
+    const diff = mouseStartX - e.clientX;
+    
     if (Math.abs(diff) > 50) {
-      diff > 0 ? slideLeft() : slideRight();
+      if (diff > 0) slideLeft();
+      else slideRight();
     }
+    
     mouseDown = false;
   });
 
-  // Resize
-  window.addEventListener('resize', render);
-
-  // Init
   init();
 })();
 </script>
