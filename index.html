@@ -2,18 +2,12 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v5.2.0 🔥 [09-11-2025 16:30]</title>
+  <title>PDA DEDRA v3.0.6 PWA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
-  
-  <!-- ANTY-CACHE -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="DEDRA v5.2.0">
+  <meta name="apple-mobile-web-app-title" content="DEDRA">
   <meta name="theme-color" content="#2563eb">
   
   <!-- Manifest -->
@@ -113,95 +107,30 @@
     
     body.login-active .bottom-nav{display:none}
     
-    /* DESKTOP/TABLET - wszystkie ikony obok siebie */
+    /* DESKTOP - wszystkie ikony widoczne */
     @media (min-width:769px){
-      .carousel-container{display:flex!important;justify-content:center!important;align-items:center!important;gap:0!important;overflow:visible!important}
-      .carousel-track{transform:none!important;justify-content:center!important;gap:0!important}
-      .nav-item{opacity:1!important;pointer-events:auto!important}
-      .nav-item .icon{font-size:26px!important}
-      .nav-item.active .icon{font-size:32px!important}
-      .center-circle{display:none!important}
+      .carousel-container{display:flex;justify-content:center;align-items:center;overflow:visible!important}
+      .carousel-track{transform:none!important;justify-content:center}
+      .nav-item{opacity:1!important}
       .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
       .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
     }
     
-    /* MOBILE - karuzela */
+    /* MOBILE - karuzela, 5 widocznych */
     @media (max-width:768px){
-      .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
-      .carousel-track{display:flex;align-items:center;gap:0;transition:transform .35s cubic-bezier(0.4, 0.0, 0.2, 1);will-change:transform;position:relative}
-      
-      .nav-item{
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        min-width:80px;
-        padding:8px 4px;
-        cursor:pointer;
-        transition:all .35s cubic-bezier(0.4, 0.0, 0.2, 1);
-        flex-shrink:0;
-        opacity:0.4;
-        pointer-events:none;
-      }
-      
-      .nav-item .icon-wrap-nav{position:relative;display:inline-block}
-      .nav-item .nav-badge{position:absolute;top:-8px;right:-8px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 5px;box-shadow:0 2px 4px rgba(0,0,0,.3);z-index:5}
-      
-      .nav-item .icon{
-        font-family:'Material Symbols Rounded';
-        font-size:24px;
-        color:#9ca3af;
-        margin-bottom:4px;
-        transition:all .35s cubic-bezier(0.4, 0.0, 0.2, 1);
-      }
-      
-      .nav-item .label{
-        font-size:11px;
-        font-weight:700;
-        color:#9ca3af;
-        transition:all .35s cubic-bezier(0.4, 0.0, 0.2, 1);
-        white-space:nowrap;
-      }
-      
-      /* Boczne ikony - widoczne ale nie aktywne */
-      .nav-item.side-visible{
-        opacity:1;
-        pointer-events:auto;
-      }
-      
-      /* Środkowa ikona - AKTYWNA */
-      .nav-item.center{
-        opacity:1;
-        pointer-events:auto;
-        position:relative;
-        z-index:10;
-      }
-      
-      .nav-item.center .icon{
-        font-size:32px;
-        color:#2563eb;
-      }
-      
-      .nav-item.center .label{
-        color:#2563eb;
-        font-weight:900;
-      }
-      
-      /* NIEBIESKIE KÓŁKO NA ŚRODKU */
-      .center-circle{
-        position:absolute;
-        top:50%;
-        left:50%;
-        transform:translate(-50%,-50%);
-        width:75px;
-        height:75px;
-        background:#2563eb;
-        border-radius:50%;
-        box-shadow:0 4px 16px rgba(37,99,235,.4);
-        pointer-events:none;
-        z-index:5;
-      }
+      .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:flex-start;overflow:hidden}
+      .carousel-track{display:flex;align-items:center;gap:0;transition:transform .3s ease;will-change:transform}
+      .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:8px 4px;cursor:pointer;transition:all .3s ease;flex-shrink:0;opacity:0.3}
+      .nav-item.visible{opacity:1}
+      .nav-item.active{opacity:1}
     }
+    
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:75px;padding:8px 4px;cursor:pointer;transition:all .3s ease;flex-shrink:0}
+    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:26px;color:#9ca3af;margin-bottom:4px;transition:all .3s ease}
+    .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;transition:all .3s ease}
+    
+    .nav-item.active .icon{font-size:38px;color:#2563eb}
+    .nav-item.active .label{color:#2563eb;font-weight:900}
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
     .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
@@ -355,7 +284,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v5.2.0 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.2.2 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -372,10 +301,7 @@
         </div>
         
         <!-- ŚRODEK - LOGO -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-          <img id="brandLogo" class="brand" alt="DEDRA" src="https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/Dedra_logo_white%20red.png?alt=media&token=8041a041-abcd-4b4d-8c78-2e829056cf71" />
-          <div style="background:#10b981;color:white;font-size:9px;font-weight:900;padding:2px 8px;border-radius:8px;letter-spacing:0.5px">v5.2.0</div>
-        </div>
+        <img id="brandLogo" class="brand" alt="DEDRA" src="https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/Dedra_logo_white%20red.png?alt=media&token=8041a041-abcd-4b4d-8c78-2e829056cf71" />
         
         <!-- PRAWA STRONA -->
         <div class="topbar-actions topbar-right">
@@ -407,38 +333,30 @@
 
   <div id="bottomNav" class="bottom-nav">
     <div class="carousel-container">
-      <div class="center-circle"></div>
       <div class="carousel-track" id="carouselTrack">
-        <div class="nav-item" data-tab="top" data-index="0" onclick="switchTab(this)">
-          <span class="icon">trending_up</span>
-          <span class="label">TOP</span>
-        </div>
-        <div class="nav-item" data-tab="zestawy" data-index="1" onclick="switchTab(this)">
-          <span class="icon">redeem</span>
-          <span class="label">Zestawy</span>
-        </div>
-        <div class="nav-item" data-tab="nowosci" data-index="2" onclick="switchTab(this)">
-          <span class="icon">schedule</span>
-          <span class="label">Nowości</span>
-        </div>
-        <div class="nav-item center active" data-tab="produkty" data-index="3" onclick="switchTab(this)">
+        <div class="nav-item active visible" data-tab="produkty" data-index="0" onclick="handleNavClick(this, 0)">
           <span class="icon">inventory_2</span>
           <span class="label">Produkty</span>
         </div>
-        <div class="nav-item" data-tab="zadania" data-index="4" onclick="switchTab(this)">
-          <div class="icon-wrap-nav">
-            <span class="icon">task_alt</span>
-            <span class="nav-badge" id="zadaniaBadge" style="display:none">0</span>
-          </div>
+        <div class="nav-item visible" data-tab="zadania" data-index="1" onclick="handleNavClick(this, 1)">
+          <span class="icon">task_alt</span>
           <span class="label">Zadania</span>
         </div>
-        <div class="nav-item" data-tab="promo" data-index="5" onclick="switchTab(this)">
+        <div class="nav-item visible" data-tab="promo" data-index="2" onclick="handleNavClick(this, 2)">
           <span class="icon">sell</span>
           <span class="label">Promo</span>
         </div>
-        <div class="nav-item" data-tab="pos" data-index="6" onclick="switchTab(this)">
+        <div class="nav-item" data-tab="zestawy" data-index="3" onclick="handleNavClick(this, 3)">
+          <span class="icon">redeem</span>
+          <span class="label">Zestawy</span>
+        </div>
+        <div class="nav-item" data-tab="pos" data-index="4" onclick="handleNavClick(this, 4)">
           <span class="icon">folder_open</span>
           <span class="label">POS</span>
+        </div>
+        <div class="nav-item" data-tab="nowosci" data-index="5" onclick="handleNavClick(this, 5)">
+          <span class="icon">schedule</span>
+          <span class="label">Nowości</span>
         </div>
       </div>
     </div>
@@ -734,12 +652,6 @@ async function callAPI(action, params = {}) {
 }
 
 window.onload=function(){
-  console.log('%c🔥 PDA DEDRA v5.2.0 🔥', 'background:#10b981;color:white;font-size:20px;font-weight:900;padding:10px 20px;border-radius:8px');
-  console.log('%cZaładowano: 09.11.2025, 16:30:00','color:#10b981;font-size:14px;font-weight:700');
-  console.log('%cTimestamp: 09-11-2025 16:30','color:#6b7280;font-size:12px');
-  console.log('Załadowano:', new Date().toLocaleString('pl-PL'));
-  console.log('Timestamp:', '09-11-2025 10:20');
-  
   document.body.classList.add('login-active');
   
   loadCart(); 
@@ -891,7 +803,6 @@ function renderCurrentTab(){
   }
   if(currentTab==='pos'){ renderPOS(posItems); return; }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
-  if(currentTab==='top'){ renderProducts(products); return; }
   renderProducts(products);
 }
 
@@ -2017,125 +1928,96 @@ function switchTab(el){
   }, {passive:true});
 })();
 
-// ========== KARUZELA v5.2.0 ==========
-let carouselIndex = 3; // Start na "Produkty" (index 3)
-const navItems = Array.from(document.querySelectorAll('.nav-item'));
-const totalItems = navItems.length;
+// ========== KARUZELA SIMPLE ==========
+let carouselCurrentIndex = 0;
+const carouselItems = Array.from(document.querySelectorAll('.nav-item'));
+const carouselTotalItems = carouselItems.length;
 
-function updateCarousel() {
+function updateCarouselVisibility() {
   const isMobile = window.innerWidth <= 768;
   
   if (!isMobile) {
-    // Desktop/Tablet - wszystkie ikony widoczne, bez karuzeli
-    navItems.forEach(item => {
-      item.classList.remove('center', 'side-visible');
-      if (item.getAttribute('data-tab') === currentTab) {
-        item.classList.add('active');
-      } else {
-        item.classList.remove('active');
-      }
+    // Desktop - wszystkie widoczne
+    carouselItems.forEach(item => {
+      item.classList.add('visible');
     });
     return;
   }
   
-  // Mobile - karuzela
-  const track = $('carouselTrack');
-  const itemWidth = 80; // min-width z CSS
-  const centerOffset = (window.innerWidth / 2) - (itemWidth / 2);
-  const translateX = centerOffset - (carouselIndex * itemWidth);
-  
-  track.style.transform = `translateX(${translateX}px)`;
-  
-  // Update klas
-  navItems.forEach((item, i) => {
-    item.classList.remove('center', 'side-visible', 'active');
+  // Mobile - tylko 5 widocznych (środkowe i 2 z każdej strony)
+  carouselItems.forEach((item, index) => {
+    const distance = Math.min(
+      Math.abs(index - carouselCurrentIndex),
+      Math.abs(index - carouselCurrentIndex + carouselTotalItems),
+      Math.abs(index - carouselCurrentIndex - carouselTotalItems)
+    );
     
-    const distance = Math.abs(i - carouselIndex);
-    
-    if (i === carouselIndex) {
-      item.classList.add('center', 'active');
-      currentTab = item.getAttribute('data-tab');
-    } else if (distance === 1 || distance === 2) {
-      item.classList.add('side-visible');
+    if (distance <= 2) {
+      item.classList.add('visible');
+    } else {
+      item.classList.remove('visible');
     }
   });
   
-  renderCurrentTab();
+  // Przesuwanie track
+  const track = $('carouselTrack');
+  const itemWidth = 80;
+  const containerWidth = window.innerWidth;
+  const centerOffset = (containerWidth / 2) - (itemWidth / 2);
+  const translateX = centerOffset - (carouselCurrentIndex * itemWidth);
+  
+  track.style.transform = `translateX(${translateX}px)`;
 }
 
-function moveCarousel(direction) {
-  carouselIndex = (carouselIndex + direction + totalItems) % totalItems;
-  updateCarousel();
+function handleNavClick(element, index) {
+  const isMobile = window.innerWidth <= 768;
+  
+  if (isMobile) {
+    // Mobile - przesuń karuzelę do klikniętego elementu
+    carouselCurrentIndex = index;
+    updateCarouselVisibility();
+  }
+  
+  // Aktywuj zakładkę
+  switchTab(element);
 }
 
 // Swipe support
-let touchStartX = 0;
-let touchEndX = 0;
+let touchStartXCarousel = 0;
+let touchEndXCarousel = 0;
 
-$('carouselTrack').addEventListener('touchstart', e => {
-  touchStartX = e.touches[0].clientX;
+const trackElement = $('carouselTrack');
+
+trackElement.addEventListener('touchstart', (e) => {
+  if (window.innerWidth > 768) return; // Tylko mobile
+  touchStartXCarousel = e.touches[0].clientX;
 });
 
-$('carouselTrack').addEventListener('touchend', e => {
-  touchEndX = e.changedTouches[0].clientX;
-  const diff = touchStartX - touchEndX;
+trackElement.addEventListener('touchend', (e) => {
+  if (window.innerWidth > 768) return; // Tylko mobile
+  
+  touchEndXCarousel = e.changedTouches[0].clientX;
+  const diff = touchStartXCarousel - touchEndXCarousel;
   
   if (Math.abs(diff) > 50) {
     if (diff > 0) {
-      moveCarousel(1); // Swipe left
+      // Swipe left - następny
+      carouselCurrentIndex = (carouselCurrentIndex + 1) % carouselTotalItems;
     } else {
-      moveCarousel(-1); // Swipe right
+      // Swipe right - poprzedni
+      carouselCurrentIndex = (carouselCurrentIndex - 1 + carouselTotalItems) % carouselTotalItems;
     }
+    updateCarouselVisibility();
   }
 });
-
-// Click on nav item - handle both mobile and desktop
-navItems.forEach((item, index) => {
-  const originalOnClick = item.getAttribute('onclick');
-  item.removeAttribute('onclick');
-  
-  item.addEventListener('click', (e) => {
-    e.stopPropagation();
-    
-    if (window.innerWidth <= 768) {
-      // Mobile - przesuń karuzelę jeśli nie jest w centrum
-      if (index !== carouselIndex) {
-        carouselIndex = index;
-        updateCarousel();
-      } else {
-        // Już w centrum - aktywuj zakładkę
-        switchTab(item);
-      }
-    } else {
-      // Desktop - bezpośrednia aktywacja
-      switchTab(item);
-    }
-  });
-});
-
-// Update badge zadań
-function updateZadaniaBadge() {
-  // Symulacja liczby zadań (w przyszłości pobierać z API)
-  const taskCount = 3;
-  const badge = $('zadaniaBadge');
-  if (taskCount > 0) {
-    badge.textContent = taskCount;
-    badge.style.display = 'flex';
-  } else {
-    badge.style.display = 'none';
-  }
-}
 
 // Resize handler
 window.addEventListener('resize', () => {
-  updateCarousel();
+  updateCarouselVisibility();
 });
 
-// Inicjalizacja karuzeli po załadowaniu
-window.addEventListener('load', () => {
-  updateCarousel();
-  updateZadaniaBadge();
-});
+// Init
+updateCarouselVisibility();
 
 // TOGGLE TRYBU: Klawiatura ⌨️ ↔️ Czytnik |||||
 function toggleScannerMode() {
