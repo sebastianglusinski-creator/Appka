@@ -108,28 +108,29 @@
     
     body.login-active .bottom-nav{display:none}
     
-    /* Container dla slajdera */
     .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-    
-    /* Track - przesuwający się */
-    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .3s ease;height:100%}
+    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);height:100%}
     
     /* Pojedyncza ikona */
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .3s ease;flex-shrink:0;position:relative}
-    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;margin-bottom:4px;transition:all .3s ease}
-    .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;transition:all .3s ease;white-space:nowrap}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);flex-shrink:0;position:relative}
     
-    /* Aktywna (środkowa) - DUŻA i WYSTAWAJĄCA */
-    .nav-item.center{transform:translateY(-10px)}
-    .nav-item.center .icon{font-size:44px;color:#2563eb}
-    .nav-item.center .label{color:#2563eb;font-weight:900;font-size:12px}
+    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);width:40px;height:40px;border-radius:10px;background:transparent}
+    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;transition:all .4s cubic-bezier(0.25,0.1,0.25,1)}
+    .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;margin-top:4px;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);white-space:nowrap}
     
-    /* Desktop - wszystkie widoczne */
+    /* Środkowa - KÓŁKO + DUŻA IKONA + WYSTAWAJĄCA */
+    .nav-item.center{transform:translateY(-8px)}
+    .nav-item.center .icon-wrapper{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4);z-index:10;position:relative}
+    .nav-item.center .icon{font-size:32px;color:white}
+    .nav-item.center .label{color:white;font-weight:900;font-size:12px}
+    
+    /* Desktop */
     @media (min-width:768px){
       .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
       .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
       .nav-item{min-width:85px}
-      .nav-item.center .icon{font-size:48px}
+      .nav-item.center .icon-wrapper{width:70px;height:70px}
+      .nav-item.center .icon{font-size:36px}
     }
     }
 
@@ -2068,7 +2069,7 @@ closeCalc = function() {
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
 
 <script>
-// === KARUZELA 7 IKON ===
+// === KARUZELA 7 IKON - NIESKOŃCZONA ===
 (function(){
   const items = [
     { icon: 'folder_open', label: 'POS', tab: 'pos' },
@@ -2080,80 +2081,117 @@ closeCalc = function() {
     { icon: 'trending_up', label: 'TOP', tab: 'top' }
   ];
 
-  let currentIdx = 3; // Start na PRODUKTY (index 3)
-  const track = document.getElementById('carouselTrack');
+  const COPIES = 20; // Wiele kopii dla nieskończonej pętli
+  const START_COPY = 10;
   const ITEM_WIDTH = 78;
 
-  // Tworzenie ikon
+  let currentPosition = START_COPY * items.length + 3; // Start na PRODUKTY
+  const track = document.getElementById('carouselTrack');
+
+  // Tworzenie ikon z kopiami
   function init() {
     track.innerHTML = '';
-    items.forEach((item, idx) => {
-      const navItem = document.createElement('div');
-      navItem.className = 'nav-item';
-      navItem.dataset.index = idx;
-      navItem.dataset.tab = item.tab;
-      
-      navItem.innerHTML = `
-        <span class="icon">${item.icon}</span>
-        <span class="label">${item.label}</span>
-      `;
-      
-      navItem.addEventListener('click', () => {
-        currentIdx = idx;
-        update();
-        activateTab(navItem);
-      });
-      
-      track.appendChild(navItem);
-    });
     
-    update();
+    for (let copy = 0; copy < COPIES; copy++) {
+      items.forEach((item, idx) => {
+        const globalIndex = copy * items.length + idx;
+        
+        const navItem = document.createElement('div');
+        navItem.className = 'nav-item';
+        navItem.dataset.globalIndex = globalIndex;
+        navItem.dataset.tab = item.tab;
+        
+        navItem.innerHTML = `
+          <div class="icon-wrapper">
+            <span class="icon">${item.icon}</span>
+          </div>
+          <span class="label">${item.label}</span>
+        `;
+        
+        navItem.addEventListener('click', () => {
+          jumpToItem(idx);
+        });
+        
+        track.appendChild(navItem);
+      });
+    }
+    
+    render();
   }
 
-  // Aktualizacja pozycji i klas
-  function update() {
+  // Renderowanie pozycji
+  function render() {
     const isMobile = window.innerWidth < 768;
     
     if (isMobile) {
-      // MOBILE: 5 widocznych (2+środek+2)
-      // Oblicz offset tak aby środkowa była na środku ekranu
+      // MOBILE: wycentruj środkową
       const containerWidth = window.innerWidth;
       const centerOffset = containerWidth / 2;
-      const offset = centerOffset - (currentIdx * ITEM_WIDTH) - (ITEM_WIDTH / 2);
+      const offset = centerOffset - (currentPosition * ITEM_WIDTH) - (ITEM_WIDTH / 2);
       track.style.transform = `translateX(${offset}px)`;
     } else {
-      // DESKTOP: wszystkie widoczne, wyśrodkowane
-      const totalWidth = items.length * ITEM_WIDTH;
-      const containerWidth = 650; // max-width z CSS
-      const offset = (containerWidth - totalWidth) / 2;
+      // DESKTOP: wycentruj wszystkie 7
+      const visibleWidth = 7 * 85; // 7 ikon po 85px
+      const containerWidth = 650;
+      const baseOffset = (containerWidth - visibleWidth) / 2;
+      
+      // Znajdź która z 7 ikon jest aktywna
+      const activeInSet = currentPosition % items.length;
+      const offset = baseOffset - (activeInSet * 85);
       track.style.transform = `translateX(${offset}px)`;
     }
     
-    // Dodaj klasę .center do środkowej
-    document.querySelectorAll('.nav-item').forEach((item, i) => {
-      item.classList.toggle('center', i === currentIdx);
+    // Usuń wszystkie .center
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('center');
     });
     
-    // Aktualizuj currentTab
-    currentTab = items[currentIdx].tab;
+    // Dodaj .center do aktywnej
+    const activeItem = document.querySelector(`[data-global-index="${currentPosition}"]`);
+    if (activeItem) {
+      activeItem.classList.add('center');
+      
+      // Aktualizuj currentTab
+      const tab = activeItem.dataset.tab;
+      if (tab && currentTab !== tab) {
+        currentTab = tab;
+        activateTab(activeItem);
+      }
+    }
+  }
+
+  // Skok do konkretnej ikony (najbliższa kopia)
+  function jumpToItem(itemIndex) {
+    const currentCopy = Math.floor(currentPosition / items.length);
+    const targetPosition = currentCopy * items.length + itemIndex;
+    
+    const distanceCurrent = Math.abs(targetPosition - currentPosition);
+    const distancePrev = Math.abs((currentCopy - 1) * items.length + itemIndex - currentPosition);
+    const distanceNext = Math.abs((currentCopy + 1) * items.length + itemIndex - currentPosition);
+    
+    if (distancePrev < distanceCurrent && distancePrev < distanceNext) {
+      currentPosition = (currentCopy - 1) * items.length + itemIndex;
+    } else if (distanceNext < distanceCurrent) {
+      currentPosition = (currentCopy + 1) * items.length + itemIndex;
+    } else {
+      currentPosition = targetPosition;
+    }
+    
+    render();
   }
 
   // Przesunięcia
-  function prev() {
-    currentIdx = (currentIdx - 1 + items.length) % items.length;
-    update();
-    const activeItem = document.querySelector('.nav-item.center');
-    if(activeItem) activateTab(activeItem);
+  function slideLeft() {
+    currentPosition++;
+    render();
   }
 
-  function next() {
-    currentIdx = (currentIdx + 1) % items.length;
-    update();
-    const activeItem = document.querySelector('.nav-item.center');
-    if(activeItem) activateTab(activeItem);
+  function slideRight() {
+    currentPosition--;
+    render();
   }
 
-  // Touch support
+  // Touch
   let startX = 0;
   const nav = document.getElementById('bottomNav');
   
@@ -2161,24 +2199,24 @@ closeCalc = function() {
   nav.addEventListener('touchend', e => {
     const diff = startX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) {
-      diff > 0 ? next() : prev();
+      diff > 0 ? slideLeft() : slideRight();
     }
   });
 
-  // Mouse support
+  // Mouse
   let mouseX = 0, mouseDown = false;
   nav.addEventListener('mousedown', e => { mouseDown = true; mouseX = e.clientX; });
   document.addEventListener('mouseup', e => {
     if (!mouseDown) return;
     const diff = mouseX - e.clientX;
     if (Math.abs(diff) > 50) {
-      diff > 0 ? next() : prev();
+      diff > 0 ? slideLeft() : slideRight();
     }
     mouseDown = false;
   });
 
-  // Resize handler
-  window.addEventListener('resize', update);
+  // Resize
+  window.addEventListener('resize', render);
 
   // Init
   init();
