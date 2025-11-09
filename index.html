@@ -102,53 +102,32 @@
     .add-btn.orange{background:var(--orange)}
 
     /* === KARUZELA - CLEAN VERSION === */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:100px;background:#f9fafb;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;overflow:hidden}
     .bottom-nav.hide{transform:translateY(100%)}
-    .bottom-nav::-webkit-scrollbar{display:none}
     
     body.login-active .bottom-nav{display:none}
     
+    /* STAŁE NIEBIESKIE KÓŁKO NA ŚRODKU */
+    .bottom-nav::after{content:'';position:absolute;bottom:15px;left:50%;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4);pointer-events:none;z-index:5}
+    
     .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-    .carousel-track{display:flex;align-items:center;gap:0;height:100%;justify-content:center}
+    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .4s ease;height:100%}
     
     .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .3s ease;flex-shrink:0;position:relative}
     
-    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:transparent;transition:all .3s ease}
+    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;transition:all .3s ease}
     .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;transition:all .3s ease}
     .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;margin-top:4px;transition:all .3s ease;white-space:nowrap}
     
-    /* Aktywna - KÓŁKO */
-    .nav-item.active{transform:translateY(-8px)}
-    .nav-item.active .icon-wrapper{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4)}
-    .nav-item.active .icon{font-size:32px;color:white}
-    .nav-item.active .label{color:white;font-weight:900}
+    /* ŚRODKOWA - powiększona i biała (bo jest w kółku) */
+    .nav-item.center .icon-wrapper{width:64px;height:64px;z-index:10}
+    .nav-item.center .icon{font-size:32px;color:white}
+    .nav-item.center .label{color:white;font-weight:900}
     
-    /* MOBILE - 5 widocznych (ukryj 1 z lewej, 1 z prawej) */
-    @media (max-width:767px){
-      /* Ukryj pierwszą */
-      .nav-item:nth-child(1){display:none}
-      /* Ukryj ostatnią */
-      .nav-item:nth-child(7){display:none}
-      
-      /* Pokaż jeśli aktywna */
-      .nav-item.active{display:flex}
-      
-      /* Dynamicznie pokaż sąsiadów aktywnej */
-      .nav-item.active:nth-child(1) ~ .nav-item:nth-child(2),
-      .nav-item.active:nth-child(1) ~ .nav-item:nth-child(3){display:flex}
-      
-      .nav-item.active:nth-child(2) ~ .nav-item:nth-child(3),
-      .nav-item.active:nth-child(2) ~ .nav-item:nth-child(4){display:flex}
-      
-      .nav-item.active:nth-child(7) ~ .nav-item:nth-child(5),
-      .nav-item.active:nth-child(7) ~ .nav-item:nth-child(6){display:flex}
-    }
-    
-    /* DESKTOP - wszystkie 7 */
+    /* Desktop */
     @media (min-width:768px){
-      .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0;overflow:visible}
+      .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
       .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
-      .nav-item{min-width:85px}
     }
     }
 
@@ -354,31 +333,31 @@
   <div id="bottomNav" class="bottom-nav">
     <div class="carousel-container">
       <div class="carousel-track" id="carouselTrack">
-        <div class="nav-item" data-tab="pos" onclick="switchTab(this)">
+        <div class="nav-item" data-tab="pos" data-idx="0">
           <div class="icon-wrapper"><span class="icon">folder_open</span></div>
           <span class="label">POS</span>
         </div>
-        <div class="nav-item" data-tab="promo" onclick="switchTab(this)">
+        <div class="nav-item" data-tab="promo" data-idx="1">
           <div class="icon-wrapper"><span class="icon">local_offer</span></div>
           <span class="label">Promo</span>
         </div>
-        <div class="nav-item" data-tab="zadania" onclick="switchTab(this)">
+        <div class="nav-item" data-tab="zadania" data-idx="2">
           <div class="icon-wrapper"><span class="icon">task_alt</span></div>
           <span class="label">Zadania</span>
         </div>
-        <div class="nav-item active" data-tab="produkty" onclick="switchTab(this)">
+        <div class="nav-item center" data-tab="produkty" data-idx="3">
           <div class="icon-wrapper"><span class="icon">inventory_2</span></div>
           <span class="label">Produkty</span>
         </div>
-        <div class="nav-item" data-tab="nowosci" onclick="switchTab(this)">
+        <div class="nav-item" data-tab="nowosci" data-idx="4">
           <div class="icon-wrapper"><span class="icon">schedule</span></div>
           <span class="label">Nowości</span>
         </div>
-        <div class="nav-item" data-tab="zestawy" onclick="switchTab(this)">
+        <div class="nav-item" data-tab="zestawy" data-idx="5">
           <div class="icon-wrapper"><span class="icon">redeem</span></div>
           <span class="label">Zestawy</span>
         </div>
-        <div class="nav-item" data-tab="top" onclick="switchTab(this)">
+        <div class="nav-item" data-tab="top" data-idx="6">
           <div class="icon-wrapper"><span class="icon">trending_up</span></div>
           <span class="label">TOP</span>
         </div>
@@ -2102,6 +2081,87 @@ closeCalc = function() {
 </script>
 <!-- Ukryty trigger do wymuszania klawiatury -->
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
+
+<script>
+// === KARUZELA - STAŁE KÓŁKO ===
+(function(){
+  const items = Array.from(document.querySelectorAll('.nav-item'));
+  const track = document.getElementById('carouselTrack');
+  const ITEM_WIDTH = 78;
+  let centerIdx = 3; // Start na Produkty
+
+  function render(){
+    const isMobile = window.innerWidth < 768;
+    
+    if(isMobile){
+      // MOBILE: wycentruj środkową ikonę
+      const containerWidth = window.innerWidth;
+      const centerOffset = containerWidth / 2;
+      const offset = centerOffset - (centerIdx * ITEM_WIDTH) - (ITEM_WIDTH / 2);
+      track.style.transform = `translateX(${offset}px)`;
+    } else {
+      // DESKTOP: wycentruj wszystkie 7
+      const totalWidth = 7 * 78;
+      const containerWidth = 650;
+      const offset = (containerWidth - totalWidth) / 2;
+      track.style.transform = `translateX(${offset}px)`;
+    }
+    
+    // Dodaj klasę .center tylko do środkowej
+    items.forEach((item, i) => {
+      item.classList.toggle('center', i === centerIdx);
+    });
+    
+    // Aktywuj zakładkę
+    const activeItem = items[centerIdx];
+    if(activeItem){
+      const tab = activeItem.dataset.tab;
+      if(currentTab !== tab){
+        currentTab = tab;
+        renderCurrentTab();
+      }
+    }
+  }
+
+  // Kliknięcie w ikonę
+  items.forEach((item, idx) => {
+    item.addEventListener('click', () => {
+      centerIdx = idx;
+      render();
+    });
+  });
+
+  // Touch/Mouse swipe
+  let startX = 0;
+  const nav = document.getElementById('bottomNav');
+  
+  nav.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  nav.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if(Math.abs(diff) > 50){
+      if(diff > 0) centerIdx = Math.min(centerIdx + 1, items.length - 1);
+      else centerIdx = Math.max(centerIdx - 1, 0);
+      render();
+    }
+  });
+
+  let mouseX = 0, mouseDown = false;
+  nav.addEventListener('mousedown', e => { mouseDown = true; mouseX = e.clientX; });
+  document.addEventListener('mouseup', e => {
+    if(!mouseDown) return;
+    const diff = mouseX - e.clientX;
+    if(Math.abs(diff) > 50){
+      if(diff > 0) centerIdx = Math.min(centerIdx + 1, items.length - 1);
+      else centerIdx = Math.max(centerIdx - 1, 0);
+      render();
+    }
+    mouseDown = false;
+  });
+
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
 
 </body>
 </html>
