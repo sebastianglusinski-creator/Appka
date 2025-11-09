@@ -107,23 +107,8 @@
     
     body.login-active .bottom-nav{display:none}
     
-    /* DESKTOP - wszystkie ikony widoczne */
-    @media (min-width:769px){
-      .carousel-container{display:flex;justify-content:center;align-items:center;overflow:visible!important}
-      .carousel-track{transform:none!important;justify-content:center}
-      .nav-item{opacity:1!important}
-      .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
-      .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
-    }
-    
-    /* MOBILE - karuzela, 5 widocznych */
-    @media (max-width:768px){
-      .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:flex-start;overflow:hidden}
-      .carousel-track{display:flex;align-items:center;gap:0;transition:transform .3s ease;will-change:transform}
-      .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:8px 4px;cursor:pointer;transition:all .3s ease;flex-shrink:0;opacity:0.3}
-      .nav-item.visible{opacity:1}
-      .nav-item.active{opacity:1}
-    }
+    .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .3s ease}
     
     .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:75px;padding:8px 4px;cursor:pointer;transition:all .3s ease;flex-shrink:0}
     .nav-item .icon{font-family:'Material Symbols Rounded';font-size:26px;color:#9ca3af;margin-bottom:4px;transition:all .3s ease}
@@ -131,6 +116,11 @@
     
     .nav-item.active .icon{font-size:38px;color:#2563eb}
     .nav-item.active .label{color:#2563eb;font-weight:900}
+    
+    @media (min-width:768px){
+      .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
+      .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
+    }
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
     .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
@@ -334,27 +324,27 @@
   <div id="bottomNav" class="bottom-nav">
     <div class="carousel-container">
       <div class="carousel-track" id="carouselTrack">
-        <div class="nav-item active visible" data-tab="produkty" data-index="0" onclick="handleNavClick(this, 0)">
+        <div class="nav-item active" data-tab="produkty" onclick="switchTab(this)">
           <span class="icon">inventory_2</span>
           <span class="label">Produkty</span>
         </div>
-        <div class="nav-item visible" data-tab="zadania" data-index="1" onclick="handleNavClick(this, 1)">
+        <div class="nav-item" data-tab="zadania" onclick="switchTab(this)">
           <span class="icon">task_alt</span>
           <span class="label">Zadania</span>
         </div>
-        <div class="nav-item visible" data-tab="promo" data-index="2" onclick="handleNavClick(this, 2)">
+        <div class="nav-item" data-tab="promo" onclick="switchTab(this)">
           <span class="icon">sell</span>
           <span class="label">Promo</span>
         </div>
-        <div class="nav-item" data-tab="zestawy" data-index="3" onclick="handleNavClick(this, 3)">
+        <div class="nav-item" data-tab="zestawy" onclick="switchTab(this)">
           <span class="icon">redeem</span>
           <span class="label">Zestawy</span>
         </div>
-        <div class="nav-item" data-tab="pos" data-index="4" onclick="handleNavClick(this, 4)">
+        <div class="nav-item" data-tab="pos" onclick="switchTab(this)">
           <span class="icon">folder_open</span>
           <span class="label">POS</span>
         </div>
-        <div class="nav-item" data-tab="nowosci" data-index="5" onclick="handleNavClick(this, 5)">
+        <div class="nav-item" data-tab="nowosci" onclick="switchTab(this)">
           <span class="icon">schedule</span>
           <span class="label">Nowości</span>
         </div>
@@ -1927,97 +1917,6 @@ function switchTab(el){
     } 
   }, {passive:true});
 })();
-
-// ========== KARUZELA SIMPLE ==========
-let carouselCurrentIndex = 0;
-const carouselItems = Array.from(document.querySelectorAll('.nav-item'));
-const carouselTotalItems = carouselItems.length;
-
-function updateCarouselVisibility() {
-  const isMobile = window.innerWidth <= 768;
-  
-  if (!isMobile) {
-    // Desktop - wszystkie widoczne
-    carouselItems.forEach(item => {
-      item.classList.add('visible');
-    });
-    return;
-  }
-  
-  // Mobile - tylko 5 widocznych (środkowe i 2 z każdej strony)
-  carouselItems.forEach((item, index) => {
-    const distance = Math.min(
-      Math.abs(index - carouselCurrentIndex),
-      Math.abs(index - carouselCurrentIndex + carouselTotalItems),
-      Math.abs(index - carouselCurrentIndex - carouselTotalItems)
-    );
-    
-    if (distance <= 2) {
-      item.classList.add('visible');
-    } else {
-      item.classList.remove('visible');
-    }
-  });
-  
-  // Przesuwanie track
-  const track = $('carouselTrack');
-  const itemWidth = 80;
-  const containerWidth = window.innerWidth;
-  const centerOffset = (containerWidth / 2) - (itemWidth / 2);
-  const translateX = centerOffset - (carouselCurrentIndex * itemWidth);
-  
-  track.style.transform = `translateX(${translateX}px)`;
-}
-
-function handleNavClick(element, index) {
-  const isMobile = window.innerWidth <= 768;
-  
-  if (isMobile) {
-    // Mobile - przesuń karuzelę do klikniętego elementu
-    carouselCurrentIndex = index;
-    updateCarouselVisibility();
-  }
-  
-  // Aktywuj zakładkę
-  switchTab(element);
-}
-
-// Swipe support
-let touchStartXCarousel = 0;
-let touchEndXCarousel = 0;
-
-const trackElement = $('carouselTrack');
-
-trackElement.addEventListener('touchstart', (e) => {
-  if (window.innerWidth > 768) return; // Tylko mobile
-  touchStartXCarousel = e.touches[0].clientX;
-});
-
-trackElement.addEventListener('touchend', (e) => {
-  if (window.innerWidth > 768) return; // Tylko mobile
-  
-  touchEndXCarousel = e.changedTouches[0].clientX;
-  const diff = touchStartXCarousel - touchEndXCarousel;
-  
-  if (Math.abs(diff) > 50) {
-    if (diff > 0) {
-      // Swipe left - następny
-      carouselCurrentIndex = (carouselCurrentIndex + 1) % carouselTotalItems;
-    } else {
-      // Swipe right - poprzedni
-      carouselCurrentIndex = (carouselCurrentIndex - 1 + carouselTotalItems) % carouselTotalItems;
-    }
-    updateCarouselVisibility();
-  }
-});
-
-// Resize handler
-window.addEventListener('resize', () => {
-  updateCarouselVisibility();
-});
-
-// Init
-updateCarouselVisibility();
 
 // TOGGLE TRYBU: Klawiatura ⌨️ ↔️ Czytnik |||||
 function toggleScannerMode() {
