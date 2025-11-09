@@ -24,7 +24,7 @@
     :root{
       --blue:#2563eb;--blue-dark:#1e40af;--ink:#111827;--muted:#6b7280;--bg:#f5f7fb;
       --success:#10b981;--danger:#ef4444;--ring:rgba(37,99,235,.15);
-      --nav-h:90px;
+      --nav-h:82px;
       --q1:#e0f2fe;--q2:#dcfce7;--q3:#fee2e2;
       --orange:#f97316;
     }
@@ -101,25 +101,55 @@
     .add-btn:active{transform:scale(.97)}
     .add-btn.orange{background:var(--orange)}
 
-    /* === KARUZELA Z PRZYKŁADU === */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:90px;background:#f9fafb;overflow:hidden;z-index:90;transition:transform .25s;border-top:1px solid #e5e7eb}
+    /* === KARUZELA - CLEAN VERSION === */
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
     .bottom-nav.hide{transform:translateY(100%)}
+    .bottom-nav::-webkit-scrollbar{display:none}
+    
     body.login-active .bottom-nav{display:none}
     
-    .icons-slider{position:absolute;bottom:5px;left:0;height:85px;display:flex;align-items:center;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);z-index:5}
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);-webkit-tap-highlight-color:transparent;position:relative;flex-shrink:0}
-    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);width:40px;height:40px;border-radius:10px;background:transparent}
-    .nav-item .icon{font-family:'Material Symbols Rounded';transition:all .4s cubic-bezier(0.25,0.1,0.25,1);font-size:24px;color:#9CA3AF}
-    .nav-item .label{font-size:11px;font-weight:700;margin-top:4px;opacity:1;transition:all .4s cubic-bezier(0.25,0.1,0.25,1);color:#9CA3AF}
-    .nav-item.center .icon-wrapper{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 6px 16px rgba(59,130,246,0.4);transform:translateY(0);z-index:10;position:relative}
-    .nav-item.center .icon{font-size:30px;color:white}
-    .nav-item.center .label{color:white;font-weight:900}
-    .nav-badge{position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:#EF4444;color:white;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
-    .nav-item.center .nav-badge{display:flex}
+    .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+    .carousel-track{display:flex;align-items:center;gap:0;height:100%;justify-content:center}
     
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .3s ease;flex-shrink:0;position:relative}
+    
+    .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:transparent;transition:all .3s ease}
+    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;transition:all .3s ease}
+    .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;margin-top:4px;transition:all .3s ease;white-space:nowrap}
+    
+    /* Aktywna - KÓŁKO */
+    .nav-item.active{transform:translateY(-8px)}
+    .nav-item.active .icon-wrapper{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4)}
+    .nav-item.active .icon{font-size:32px;color:white}
+    .nav-item.active .label{color:white;font-weight:900}
+    
+    /* MOBILE - 5 widocznych (ukryj 1 z lewej, 1 z prawej) */
+    @media (max-width:767px){
+      /* Ukryj pierwszą */
+      .nav-item:nth-child(1){display:none}
+      /* Ukryj ostatnią */
+      .nav-item:nth-child(7){display:none}
+      
+      /* Pokaż jeśli aktywna */
+      .nav-item.active{display:flex}
+      
+      /* Dynamicznie pokaż sąsiadów aktywnej */
+      .nav-item.active:nth-child(1) ~ .nav-item:nth-child(2),
+      .nav-item.active:nth-child(1) ~ .nav-item:nth-child(3){display:flex}
+      
+      .nav-item.active:nth-child(2) ~ .nav-item:nth-child(3),
+      .nav-item.active:nth-child(2) ~ .nav-item:nth-child(4){display:flex}
+      
+      .nav-item.active:nth-child(7) ~ .nav-item:nth-child(5),
+      .nav-item.active:nth-child(7) ~ .nav-item:nth-child(6){display:flex}
+    }
+    
+    /* DESKTOP - wszystkie 7 */
     @media (min-width:768px){
-      .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
+      .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0;overflow:visible}
       .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
+      .nav-item{min-width:85px}
+    }
     }
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
@@ -322,10 +352,41 @@
   </section>
 
   <div id="bottomNav" class="bottom-nav">
-    <div class="icons-slider" id="iconsSlider"></div>
+    <div class="carousel-container">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="nav-item" data-tab="pos" onclick="switchTab(this)">
+          <div class="icon-wrapper"><span class="icon">folder_open</span></div>
+          <span class="label">POS</span>
+        </div>
+        <div class="nav-item" data-tab="promo" onclick="switchTab(this)">
+          <div class="icon-wrapper"><span class="icon">local_offer</span></div>
+          <span class="label">Promo</span>
+        </div>
+        <div class="nav-item" data-tab="zadania" onclick="switchTab(this)">
+          <div class="icon-wrapper"><span class="icon">task_alt</span></div>
+          <span class="label">Zadania</span>
+        </div>
+        <div class="nav-item active" data-tab="produkty" onclick="switchTab(this)">
+          <div class="icon-wrapper"><span class="icon">inventory_2</span></div>
+          <span class="label">Produkty</span>
+        </div>
+        <div class="nav-item" data-tab="nowosci" onclick="switchTab(this)">
+          <div class="icon-wrapper"><span class="icon">schedule</span></div>
+          <span class="label">Nowości</span>
+        </div>
+        <div class="nav-item" data-tab="zestawy" onclick="switchTab(this)">
+          <div class="icon-wrapper"><span class="icon">redeem</span></div>
+          <span class="label">Zestawy</span>
+        </div>
+        <div class="nav-item" data-tab="top" onclick="switchTab(this)">
+          <div class="icon-wrapper"><span class="icon">trending_up</span></div>
+          <span class="label">TOP</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Biała strona ZADANIA -->
+  <!-- Biała strona dla ZADANIA -->
   <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85">
     <div style="max-width:600px;margin:0 auto;padding:80px 20px;text-align:center">
       <div style="font-size:64px;margin-bottom:24px">✅</div>
@@ -626,7 +687,7 @@ window.onload=function(){
   $('queueOverlay').addEventListener('click', (e)=>{ if (e.target === $('queueOverlay')) closeQueue(); });
   $('setOverlay').addEventListener('click', (e)=>{ if (e.target === $('setOverlay')) closeSet(); });
   $('fillCalcOverlay').addEventListener('click', (e)=>{ if (e.target === $('fillCalcOverlay')) closeFillCalc(); });
-  $('cameraOverlay').addEventListener('click', (e)=>{ if (e.target === $('cameraOverlay')) closeCamera(); }); // v3.0.2 Fix
+  $('cameraOverlay').addEventListener('click', (e)=>{ if (e.target === $('cameraOverlay')) closeCamera(); });
   $('clearX').addEventListener('click', clearSearch);
 
   window.addEventListener('online', trySendQueue);
@@ -634,7 +695,6 @@ window.onload=function(){
 
   hide($('syncOverlay'));
   
-  // Załaduj handlowców
   loadHandlowcy();
 };
 
@@ -741,6 +801,7 @@ function renderCurrentTab(){
   const productList = document.getElementById('productList');
   const topbar = document.querySelector('.topbar');
   
+  // Jeśli ZADANIA - biała strona
   if(currentTab === 'zadania'){
     if(zadaniaScreen) zadaniaScreen.style.display = 'block';
     if(productList) productList.style.display = 'none';
@@ -748,6 +809,7 @@ function renderCurrentTab(){
     return;
   }
   
+  // Inne zakładki - normalny widok
   if(zadaniaScreen) zadaniaScreen.style.display = 'none';
   if(productList) productList.style.display = 'block';
   if(topbar) topbar.style.display = 'flex';
@@ -765,6 +827,7 @@ function renderCurrentTab(){
   }
   if(currentTab==='pos'){ renderPOS(posItems); return; }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
+  if(currentTab==='top'){ renderProducts(products); return; }
   renderProducts(products);
 }
 
@@ -1861,13 +1924,14 @@ function confirmSet(){
 }
 
 function activateTab(el){
-  document.querySelectorAll('.nav-item').forEach(i=>{
-    i.classList.remove('active');
-    i.classList.remove('center');
-  });
-  el.classList.add('center');
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
   currentTab = el.getAttribute('data-tab') || 'produkty';
   renderCurrentTab();
+}
+
+function switchTab(el){
+  activateTab(el);
 }
 
 (function initBottomNavAutoHide(){
@@ -2038,146 +2102,6 @@ closeCalc = function() {
 </script>
 <!-- Ukryty trigger do wymuszania klawiatury -->
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
-
-<script>
-// === KARUZELA Z PRZYKŁADU - KOD IDENTYCZNY ===
-(function(){
-  const items = [
-    { icon: 'inventory_2', label: 'Produkty', tab: 'produkty', badge: 0 },
-    { icon: 'task_alt', label: 'Zadania', tab: 'zadania', badge: 0 },
-    { icon: 'local_offer', label: 'Promo', tab: 'promo', badge: 0 },
-    { icon: 'redeem', label: 'Zestawy', tab: 'zestawy', badge: 0 },
-    { icon: 'storefront', label: 'POS', tab: 'pos', badge: 0 },
-    { icon: 'auto_awesome', label: 'Nowości', tab: 'nowosci', badge: 0 }
-  ];
-
-  const COPIES = 20;
-  const START_COPY = 10;
-  const ITEM_WIDTH = 78;
-
-  let currentPosition = START_COPY * items.length;
-  const slider = document.getElementById('iconsSlider');
-
-  function init() {
-    slider.innerHTML = '';
-    
-    for (let copy = 0; copy < COPIES; copy++) {
-      items.forEach((item, idx) => {
-        const globalIndex = copy * items.length + idx;
-        
-        const navItem = document.createElement('div');
-        navItem.className = 'nav-item';
-        navItem.dataset.globalIndex = globalIndex;
-        navItem.dataset.tab = item.tab;
-        
-        navItem.innerHTML = `
-          <div class="icon-wrapper">
-            <span class="icon">${item.icon}</span>
-            ${item.badge > 0 ? `<span class="nav-badge">${item.badge}</span>` : ''}
-          </div>
-          <span class="label">${item.label}</span>
-        `;
-        
-        navItem.addEventListener('click', () => {
-          jumpToItem(idx);
-          activateTab(navItem);
-        });
-        
-        slider.appendChild(navItem);
-      });
-    }
-    
-    render();
-  }
-
-  function render() {
-    const CONTAINER_WIDTH = 390; // Stała szerokość - działa na mobile i desktop
-    const centerOffset = CONTAINER_WIDTH / 2;
-    const offset = centerOffset - (currentPosition * ITEM_WIDTH) - (ITEM_WIDTH / 2);
-    slider.style.transform = `translateX(${offset}px)`;
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.remove('center');
-    });
-
-    const activeItem = document.querySelector(`[data-global-index="${currentPosition}"]`);
-    if (activeItem) {
-      activeItem.classList.add('center');
-    }
-  }
-
-  function slideLeft() {
-    currentPosition++;
-    render();
-  }
-
-  function slideRight() {
-    currentPosition--;
-    render();
-  }
-
-  function jumpToItem(itemIndex) {
-    const currentCopy = Math.floor(currentPosition / items.length);
-    const targetPosition = currentCopy * items.length + itemIndex;
-    
-    const distanceCurrent = Math.abs(targetPosition - currentPosition);
-    const distancePrev = Math.abs((currentCopy - 1) * items.length + itemIndex - currentPosition);
-    const distanceNext = Math.abs((currentCopy + 1) * items.length + itemIndex - currentPosition);
-    
-    if (distancePrev < distanceCurrent && distancePrev < distanceNext) {
-      currentPosition = (currentCopy - 1) * items.length + itemIndex;
-    } else if (distanceNext < distanceCurrent) {
-      currentPosition = (currentCopy + 1) * items.length + itemIndex;
-    } else {
-      currentPosition = targetPosition;
-    }
-    
-    render();
-  }
-
-  // Touch
-  let startX = 0;
-  const container = document.getElementById('bottomNav');
-
-  container.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-  });
-
-  container.addEventListener('touchend', (e) => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = startX - endX;
-    
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) slideLeft();
-      else slideRight();
-    }
-  });
-
-  // Mouse
-  let mouseDown = false;
-  let mouseStartX = 0;
-
-  container.addEventListener('mousedown', (e) => {
-    mouseDown = true;
-    mouseStartX = e.clientX;
-  });
-
-  document.addEventListener('mouseup', (e) => {
-    if (!mouseDown) return;
-    
-    const diff = mouseStartX - e.clientX;
-    
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) slideLeft();
-      else slideRight();
-    }
-    
-    mouseDown = false;
-  });
-
-  init();
-})();
-</script>
 
 </body>
 </html>
