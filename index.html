@@ -107,20 +107,20 @@
     
     body.login-active .bottom-nav{display:none}
     
-    /* STAŁE NIEBIESKIE KÓŁKO NA ŚRODKU */
-    .bottom-nav::after{content:'';position:absolute;bottom:15px;left:50%;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4);pointer-events:none;z-index:5}
+    /* STAŁE KÓŁKO - POD ikonami */
+    .bottom-nav::before{content:'';position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 8px 20px rgba(59,130,246,0.4);pointer-events:none;z-index:1}
     
     .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .4s ease;height:100%}
+    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .4s cubic-bezier(0.25,0.1,0.25,1);height:100%}
     
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .3s ease;flex-shrink:0;position:relative}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .3s ease;flex-shrink:0;position:relative;z-index:10}
     
     .nav-item .icon-wrapper{position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;transition:all .3s ease}
     .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;transition:all .3s ease}
     .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;margin-top:4px;transition:all .3s ease;white-space:nowrap}
     
-    /* ŚRODKOWA - powiększona i biała (bo jest w kółku) */
-    .nav-item.center .icon-wrapper{width:64px;height:64px;z-index:10}
+    /* ŚRODKOWA - w kółku (biała ikona) */
+    .nav-item.center .icon-wrapper{width:64px;height:64px}
     .nav-item.center .icon{font-size:32px;color:white}
     .nav-item.center .label{color:white;font-weight:900}
     
@@ -2083,7 +2083,7 @@ closeCalc = function() {
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
 
 <script>
-// === KARUZELA - STAŁE KÓŁKO ===
+// === KARUZELA - IKONY PRZESKAKUJĄ ===
 (function(){
   const items = Array.from(document.querySelectorAll('.nav-item'));
   const track = document.getElementById('carouselTrack');
@@ -2094,20 +2094,20 @@ closeCalc = function() {
     const isMobile = window.innerWidth < 768;
     
     if(isMobile){
-      // MOBILE: wycentruj środkową ikonę
+      // MOBILE: wycentruj środkową
       const containerWidth = window.innerWidth;
       const centerOffset = containerWidth / 2;
       const offset = centerOffset - (centerIdx * ITEM_WIDTH) - (ITEM_WIDTH / 2);
       track.style.transform = `translateX(${offset}px)`;
     } else {
-      // DESKTOP: wycentruj wszystkie 7
+      // DESKTOP: wycentruj wszystkie
       const totalWidth = 7 * 78;
       const containerWidth = 650;
       const offset = (containerWidth - totalWidth) / 2;
       track.style.transform = `translateX(${offset}px)`;
     }
     
-    // Dodaj klasę .center tylko do środkowej
+    // Klasa .center tylko dla środkowej
     items.forEach((item, i) => {
       item.classList.toggle('center', i === centerIdx);
     });
@@ -2123,7 +2123,7 @@ closeCalc = function() {
     }
   }
 
-  // Kliknięcie w ikonę
+  // Kliknięcie = przeskok do środka
   items.forEach((item, idx) => {
     item.addEventListener('click', () => {
       centerIdx = idx;
@@ -2131,7 +2131,7 @@ closeCalc = function() {
     });
   });
 
-  // Touch/Mouse swipe
+  // Swipe
   let startX = 0;
   const nav = document.getElementById('bottomNav');
   
@@ -2143,19 +2143,6 @@ closeCalc = function() {
       else centerIdx = Math.max(centerIdx - 1, 0);
       render();
     }
-  });
-
-  let mouseX = 0, mouseDown = false;
-  nav.addEventListener('mousedown', e => { mouseDown = true; mouseX = e.clientX; });
-  document.addEventListener('mouseup', e => {
-    if(!mouseDown) return;
-    const diff = mouseX - e.clientX;
-    if(Math.abs(diff) > 50){
-      if(diff > 0) centerIdx = Math.min(centerIdx + 1, items.length - 1);
-      else centerIdx = Math.max(centerIdx - 1, 0);
-      render();
-    }
-    mouseDown = false;
   });
 
   window.addEventListener('resize', render);
