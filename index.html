@@ -24,7 +24,7 @@
     :root{
       --blue:#2563eb;--blue-dark:#1e40af;--ink:#111827;--muted:#6b7280;--bg:#f5f7fb;
       --success:#10b981;--danger:#ef4444;--ring:rgba(37,99,235,.15);
-      --nav-h:82px;
+      --nav-h:90px;
       --q1:#e0f2fe;--q2:#dcfce7;--q3:#fee2e2;
       --orange:#f97316;
     }
@@ -102,24 +102,35 @@
     .add-btn.orange{background:var(--orange)}
 
     /* === KARUZELA - CLEAN VERSION === */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;overflow:hidden}
+    /* === KARUZELA 7 IKON === */
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:90px;background:#f9fafb;border-top:1px solid #e5e7eb;overflow:hidden;z-index:90;transition:transform .25s}
     .bottom-nav.hide{transform:translateY(100%)}
     
     body.login-active .bottom-nav{display:none}
     
+    /* Container dla slajdera */
     .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .3s ease}
     
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:75px;padding:8px 4px;cursor:pointer;transition:all .3s ease;flex-shrink:0}
-    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:26px;color:#9ca3af;margin-bottom:4px;transition:all .3s ease}
-    .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;transition:all .3s ease}
+    /* Track - przesuwający się */
+    .carousel-track{display:flex;align-items:center;gap:0;transition:transform .3s ease;height:100%}
     
-    .nav-item.active .icon{font-size:38px;color:#2563eb}
-    .nav-item.active .label{color:#2563eb;font-weight:900}
+    /* Pojedyncza ikona */
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:78px;cursor:pointer;transition:all .3s ease;flex-shrink:0;position:relative}
+    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;margin-bottom:4px;transition:all .3s ease}
+    .nav-item .label{font-size:11px;font-weight:700;color:#9ca3af;transition:all .3s ease;white-space:nowrap}
     
+    /* Aktywna (środkowa) - DUŻA i WYSTAWAJĄCA */
+    .nav-item.center{transform:translateY(-10px)}
+    .nav-item.center .icon{font-size:44px;color:#2563eb}
+    .nav-item.center .label{color:#2563eb;font-weight:900;font-size:12px}
+    
+    /* Desktop - wszystkie widoczne */
     @media (min-width:768px){
       .bottom-nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
       .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
+      .nav-item{min-width:85px}
+      .nav-item.center .icon{font-size:48px}
+    }
     }
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
@@ -323,32 +334,16 @@
 
   <div id="bottomNav" class="bottom-nav">
     <div class="carousel-container">
-      <div class="carousel-track" id="carouselTrack">
-        <div class="nav-item active" data-tab="produkty" onclick="switchTab(this)">
-          <span class="icon">inventory_2</span>
-          <span class="label">Produkty</span>
-        </div>
-        <div class="nav-item" data-tab="zadania" onclick="switchTab(this)">
-          <span class="icon">task_alt</span>
-          <span class="label">Zadania</span>
-        </div>
-        <div class="nav-item" data-tab="promo" onclick="switchTab(this)">
-          <span class="icon">sell</span>
-          <span class="label">Promo</span>
-        </div>
-        <div class="nav-item" data-tab="zestawy" onclick="switchTab(this)">
-          <span class="icon">redeem</span>
-          <span class="label">Zestawy</span>
-        </div>
-        <div class="nav-item" data-tab="pos" onclick="switchTab(this)">
-          <span class="icon">folder_open</span>
-          <span class="label">POS</span>
-        </div>
-        <div class="nav-item" data-tab="nowosci" onclick="switchTab(this)">
-          <span class="icon">schedule</span>
-          <span class="label">Nowości</span>
-        </div>
-      </div>
+      <div class="carousel-track" id="carouselTrack"></div>
+    </div>
+  </div>
+
+  <!-- Biała strona ZADANIA -->
+  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85;padding-top:80px">
+    <div style="max-width:600px;margin:0 auto;padding:40px 20px;text-align:center">
+      <div style="font-size:64px;margin-bottom:24px">✅</div>
+      <div style="font-size:28px;font-weight:900;color:#111827;margin-bottom:12px">Zadania</div>
+      <div style="font-size:16px;color:#6b7280">Ta funkcja zostanie wkrótce dodana</div>
     </div>
   </div>
 
@@ -793,6 +788,7 @@ function renderCurrentTab(){
   }
   if(currentTab==='pos'){ renderPOS(posItems); return; }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
+  if(currentTab==='top'){ renderProducts(products); return; }
   renderProducts(products);
 }
 
@@ -1889,8 +1885,11 @@ function confirmSet(){
 }
 
 function activateTab(el){
-  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i=>{
+    i.classList.remove('active');
+    i.classList.remove('center');
+  });
+  el.classList.add('center');
   currentTab = el.getAttribute('data-tab') || 'produkty';
   renderCurrentTab();
 }
@@ -2067,6 +2066,124 @@ closeCalc = function() {
 </script>
 <!-- Ukryty trigger do wymuszania klawiatury -->
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
+
+<script>
+// === KARUZELA 7 IKON ===
+(function(){
+  const items = [
+    { icon: 'folder_open', label: 'POS', tab: 'pos' },
+    { icon: 'local_offer', label: 'Promo', tab: 'promo' },
+    { icon: 'task_alt', label: 'Zadania', tab: 'zadania' },
+    { icon: 'inventory_2', label: 'Produkty', tab: 'produkty' },
+    { icon: 'schedule', label: 'Nowości', tab: 'nowosci' },
+    { icon: 'redeem', label: 'Zestawy', tab: 'zestawy' },
+    { icon: 'trending_up', label: 'TOP', tab: 'top' }
+  ];
+
+  let currentIdx = 3; // Start na PRODUKTY (index 3)
+  const track = document.getElementById('carouselTrack');
+  const ITEM_WIDTH = 78;
+
+  // Tworzenie ikon
+  function init() {
+    track.innerHTML = '';
+    items.forEach((item, idx) => {
+      const navItem = document.createElement('div');
+      navItem.className = 'nav-item';
+      navItem.dataset.index = idx;
+      navItem.dataset.tab = item.tab;
+      
+      navItem.innerHTML = `
+        <span class="icon">${item.icon}</span>
+        <span class="label">${item.label}</span>
+      `;
+      
+      navItem.addEventListener('click', () => {
+        currentIdx = idx;
+        update();
+        activateTab(navItem);
+      });
+      
+      track.appendChild(navItem);
+    });
+    
+    update();
+  }
+
+  // Aktualizacja pozycji i klas
+  function update() {
+    const isMobile = window.innerWidth < 768;
+    
+    if (isMobile) {
+      // MOBILE: 5 widocznych (2+środek+2)
+      // Oblicz offset tak aby środkowa była na środku ekranu
+      const containerWidth = window.innerWidth;
+      const centerOffset = containerWidth / 2;
+      const offset = centerOffset - (currentIdx * ITEM_WIDTH) - (ITEM_WIDTH / 2);
+      track.style.transform = `translateX(${offset}px)`;
+    } else {
+      // DESKTOP: wszystkie widoczne, wyśrodkowane
+      const totalWidth = items.length * ITEM_WIDTH;
+      const containerWidth = 650; // max-width z CSS
+      const offset = (containerWidth - totalWidth) / 2;
+      track.style.transform = `translateX(${offset}px)`;
+    }
+    
+    // Dodaj klasę .center do środkowej
+    document.querySelectorAll('.nav-item').forEach((item, i) => {
+      item.classList.toggle('center', i === currentIdx);
+    });
+    
+    // Aktualizuj currentTab
+    currentTab = items[currentIdx].tab;
+  }
+
+  // Przesunięcia
+  function prev() {
+    currentIdx = (currentIdx - 1 + items.length) % items.length;
+    update();
+    const activeItem = document.querySelector('.nav-item.center');
+    if(activeItem) activateTab(activeItem);
+  }
+
+  function next() {
+    currentIdx = (currentIdx + 1) % items.length;
+    update();
+    const activeItem = document.querySelector('.nav-item.center');
+    if(activeItem) activateTab(activeItem);
+  }
+
+  // Touch support
+  let startX = 0;
+  const nav = document.getElementById('bottomNav');
+  
+  nav.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  nav.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? next() : prev();
+    }
+  });
+
+  // Mouse support
+  let mouseX = 0, mouseDown = false;
+  nav.addEventListener('mousedown', e => { mouseDown = true; mouseX = e.clientX; });
+  document.addEventListener('mouseup', e => {
+    if (!mouseDown) return;
+    const diff = mouseX - e.clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? next() : prev();
+    }
+    mouseDown = false;
+  });
+
+  // Resize handler
+  window.addEventListener('resize', update);
+
+  // Init
+  init();
+})();
+</script>
 
 </body>
 </html>
