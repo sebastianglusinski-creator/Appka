@@ -1214,53 +1214,18 @@ function resetProductButtons(){
     }
   });
 }
+
 async function sendOrder(){
   if(!cart.length){ alertBox('Uwaga','Koszyk jest pusty.'); return; }
-
   const sklep = $('orderTitle').value.trim();
   const promo = $('orderPromo').value.trim();
-
+  
+  // WALIDACJA: Sprawdź pole sklep v3.0.3
   if (!sklep || sklep === '') {
     alertBox('Brak nazwy sklepu', 'Wpisz nazwę sklepu/odbiorcę przed wysłaniem zamówienia.');
     return;
   }
-
-  const order = {
-    sklep,
-    promo,
-    produkty: cart
-  };
-
-  const json = JSON.stringify(order);
-  const blob = new Blob([json], { type: "application/json" });
-  console.log("🔍 Rozmiar zamówienia:", blob.size, "bajtów");
-
-  if (blob.size > 500000) {
-    toast("⚠️ Duże zamówienie – może wysyłać się dłużej!");
-  }
-
-  try {
-    const response = await fetch(API_URL + "/send", {
-      method: "POST",
-      body: blob,
-    });
-
-    const data = await response.json();
-
-    if (data.status === "OK") {
-      toast("✅ Zamówienie wysłane!");
-      localStorage.removeItem("cart");
-      cart = [];
-      refreshCart();
-    } else {
-      throw new Error("Błąd wysyłania zamówienia.");
-    }
-  } catch (error) {
-    toast("❌ Nie udało się wysłać zamówienia. Zapisano lokalnie.");
-    saveToBuffer(order);
-  }
-}
-
+  
   // MODAL POTWIERDZENIA v3.0.2
   const confirmed = await confirmSendOrder();
   if (!confirmed) return;
