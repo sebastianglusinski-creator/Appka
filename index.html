@@ -772,7 +772,7 @@ async function syncAllBlocking(){
         symbol: x?.symbol || x?.Symbol || x?.SYMBOL || '', 
         nazwa: x?.nazwa || x?.Nazwa || x?.NAZWA || '', 
         opis: x?.opis || x?.Opis || x?.OPIS || '', 
-        zdjecie: x?.zdjecie || x?.Zdjecie || x?.ZDJECIE || '' 
+        zdjecie: x?.zdjecie || x?.Zdjecie || x?.ZDJECIE || x?.zdjęcie || x?.Zdjęcie || x?.ZDJĘCIE || '' 
       };
     }).filter(item => item.symbol || item.nazwa); // Filtrujemy puste elementy
     
