@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.0.6 - Top bar compact on mobile</title>
+  <title>PDA DEDRA v1.0.7 - TOP badge + bug fixes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -89,12 +89,13 @@
     .name{font-weight:900;font-size:18px;word-wrap:break-word}
     .codes{font-size:13px;color:var(--muted);margin-top:6px}
     
-    /* BADGES v3.0.4 - NOWOŚĆ, PROMOCJA, GAZETKA */
+    /* BADGES v3.0.5 - NOWOŚĆ, PROMOCJA, GAZETKA, TOP */
     .product-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
     .product-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
     .product-badge.badge-new{background:linear-gradient(135deg, #3B82F6, #60A5FA)}
     .product-badge.badge-promo{background:linear-gradient(135deg, #EF4444, #F87171)}
     .product-badge.badge-gazetka{background:linear-gradient(135deg, #059669, #10B981)}
+    .product-badge.badge-top{background:linear-gradient(135deg, #F59E0B, #F97316)}
     
     .actions{display:flex;align-items:center;gap:12px;margin-left:8px}
     .add-btn{min-width:60px;height:60px;border:none;border-radius:14px;cursor:pointer;font-size:26px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;background:var(--success);box-shadow:0 2px 6px rgba(0,0,0,.15);transition:transform .08s}
@@ -269,7 +270,7 @@
   </style>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
-<body>
+<body class="login-active">
 
   <section id="loginScreen">
     <div class="card">
@@ -650,7 +651,7 @@ async function callAPI(action, params = {}) {
 }
 
 window.onload=function(){
-  document.body.classList.add('login-active');
+  // Klasa login-active jest już w <body> w HTML
   
   loadCart(); 
   loadQueue(); 
@@ -816,13 +817,14 @@ function renderProducts(data){
     const colorHex = parseColor(p.kolor);
     const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
     
-    // BADGES v3.0.4 - NOWOŚĆ, PROMOCJA, GAZETKA
+    // BADGES v3.0.5 - NOWOŚĆ, PROMOCJA, GAZETKA, TOP
     let badgesHTML = '';
     const isNew = p.NEW === 'NEW';
     const isPromo = p.PROMO === 'PROMO';
     const isGazetka = p.GAZETKA === 'GAZETKA';
+    const isTop = p.TOP === 'TOP';
     
-    if (isNew || isPromo || isGazetka) {
+    if (isNew || isPromo || isGazetka || isTop) {
       badgesHTML = '<div class="product-badges">';
       if (isNew) {
         badgesHTML += '<span class="product-badge badge-new">🌟 NOWOŚĆ</span>';
@@ -832,6 +834,9 @@ function renderProducts(data){
       }
       if (isGazetka) {
         badgesHTML += '<span class="product-badge badge-gazetka">📄 W GAZETCE</span>';
+      }
+      if (isTop) {
+        badgesHTML += '<span class="product-badge badge-top">🎯 TOP</span>';
       }
       badgesHTML += '</div>';
     }
@@ -893,13 +898,14 @@ function renderSets(data){
     const colorHex = parseColor(s.kolor);
     const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
     
-    // BADGES v3.0.4 dla zestawów
+    // BADGES v3.0.5 dla zestawów
     let badgesHTML = '';
     const isNew = s.NEW === 'NEW';
     const isPromo = s.PROMO === 'PROMO';
     const isGazetka = s.GAZETKA === 'GAZETKA';
+    const isTop = s.TOP === 'TOP';
     
-    if (isNew || isPromo || isGazetka) {
+    if (isNew || isPromo || isGazetka || isTop) {
       badgesHTML = '<div class="product-badges">';
       if (isNew) {
         badgesHTML += '<span class="product-badge badge-new">🌟 NOWOŚĆ</span>';
@@ -909,6 +915,9 @@ function renderSets(data){
       }
       if (isGazetka) {
         badgesHTML += '<span class="product-badge badge-gazetka">📄 W GAZETCE</span>';
+      }
+      if (isTop) {
+        badgesHTML += '<span class="product-badge badge-top">🎯 TOP</span>';
       }
       badgesHTML += '</div>';
     }
@@ -989,6 +998,28 @@ function initSearch(){
   input.addEventListener('input', debounce(()=>{
     const raw = input.value.trim(); const q = normalize(raw);
     if (!q){ renderCurrentTab(); return; }
+    
+    // SPECJALNE WYSZUKIWANIE: TOP, PROMO, GAZETKA, NOWOŚĆ
+    if (q === 'top') {
+      const filtered = products.filter(p => p.TOP === 'TOP');
+      renderProducts(filtered);
+      return;
+    }
+    if (q === 'promo' || q === 'promocja') {
+      const filtered = products.filter(p => p.PROMO === 'PROMO');
+      renderProducts(filtered);
+      return;
+    }
+    if (q === 'gazetka') {
+      const filtered = products.filter(p => p.GAZETKA === 'GAZETKA');
+      renderProducts(filtered);
+      return;
+    }
+    if (q === 'nowosc' || q === 'nowosci' || q === 'new') {
+      const filtered = products.filter(p => p.NEW === 'NEW');
+      renderProducts(filtered);
+      return;
+    }
     
     // Wyszukiwanie w zależności od aktywnej zakładki
     if (currentTab === 'zestawy') {
