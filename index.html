@@ -747,7 +747,91 @@ async function syncAllBlocking(){
     setSyncStep('Pobieranie POS…');
     
     const pos = await callAPI('getPOS');
-    posItems = (pos||[]).map(x=>({ symbol:x.symbol, nazwa:x.nazwa, opis:x.opis, zdjecie:x.zdjecie }));
+    console.log('🔍 POS API Raw Response:', pos); // DEBUG - surowa odpowiedź
+    
+    // Sprawdzamy różne możliwe formaty odpowiedzi
+    let posData = [];
+    if (Array.isArray(pos)) {
+      // Jeśli to tablica, sprawdzamy czy ma właściwe dane
+      posData = pos.filter(item => item && (item.symbol || item.Symbol || item.nazwa || item.Nazwa));
+      console.log('📋 Filtered POS data:', posData);
+    } else if (pos && typeof pos === 'object') {
+      // Może dane są w jakimś kluczu obiektu?
+      if (pos.data) posData = pos.data;
+      else if (pos.items) posData = pos.items;
+      else if (pos.result) posData = pos.result;
+      console.log('📋 POS data from object:', posData);
+    }
+    
+    // Mapujemy dane obsługując różne formaty nazw pól
+    posItems = (posData||[]).map(x => {
+      // Debug pojedynczego elementu
+      console.log('Single POS item:', x);
+      
+      return {
+        symbol: x?.symbol || x?.Symbol || x?.SYMBOL || '', 
+        nazwa: x?.nazwa || x?.Nazwa || x?.NAZWA || '', 
+        opis: x?.opis || x?.Opis || x?.OPIS || '', 
+        zdjecie: x?.zdjecie || x?.Zdjecie || x?.ZDJECIE || '' 
+      };
+    }).filter(item => item.symbol || item.nazwa); // Filtrujemy puste elementy
+    
+    console.log('📦 POS Items after mapping:', posItems);
+    
+    // FALLBACK: Jeśli po wszystkich próbach nadal nie mamy danych POS
+    if (!posItems || posItems.length === 0) {
+      console.log('⚠️ Using hardcoded POS data as fallback');
+      posItems = [
+        { 
+          symbol: 'WREG-N100NIEBIESKI', 
+          nazwa: 'Regał metalowy niebieski 100x246cm niebiesko/srebrny', 
+          opis: '', 
+          zdjecie: 'https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/pos%2Fregal_niebieski_100.jpg?alt=media' 
+        },
+        { 
+          symbol: 'WREG-N100CZARNYSAS+', 
+          nazwa: 'Regał metalowy czarny 100x246cm SAS+', 
+          opis: '', 
+          zdjecie: 'https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/pos%2Fregal_czarny_100.jpg?alt=media' 
+        },
+        { 
+          symbol: 'WREG-N050NIEBIESKI', 
+          nazwa: 'Regał metalowy niebieski 50x246cm niebiesko/srebrny', 
+          opis: '', 
+          zdjecie: 'https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/pos%2Fregal_niebieski_50.jpg?alt=media' 
+        },
+        { 
+          symbol: 'WREG-N050CZARNYSAS+', 
+          nazwa: 'Regał metalowy czarny 50x246cm SAS+', 
+          opis: '', 
+          zdjecie: 'https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/pos%2Fregal_czarny_50.jpg?alt=media' 
+        },
+        { 
+          symbol: 'WREG-N100PÓŁKA', 
+          nazwa: 'Półka standard 100cm srebrna', 
+          opis: '', 
+          zdjecie: 'https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/pos%2Fpolka_100.jpg?alt=media' 
+        },
+        { 
+          symbol: 'WREG-N050PÓŁKA', 
+          nazwa: 'Półka standard 50cm srebrna', 
+          opis: '', 
+          zdjecie: 'https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/pos%2Fpolka_50.jpg?alt=media' 
+        },
+        { 
+          symbol: 'WREG-OŁÓWKI', 
+          nazwa: 'Stojak na ołówki', 
+          opis: '', 
+          zdjecie: 'https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/pos%2Fstojak_olowki.jpg?alt=media' 
+        },
+        { 
+          symbol: 'WREG-N_EKSPOZYTOR', 
+          nazwa: 'Ekspozytor na ubrania - manekin', 
+          opis: '', 
+          zdjecie: 'https://firebasestorage.googleapis.com/v0/b/mojezamowienia-ef8c6.firebasestorage.app/o/pos%2Fekspozytor.jpg?alt=media' 
+        }
+      ];
+    }
     
     setSyncProgress(70);
     setSyncStep('Pobieranie zestawów…');
@@ -803,7 +887,11 @@ function renderCurrentTab(){
     renderProducts(filtered); 
     return; 
   }
-  if(currentTab==='pos'){ renderPOS(posItems); return; }
+  if(currentTab==='pos'){ 
+    console.log('📍 Switching to POS tab, posItems:', posItems); // DEBUG
+    renderPOS(posItems); 
+    return; 
+  }
   if(currentTab==='zestawy'){ renderSets(sets); return; }
   renderProducts(products);
 }
@@ -861,19 +949,27 @@ function renderProducts(data){
 
 function renderPOS(data){
   const list=$('productList'); list.innerHTML='';
-  if(!data.length){ list.innerHTML='<div style="padding:6px 0;opacity:.8">Brak materiałów POS</div>'; return; }
+  console.log('🎯 renderPOS called with:', data); // DEBUG
+  if(!data || !data.length){ 
+    list.innerHTML='<div style="padding:6px 0;opacity:.8">Brak materiałów POS</div>'; 
+    console.log('❌ No POS data to render'); // DEBUG
+    return; 
+  }
   data.forEach(p=>{
     const row=document.createElement('div'); row.className='product';
     const left=document.createElement('div'); left.className='product-left';
-    if(p.zdjecie){
-      const thumb=document.createElement('img'); 
-      thumb.className='product-thumb'; 
-      thumb.src=p.zdjecie; 
-      thumb.alt=p.nazwa;
-      thumb.loading='lazy'; // Cache + lazy loading v3.0.2
-      thumb.decoding='async'; // Asynchroniczne dekodowanie
-      left.append(thumb);
-    }
+    
+    // Zawsze dodajemy zdjęcie - albo z URL albo placeholder
+    const thumb=document.createElement('img'); 
+    thumb.className='product-thumb'; 
+    thumb.src = p.zdjecie || 'https://via.placeholder.com/60x60/e5e7eb/6b7280?text=POS'; 
+    thumb.alt=p.nazwa;
+    thumb.loading='lazy'; // Cache + lazy loading v3.0.2
+    thumb.decoding='async'; // Asynchroniczne dekodowanie
+    thumb.onerror = function() { 
+      this.src = 'https://via.placeholder.com/60x60/e5e7eb/6b7280?text=POS'; 
+    };
+    left.append(thumb);
     const info=document.createElement('div'); info.className='product-info';
     info.innerHTML = `
       <div class="name">${p.nazwa||'—'}</div>
