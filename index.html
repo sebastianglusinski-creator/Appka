@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.0.3 FINAL - POST fix</title>
+  <title>PDA DEDRA v1.0.2 PWA - FIX URL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -626,16 +626,12 @@ async function callAPI(action, params = {}) {
   const url = new URL(API_URL);
   url.searchParams.append('action', action);
   
-  const formData = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+    url.searchParams.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
   }
   
   try {
-    const response = await fetch(url.toString(), {
-      method: 'POST',
-      body: formData
-    });
+    const response = await fetch(url.toString());
     if (!response.ok) throw new Error('Network error');
     const data = await response.json();
     return data;
