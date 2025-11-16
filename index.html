@@ -50,7 +50,7 @@
     .login-footer{margin-top:14px;font-size:14px;opacity:.9;text-align:center;color:#e5e7eb}
 
     .topbar{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15);display:flex;flex-direction:column}
-    .topbar-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:24px 10px 8px 10px !important;gap:8px;max-width:100%;position:relative}
+    .topbar-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:30px 10px 12px 10px !important;gap:8px;max-width:100%;position:relative}
     .topbar-left{justify-content:flex-start}
     .topbar-right{justify-content:flex-end}
     .brand{height:26px;max-width:190px;object-fit:contain;pointer-events:none}
@@ -63,7 +63,7 @@
     .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--blue-dark)}
     .badge-blue{background:#0ea5e9}
 
-    .topbar-search{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:8px 12px 12px}
+    .topbar-search{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:10px 12px 14px}
     .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:48px;overflow:hidden}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
     #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 14px;height:48px;line-height:48px;-webkit-appearance:none}
@@ -198,11 +198,12 @@
 /* Fix dla iPhone z notchem (Dynamic Island) */
 @supports (padding-top: env(safe-area-inset-top)) {
   .topbar {
-    padding-top: calc(env(safe-area-inset-top) - 10px);
+    padding-top: calc(env(safe-area-inset-top) + 10px);
   }
   
   .topbar-header {
-    padding-top: 24px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
   }
 }
 }
