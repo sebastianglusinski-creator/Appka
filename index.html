@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.0.7 - TOP badge + bug fixes</title>
+  <title>PDA DEDRA v1.0.7b - TOP badge FIX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -733,6 +733,7 @@ async function syncAllBlocking(){
       NEW: p.NEW || '',
       PROMO: p.PROMO || '',
       GAZETKA: p.GAZETKA || '',
+      TOP: p.TOP || '',
       q1:Number(p.Q1||p.q1)||1, q2:Number(p.Q2||p.q2)||0, q3:Number(p.Q3||p.q3)||0,
       qco1:String(p.QCO1||p.qco1||'szt.'), qco2:String(p.QCO2||p.qco2||''), qco3:String(p.QCO3||p.qco3||''),
       min: Number(p.MinimumZam||p.minimumZam||p.Q1||p.q1||1) || 1,
