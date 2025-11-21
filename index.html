@@ -126,7 +126,8 @@
       .nav-item.active .icon{font-size:34px}
     }
 
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;will-change:opacity;transform:translateZ(0)}
+    .overlay .modal-box{will-change:transform;transform:translateZ(0)}
     .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
     #cameraOverlay .modal-x{background:#374151}
 
@@ -1576,41 +1577,47 @@ function openCalc(p){
   calcVal=getQtyInCart(p.symbol) || 0;  
   calcMin = Number(p.min||p.q1||1) || 1;
   
-  $('calcTitle').textContent=p.nazwa||'—';
-  $('calcSub').textContent=`${p.symbol||''} ${p.ean?('| EAN '+p.ean):''}`;
+  // Pokaż overlay natychmiast (pusta ramka)
+  const overlay = $('calcOverlay');
+  overlay.style.display = 'flex';
+  
+  // Renderuj zawartość w następnej klatce (szybciej)
+  requestAnimationFrame(() => {
+    $('calcTitle').textContent=p.nazwa||'—';
+    $('calcSub').textContent=`${p.symbol||''} ${p.ean?('| EAN '+p.ean):''}`;
 
-  const q1Val = Number(p.q1)||1;
-  const q1Label = String(p.qco1||'szt.').trim();
-  setQuick('q1', q1Val, q1Label);
-  
-  const q2Val = Number(p.q2)||0;
-  const q2Label = String(p.qco2||'').trim();
-  if(q2Val > 0){
-    setQuick('q2', q2Val, q2Label);
-    $('q2').style.display = 'flex';
-  } else {
-    $('q2').style.display = 'none';
-  }
-  
-  const q3Val = Number(p.q3)||0;
-  const q3Label = String(p.qco3||'').trim();
-  if(q3Val > 0){
-    setQuick('q3', q3Val, q3Label);
-    $('q3').style.display = 'flex';
-  } else {
-    $('q3').style.display = 'none';
-  }
-  
-  const grid = $('quickGrid');
-  const visible = [$('q1'), $('q2'), $('q3')].filter(el=>el.style.display!=='none').length;
-  grid.className = 'quick-grid';
-  if(visible===1) grid.classList.add('one');
-  else if(visible===2) grid.classList.add('two');
-  else grid.classList.add('three');
+    const q1Val = Number(p.q1)||1;
+    const q1Label = String(p.qco1||'szt.').trim();
+    setQuick('q1', q1Val, q1Label);
+    
+    const q2Val = Number(p.q2)||0;
+    const q2Label = String(p.qco2||'').trim();
+    if(q2Val > 0){
+      setQuick('q2', q2Val, q2Label);
+      $('q2').style.display = 'flex';
+    } else {
+      $('q2').style.display = 'none';
+    }
+    
+    const q3Val = Number(p.q3)||0;
+    const q3Label = String(p.qco3||'').trim();
+    if(q3Val > 0){
+      setQuick('q3', q3Val, q3Label);
+      $('q3').style.display = 'flex';
+    } else {
+      $('q3').style.display = 'none';
+    }
+    
+    const grid = $('quickGrid');
+    const visible = [$('q1'), $('q2'), $('q3')].filter(el=>el.style.display!=='none').length;
+    grid.className = 'quick-grid';
+    if(visible===1) grid.classList.add('one');
+    else if(visible===2) grid.classList.add('two');
+    else grid.classList.add('three');
 
-  updDisp(); 
-  updAddBtn();
-  show($('calcOverlay'));
+    updDisp(); 
+    updAddBtn();
+  });
 }
 
 function setQuick(id, v, lbl){
