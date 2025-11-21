@@ -72,8 +72,8 @@
     
     .search-separator{width:1px;height:32px;background:#d1d5db;margin:0 2px;flex-shrink:0}
     
-    .search-icons{display:flex;align-items:center;gap:2px;flex-shrink:0}
-    .search-icon-btn{width:40px!important;height:40px!important;border:none!important;outline:none!important;border-radius:10px;background:transparent!important;color:#6b7280!important;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:22px!important;transition:background .2s,transform .1s,color .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+    .search-icons{display:flex;align-items:center;gap:4px;flex-shrink:0}
+    .search-icon-btn{width:44px!important;height:44px!important;border:none!important;outline:none!important;border-radius:10px;background:transparent!important;color:#6b7280!important;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px!important;transition:background .2s,transform .1s,color .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
     .search-icon-btn:active{transform:scale(.95)}
     .search-icon-btn:hover{background:rgba(0,0,0,0.05)!important;color:#374151!important}
     .search-icon-btn.mode-scanner{background:transparent!important;color:#059669!important}
@@ -376,8 +376,8 @@
     <div class="camera-box">
       <button class="modal-x" onclick="closeCamera()">✕</button>
       <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:16px;text-align:center">Skanuj kod</div>
-      <div id="cameraReader" style="width:100%;aspect-ratio:1;background:#000;border-radius:12px;overflow:hidden"></div>
-      <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:14px">Przybliż kod do kamery</div>
+      <div id="cameraReader" style="width:100%;aspect-ratio:1;background:#000;border-radius:12px;overflow:hidden;cursor:pointer"></div>
+      <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:13px">Przybliż kod do kamery<br><span style="opacity:0.7">Kliknij w ekran aby ustawić ostrość</span></div>
     </div>
   </div>
 
@@ -2079,6 +2079,7 @@ function openCamera() {
   }
   
   const overlay = document.getElementById('cameraOverlay');
+  const readerDiv = document.getElementById('cameraReader');
   overlay.style.display = 'flex';
   cameraActive = true;
   
@@ -2086,9 +2087,9 @@ function openCamera() {
   
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
-    fps: 10,                          // Mniej FPS = mniej obciążenia CPU
-    qrbox: { width: 250, height: 150 }, // Prostokąt lepszy dla kodów kreskowych
-    aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
+    fps: 10,
+    qrbox: { width: 280, height: 180 },  // Większy obszar = łatwiej skanować
+    aspectRatio: 1.777778,
     disableFlip: false,
     formatsToSupport: [
       Html5QrcodeSupportedFormats.EAN_13,
@@ -2099,12 +2100,24 @@ function openCamera() {
       Html5QrcodeSupportedFormats.UPC_E
     ],
     experimentalFeatures: {
-      useBarCodeDetectorIfSupported: true  // Użyj natywnego API jeśli dostępne (Chrome 83+)
+      useBarCodeDetectorIfSupported: true
+    },
+    // Constraints dla lepszego focusa
+    videoConstraints: {
+      facingMode: "environment",
+      focusMode: "continuous",
+      advanced: [{ focusMode: "continuous" }]
     }
   };
   
   html5QrCode.start(
-    { facingMode: "environment" },
+    { 
+      facingMode: "environment",
+      advanced: [
+        { focusMode: "continuous" },
+        { focusDistance: 0.5 }
+      ]
+    },
     config,
     (code) => {
       if (!cameraActive) return;
@@ -2114,7 +2127,7 @@ function openCamera() {
       if (!ean.startsWith('590262')) {
         if (navigator.vibrate) navigator.vibrate(100);
         toast('⚠️ Nieprawidłowy kod: ' + ean);
-        return; // Kontynuuj skanowanie
+        return;
       }
       
       const p = products.find(x => (x.ean||'').replace(/\s+/g, '') === ean);
@@ -2123,6 +2136,32 @@ function openCamera() {
         cameraActive = false;
         overlay.style.visibility = 'hidden';
         openCalc(p);
+      } else {
+        if (navigator.vibrate) navigator.vibrate(200);
+        toast('❌ Brak w bazie: ' + ean);
+      }
+    }
+  ).then(() => {
+    // Dodaj tap-to-focus po uruchomieniu kamery
+    readerDiv.addEventListener('click', async () => {
+      try {
+        const track = html5QrCode.getRunningTrackCameraCapabilities();
+        if (track && track.focusMode) {
+          await track.applyConstraints({
+            advanced: [{ focusMode: "single-shot" }]
+          });
+          toast('📸 Focus');
+        }
+      } catch (e) {
+        console.log('Focus nie obsługiwany:', e);
+      }
+    });
+  }).catch((err) => {
+    console.error('Camera error:', err);
+    toast('❌ Brak dostępu do kamery');
+    closeCamera();
+  });
+}
       } else {
         if (navigator.vibrate) navigator.vibrate(200);
         toast('❌ Brak w bazie: ' + ean);
