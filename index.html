@@ -63,16 +63,16 @@
     .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--blue-dark)}
     .badge-blue{background:#0ea5e9}
 
-    .topbar-search{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:6px 8px 14px}
-    .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:48px;overflow:visible;padding:0 4px}
+    .topbar-search{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:6px 12px 14px}
+    .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:48px;overflow:hidden}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
-    #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 8px;height:48px;line-height:48px;-webkit-appearance:none;min-width:0}
+    #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 14px;height:48px;line-height:48px;-webkit-appearance:none}
     #searchInput::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
     #searchInput::-webkit-search-decoration{display:none;-webkit-appearance:none}
     
-    .search-separator{width:1px;height:32px;background:#d1d5db;margin:0 2px;flex-shrink:0}
+    .search-separator{width:1px;height:32px;background:#d1d5db;margin:0 4px;flex-shrink:0}
     
-    .search-icons{display:flex;align-items:center;gap:4px;flex-shrink:0}
+    .search-icons{display:flex;align-items:center;gap:10px;flex-shrink:0}
     .search-icon-btn{width:44px!important;height:44px!important;border:none!important;outline:none!important;border-radius:10px;background:transparent!important;color:#6b7280!important;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px!important;transition:background .2s,transform .1s,color .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
     .search-icon-btn:active{transform:scale(.95)}
     .search-icon-btn:hover{background:rgba(0,0,0,0.05)!important;color:#374151!important}
@@ -317,13 +317,13 @@
       </div>
      <div class="topbar-search">
   <div class="search-wrap">
-    <span class="material-symbols-rounded" style="color:#6b7280;font-size:20px;flex-shrink:0;margin-left:4px">search</span>
+    <span class="material-symbols-rounded" style="color:#6b7280;font-size:20px;flex-shrink:0">search</span>
     <input id="searchInput" type="text" placeholder="Szukaj..." autocomplete="off" inputmode="text">
     <div class="search-separator"></div>
-    <div class="search-icons">
-      <button class="search-icon-btn" id="toggleModeBtn" onclick="toggleScannerMode()" title="Przełącz tryb">keyboard</button>
-      <button class="search-icon-btn camera-btn-mobile" onclick="openCamera()" title="Skanuj aparatem">photo_camera</button>
-      <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść">close</button>
+    <div class="search-icons" style="display:flex;align-items:center;gap:10px">
+      <button class="search-icon-btn" id="toggleModeBtn" onclick="toggleScannerMode()" title="Przełącz tryb" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">keyboard</button>
+      <button class="search-icon-btn camera-btn-mobile" onclick="openCamera()" title="Skanuj aparatem" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">photo_camera</button>
+      <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#374151;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">close</button>
     </div>
   </div>
 </div>
@@ -376,8 +376,8 @@
     <div class="camera-box">
       <button class="modal-x" onclick="closeCamera()">✕</button>
       <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:16px;text-align:center">Skanuj kod</div>
-      <div id="cameraReader" style="width:100%;aspect-ratio:1;background:#000;border-radius:12px;overflow:hidden;cursor:pointer"></div>
-      <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:13px">Przybliż kod do kamery<br><span style="opacity:0.7">Kliknij w ekran aby ustawić ostrość</span></div>
+      <div id="cameraReader" style="width:100%;aspect-ratio:1;background:#000;border-radius:12px;overflow:hidden"></div>
+      <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:14px">Przybliż kod do kamery</div>
     </div>
   </div>
 
@@ -2072,23 +2072,20 @@ let html5QrCode = null;
 let cameraActive = false;
 
 function openCamera() {
-  // Sprawdź czy przeglądarka obsługuje dostęp do kamery
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     toast('📷 Przeglądarka nie obsługuje kamery');
     return;
   }
   
   const overlay = document.getElementById('cameraOverlay');
-  const readerDiv = document.getElementById('cameraReader');
   overlay.style.display = 'flex';
   cameraActive = true;
   
   if (!html5QrCode) html5QrCode = new Html5Qrcode("cameraReader");
   
-  // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
     fps: 10,
-    qrbox: { width: 280, height: 180 },  // Większy obszar = łatwiej skanować
+    qrbox: { width: 280, height: 180 },
     aspectRatio: 1.777778,
     disableFlip: false,
     formatsToSupport: [
@@ -2101,32 +2098,19 @@ function openCamera() {
     ],
     experimentalFeatures: {
       useBarCodeDetectorIfSupported: true
-    },
-    // Constraints dla lepszego focusa
-    videoConstraints: {
-      facingMode: "environment",
-      focusMode: "continuous",
-      advanced: [{ focusMode: "continuous" }]
     }
   };
   
   html5QrCode.start(
-    { 
-      facingMode: "environment",
-      advanced: [
-        { focusMode: "continuous" },
-        { focusDistance: 0.5 }
-      ]
-    },
+    { facingMode: "environment" },
     config,
     (code) => {
       if (!cameraActive) return;
       const ean = code.replace(/\s+/g, '');
       
-      // Walidacja - kody DEDRA zaczynają się od 590262
       if (!ean.startsWith('590262')) {
         if (navigator.vibrate) navigator.vibrate(100);
-        toast('⚠️ Nieprawidłowy kod: ' + ean);
+        toast('⚠️ Nieprawidłowy kod');
         return;
       }
       
@@ -2138,33 +2122,7 @@ function openCamera() {
         openCalc(p);
       } else {
         if (navigator.vibrate) navigator.vibrate(200);
-        toast('❌ Brak w bazie: ' + ean);
-      }
-    }
-  ).then(() => {
-    // Dodaj tap-to-focus po uruchomieniu kamery
-    readerDiv.addEventListener('click', async () => {
-      try {
-        const track = html5QrCode.getRunningTrackCameraCapabilities();
-        if (track && track.focusMode) {
-          await track.applyConstraints({
-            advanced: [{ focusMode: "single-shot" }]
-          });
-          toast('📸 Focus');
-        }
-      } catch (e) {
-        console.log('Focus nie obsługiwany:', e);
-      }
-    });
-  }).catch((err) => {
-    console.error('Camera error:', err);
-    toast('❌ Brak dostępu do kamery');
-    closeCamera();
-  });
-}
-      } else {
-        if (navigator.vibrate) navigator.vibrate(200);
-        toast('❌ Brak w bazie: ' + ean);
+        toast('❌ Brak w bazie');
       }
     }
   ).catch((err) => {
