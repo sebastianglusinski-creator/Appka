@@ -63,17 +63,17 @@
     .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--blue-dark)}
     .badge-blue{background:#0ea5e9}
 
-    .topbar-search{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:6px 12px 14px}
-    .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:48px;overflow:hidden}
+    .topbar-search{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:6px 8px 14px}
+    .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:48px;overflow:visible;padding:0 4px}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
-    #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 14px;height:48px;line-height:48px;-webkit-appearance:none}
+    #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 8px;height:48px;line-height:48px;-webkit-appearance:none;min-width:0}
     #searchInput::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
     #searchInput::-webkit-search-decoration{display:none;-webkit-appearance:none}
     
-    .search-separator{width:1px;height:32px;background:#d1d5db;margin:0 4px;flex-shrink:0}
+    .search-separator{width:1px;height:32px;background:#d1d5db;margin:0 2px;flex-shrink:0}
     
-    .search-icons{display:flex;align-items:center;gap:10px;flex-shrink:0}
-    .search-icon-btn{width:44px!important;height:44px!important;border:none!important;outline:none!important;border-radius:10px;background:transparent!important;color:#6b7280!important;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px!important;transition:background .2s,transform .1s,color .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+    .search-icons{display:flex;align-items:center;gap:2px;flex-shrink:0}
+    .search-icon-btn{width:40px!important;height:40px!important;border:none!important;outline:none!important;border-radius:10px;background:transparent!important;color:#6b7280!important;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:22px!important;transition:background .2s,transform .1s,color .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
     .search-icon-btn:active{transform:scale(.95)}
     .search-icon-btn:hover{background:rgba(0,0,0,0.05)!important;color:#374151!important}
     .search-icon-btn.mode-scanner{background:transparent!important;color:#059669!important}
@@ -317,13 +317,13 @@
       </div>
      <div class="topbar-search">
   <div class="search-wrap">
-    <span class="material-symbols-rounded" style="color:#6b7280;font-size:20px;flex-shrink:0">search</span>
+    <span class="material-symbols-rounded" style="color:#6b7280;font-size:20px;flex-shrink:0;margin-left:4px">search</span>
     <input id="searchInput" type="text" placeholder="Szukaj..." autocomplete="off" inputmode="text">
     <div class="search-separator"></div>
-    <div class="search-icons" style="display:flex;align-items:center;gap:10px">
-      <button class="search-icon-btn" id="toggleModeBtn" onclick="toggleScannerMode()" title="Przełącz tryb" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">keyboard</button>
-      <button class="search-icon-btn camera-btn-mobile" onclick="openCamera()" title="Skanuj aparatem" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">photo_camera</button>
-      <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść" style="width:44px;height:44px;border:none;outline:none;border-radius:10px;background:transparent;color:#374151;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px">close</button>
+    <div class="search-icons">
+      <button class="search-icon-btn" id="toggleModeBtn" onclick="toggleScannerMode()" title="Przełącz tryb">keyboard</button>
+      <button class="search-icon-btn camera-btn-mobile" onclick="openCamera()" title="Skanuj aparatem">photo_camera</button>
+      <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść">close</button>
     </div>
   </div>
 </div>
@@ -2084,12 +2084,39 @@ function openCamera() {
   
   if (!html5QrCode) html5QrCode = new Html5Qrcode("cameraReader");
   
+  // Zoptymalizowana konfiguracja dla szybszego skanowania
+  const config = {
+    fps: 10,                          // Mniej FPS = mniej obciążenia CPU
+    qrbox: { width: 250, height: 150 }, // Prostokąt lepszy dla kodów kreskowych
+    aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
+    disableFlip: false,
+    formatsToSupport: [
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E
+    ],
+    experimentalFeatures: {
+      useBarCodeDetectorIfSupported: true  // Użyj natywnego API jeśli dostępne (Chrome 83+)
+    }
+  };
+  
   html5QrCode.start(
     { facingMode: "environment" },
-    { fps: 15, qrbox: { width: 280, height: 280 } },
+    config,
     (code) => {
       if (!cameraActive) return;
       const ean = code.replace(/\s+/g, '');
+      
+      // Walidacja - kody DEDRA zaczynają się od 590262
+      if (!ean.startsWith('590262')) {
+        if (navigator.vibrate) navigator.vibrate(100);
+        toast('⚠️ Nieprawidłowy kod: ' + ean);
+        return; // Kontynuuj skanowanie
+      }
+      
       const p = products.find(x => (x.ean||'').replace(/\s+/g, '') === ean);
       if (p) {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
@@ -2098,7 +2125,7 @@ function openCamera() {
         openCalc(p);
       } else {
         if (navigator.vibrate) navigator.vibrate(200);
-        toast('❌ Brak w bazie');
+        toast('❌ Brak w bazie: ' + ean);
       }
     }
   ).catch((err) => {
