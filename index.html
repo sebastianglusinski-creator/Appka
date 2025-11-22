@@ -2094,7 +2094,7 @@ function openCamera() {
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
     fps: 10,                          // Mniej FPS = mniej obciążenia CPU
-    qrbox: { width: 250, height: 150 }, // Prostokąt lepszy dla kodów kreskowych
+    qrbox: { width: 300, height: 200 }, // Większa ramka - łatwiej skanować
     aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
     disableFlip: false,
     formatsToSupport: [
