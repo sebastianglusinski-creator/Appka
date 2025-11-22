@@ -2106,7 +2106,7 @@ function openCamera() {
   
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
-    fps: 10,                          // Mniej FPS = mniej obciążenia CPU
+    fps: 15,                          // Więcej FPS dla szybszego skanowania z bliska
     qrbox: { width: 250, height: 60 }, // Szeroka ale BARDZO NISKA ramka
     aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
     disableFlip: false,
@@ -2123,8 +2123,17 @@ function openCamera() {
     }
   };
   
+  // Constraints kamery z MACRO FOCUS (blisko)
+  const cameraConstraints = {
+    facingMode: "environment",
+    advanced: [
+      { focusMode: "continuous" },  // Ciągły autofocus
+      { focusDistance: { ideal: 0.1 } }  // Najbliższa odległość (10cm)
+    ]
+  };
+  
   html5QrCode.start(
-    { facingMode: "environment" },
+    cameraConstraints,
     config,
     (code) => {
       if (!cameraActive) return;
