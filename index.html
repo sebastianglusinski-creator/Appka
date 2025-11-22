@@ -130,6 +130,18 @@
     .overlay .modal-box{will-change:transform;transform:translateZ(0)}
     .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
     #cameraOverlay .modal-x{background:#374151}
+    
+    /* Prosty biały prostokąt dla skanowania */
+    #cameraReader video {
+      border-radius: 12px;
+    }
+    
+    /* Nadpisz domyślne style html5-qrcode - prosty biały prostokąt */
+    #cameraReader div[style*="border"] {
+      border: 3px solid rgba(255, 255, 255, 0.9) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5) !important;
+    }
 
     .modal-box{width:100%;max-width:720px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
     .cart-table{display:block;overflow-y:auto;max-height:calc(85vh - 240px)}
@@ -2094,7 +2106,7 @@ function openCamera() {
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
     fps: 10,                          // Mniej FPS = mniej obciążenia CPU
-    qrbox: { width: 300, height: 200 }, // Większa ramka - łatwiej skanować
+    qrbox: { width: 360, height: 220 }, // Duża biała ramka - łatwo skanować
     aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
     disableFlip: false,
     formatsToSupport: [
@@ -2111,7 +2123,10 @@ function openCamera() {
   };
   
   html5QrCode.start(
-    { facingMode: "environment" },
+    { 
+      facingMode: "environment",
+      advanced: [{ focusMode: "continuous" }]
+    },
     config,
     (code) => {
       if (!cameraActive) return;
@@ -2135,7 +2150,27 @@ function openCamera() {
         toast('❌ Brak w bazie: ' + ean);
       }
     }
-  ).catch((err) => {
+  ).then(() => {
+    // Dodaj tap-to-focus - kliknij w ekran aby ustawić ostrość
+    const readerDiv = document.getElementById('cameraReader');
+    readerDiv.style.cursor = 'pointer';
+    
+    readerDiv.onclick = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment",
+            advanced: [{ focusMode: "single-shot" }]
+          }
+        });
+        toast('📸 Focus');
+        // Zatrzymaj stream po krótkiej chwili
+        setTimeout(() => stream.getTracks().forEach(t => t.stop()), 100);
+      } catch (e) {
+        console.log('Focus nie obsługiwany');
+      }
+    };
+  }).catch((err) => {
     console.error('Camera error:', err);
     toast('❌ Brak dostępu do kamery');
     closeCamera();
