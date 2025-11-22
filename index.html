@@ -8,7 +8,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="DEDRA">
-  <meta name="theme-color" content="#2563eb">z
+  <meta name="theme-color" content="#2563eb">
   
   <!-- Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -2106,7 +2106,7 @@ function openCamera() {
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
     fps: 20,                          // Więcej FPS = szybsze skanowanie
-    qrbox: { width: 200, height: 80 }, // DUŻO mniejsze ramki!
+    qrbox: { width: 220, height: 70 }, // Średnie ramki - kompromis
     aspectRatio: 1.333333,            // 4:3
     disableFlip: false,
     formatsToSupport: [
@@ -2139,8 +2139,8 @@ function openCamera() {
       const p = products.find(x => (x.ean||'').replace(/\s+/g, '') === ean);
       if (p) {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        cameraActive = false;
-        overlay.style.visibility = 'hidden';
+        cameraActive = false;  // Zatrzymaj skanowanie
+        overlay.style.visibility = 'hidden';  // Ukryj overlay
         openCalc(p);
       } else {
         if (navigator.vibrate) navigator.vibrate(200);
@@ -2160,22 +2160,25 @@ function closeCamera() {
   if (html5QrCode) {
     html5QrCode.stop().then(() => {
       overlay.style.display = 'none';
+      overlay.style.visibility = 'visible';  // Reset visibility
     }).catch(() => {
       overlay.style.display = 'none';
+      overlay.style.visibility = 'visible';  // Reset visibility
     });
   } else {
     overlay.style.display = 'none';
   }
 }
 
-// Hook closeCalc - przywróć kamerę po dodaniu
+// Hook closeCalc - przywróć kamerę po zamknięciu kalkulatora
 const origCloseCalc = closeCalc;
 closeCalc = function() {
   origCloseCalc();
   const overlay = document.getElementById('cameraOverlay');
-  if (overlay && overlay.style.display === 'flex') {
+  if (overlay && overlay.style.visibility === 'hidden') {
+    // Jeśli kamera była ukryta (po skanowaniu), pokaż ją znowu i wznów skanowanie
     overlay.style.visibility = 'visible';
-    cameraActive = true;
+    cameraActive = true;  // Wznów skanowanie
   }
 };
 
