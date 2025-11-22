@@ -128,8 +128,7 @@
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;will-change:opacity;transform:translateZ(0)}
     .overlay .modal-box{will-change:transform;transform:translateZ(0)}
-    .camera-box{width:100%;max-width:320px;background:#111827;border-radius:20px;padding:16px;position:relative}
-    @media (max-width:400px){.camera-box{max-width:290px}}
+    .camera-box{width:100%;max-width:500px;background:#111827;border-radius:20px;padding:20px;position:relative}
     #cameraOverlay .modal-x{background:#374151}
 
     .modal-box{width:100%;max-width:720px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
@@ -377,9 +376,9 @@
   <div id="cameraOverlay" class="overlay" style="display:none">
     <div class="camera-box">
       <button class="modal-x" onclick="closeCamera()">✕</button>
-      <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:12px;text-align:center">Skanuj kod kreskowy</div>
-      <div id="cameraReader" style="width:100%;height:350px;max-height:55vh;background:#000;border-radius:12px;overflow:hidden"></div>
-      <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:10px;font-size:14px">Przybliż kod do kamery</div>
+      <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:16px;text-align:center">Skanuj kod kreskowy</div>
+      <div id="cameraReader" style="width:100%;height:450px;max-height:65vh;background:#000;border-radius:12px;overflow:hidden"></div>
+      <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:14px">Przybliż kod do kamery</div>
     </div>
   </div>
 
@@ -2106,8 +2105,8 @@ function openCamera() {
   
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
-    fps: 15,                          // Więcej FPS dla szybszego skanowania z bliska
-    qrbox: { width: 250, height: 60 }, // Szeroka ale BARDZO NISKA ramka
+    fps: 10,                          // Mniej FPS = mniej obciążenia CPU
+    qrbox: { width: 320, height: 200 }, // Duża ramka - obejmuje cały kod!
     aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
     disableFlip: false,
     formatsToSupport: [
@@ -2123,17 +2122,8 @@ function openCamera() {
     }
   };
   
-  // Constraints kamery z MACRO FOCUS (blisko)
-  const cameraConstraints = {
-    facingMode: "environment",
-    advanced: [
-      { focusMode: "continuous" },  // Ciągły autofocus
-      { focusDistance: { ideal: 0.1 } }  // Najbliższa odległość (10cm)
-    ]
-  };
-  
   html5QrCode.start(
-    cameraConstraints,
+    { facingMode: "environment" },
     config,
     (code) => {
       if (!cameraActive) return;
