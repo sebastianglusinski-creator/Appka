@@ -129,6 +129,7 @@
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;will-change:opacity;transform:translateZ(0)}
     .overlay .modal-box{will-change:transform;transform:translateZ(0)}
     .camera-box{width:100%;max-width:340px;background:#111827;border-radius:20px;padding:20px;position:relative}
+    @media (max-width:400px){.camera-box{max-width:300px}}
     #cameraOverlay .modal-x{background:#374151}
 
     .modal-box{width:100%;max-width:720px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
@@ -2106,7 +2107,7 @@ function openCamera() {
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
     fps: 10,                          // Mniej FPS = mniej obciążenia CPU
-    qrbox: { width: 250, height: 140 }, // Mniejsza ramka
+    qrbox: { width: 250, height: 100 }, // Szeroka ale NISKA ramka
     aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
     disableFlip: false,
     formatsToSupport: [
