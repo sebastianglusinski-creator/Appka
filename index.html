@@ -376,8 +376,8 @@
   <div id="cameraOverlay" class="overlay" style="display:none">
     <div class="camera-box">
       <button class="modal-x" onclick="closeCamera()">✕</button>
-      <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:16px;text-align:center">Skanuj kod kreskowy</div>
-      <div id="cameraReader" style="width:100%;height:400px;max-height:60vh;background:#000;border-radius:12px;overflow:hidden"></div>
+      <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:16px;text-align:center">Skanuj kod</div>
+      <div id="cameraReader" style="width:100%;aspect-ratio:1;background:#000;border-radius:12px;overflow:hidden"></div>
       <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:14px">Przybliż kod do kamery</div>
     </div>
   </div>
@@ -2105,9 +2105,9 @@ function openCamera() {
   
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
-    fps: 15,                          // Zwiększony FPS dla szybszego skanowania
-    qrbox: { width: 280, height: 120 }, // Mniejsza ramka, szeroki prostokąt dla kodów kreskowych
-    aspectRatio: 1.333333,            // 4:3 - lepsze dla ekranów telefonów
+    fps: 10,                          // Mniej FPS = mniej obciążenia CPU
+    qrbox: { width: 280, height: 180 }, // Większa ramka - lepiej widać
+    aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
     disableFlip: false,
     formatsToSupport: [
       Html5QrcodeSupportedFormats.EAN_13,
@@ -2122,18 +2122,8 @@ function openCamera() {
     }
   };
   
-  // Zaawansowana konfiguracja kamery z AUTOFOCUS
-  const cameraConfig = {
-    facingMode: "environment",
-    advanced: [
-      {
-        focusMode: "continuous"           // Ciągły autofocus - kamera będzie cały czas ostrzć
-      }
-    ]
-  };
-  
   html5QrCode.start(
-    cameraConfig,
+    { facingMode: "environment" },
     config,
     (code) => {
       if (!cameraActive) return;
