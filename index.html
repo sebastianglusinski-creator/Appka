@@ -2260,7 +2260,17 @@ closeCalc = function() {
 </html>
 
 
-/* REMOVE BLUE HEADER ONLY ON ZADANIA TAB */
+/* GLOBAL BLUE TOPBAR RESTORED */
+.topbar,
+.header,
+.header-wrapper,
+.search-bar,
+.search-wrapper {
+    background: #2563eb !important;
+}
+
+
+/* ZADANIA TAB FIX: REMOVE TOPBAR + WHITE BG */
 #zadaniascreen .topbar,
 #zadaniascreen .header,
 #zadaniascreen .header-wrapper,
@@ -2269,7 +2279,6 @@ closeCalc = function() {
     display: none !important;
 }
 
-/* UNIFIED BACKGROUND FOR ZADANIA TAB */
 #zadaniascreen,
 #zadaniascreen body,
 #zadaniascreen main,
