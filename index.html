@@ -31,10 +31,8 @@
     html,body{height:100%;overflow-x:hidden}
     html {
   background: #2563eb !important;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
+  padding-top: env(safe-area-inset-top);
 }
-
     body{
       margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
       background:transparent;color:var(--ink);-webkit-text-size-adjust:100%;
@@ -79,7 +77,7 @@
       left:0;
       right:0;
       z-index:100;
-      background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+      background:#2563eb;
       color:#fff;
       box-shadow:0 2px 10px rgba(0,0,0,.15);
       display:flex;
@@ -99,7 +97,7 @@
     .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--blue-dark)}
     .badge-blue{background:#0ea5e9}
 
-    .topbar-search{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:6px 6px 14px}
+    .topbar-search{position:sticky;top:0;z-index:100;background:#2563eb;padding:6px 6px 14px}
     .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:46px;overflow:visible;padding:0 2px}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
     #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 6px;height:46px;line-height:46px;-webkit-appearance:none;min-width:0}
@@ -128,7 +126,7 @@
     /* BADGES v3.0.5 - NOWOŚĆ, PROMOCJA, GAZETKA, TOP */
     .product-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
     .product-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
-    .product-badge.badge-new{background:linear-gradient(135deg, #3B82F6, #60A5FA)}
+    .product-badge.badge-new{background:#2563eb}
     .product-badge.badge-promo{background:linear-gradient(135deg, #EF4444, #F87171)}
     .product-badge.badge-gazetka{background:linear-gradient(135deg, #059669, #10B981)}
     .product-badge.badge-top{background:linear-gradient(135deg, #F59E0B, #F97316)}
@@ -2260,9 +2258,33 @@ closeCalc = function() {
 </body>
 </html>
 
+/* COMPLETE FIX FOR TOP LINE / SHADOW / BORDER */
+.topbar,
+.header,
+.header-wrapper,
+.search-wrapper,
+.search-bar {
+    background: #2563eb !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    outline: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
 
-/* Safe area + gradient background for login screen only */
-body.login-active {
-  padding-top: env(safe-area-inset-top);
-  background: linear-gradient(135deg, #2563eb, #1e40af) !important;
+/* ENLARGED BOTTOM TAB BAR */
+.bottom-nav,
+.tab-bar,
+.footer-nav {
+    height: 80px !important;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #ffffff !important;
+}
+
+.bottom-nav a,
+.tab-bar a,
+.footer-nav a {
+    font-size: 15px !important;
+    padding-top: 14px !important;
 }
