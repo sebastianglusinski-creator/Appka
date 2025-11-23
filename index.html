@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>PDA DEDRA v1.0.9 - POS NAPRAWIONY</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=contain, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -29,10 +29,16 @@
       --orange:#f97316;
     }
     html,body{height:100%;overflow-x:hidden}
+    html {
+      height: 100vh;
+      height: -webkit-fill-available;
+    }
     body{
       margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
       background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%;
       -webkit-user-select:none;user-select:none;touch-action:manipulation;
+      height: 100vh;
+      height: -webkit-fill-available;
     }
     input,select,textarea{font-size:18px!important}
     
@@ -102,41 +108,41 @@
     .add-btn:active{transform:scale(.97)}
     .add-btn.orange{background:var(--orange)}
 
-    /* === KARUZELA - CLEAN VERSION === */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;overflow:hidden}
+    /* === iOS 18.6 FIX: PROSTA SIATKA BEZ KARUZELI === */
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:#f9fafb;border-top:1px solid #e5e7eb;z-index:90;transition:transform .25s;display:grid;grid-template-columns:repeat(6, 1fr);align-items:center;padding:0;margin:0}
     .bottom-nav.hide{transform:translateY(100%)}
     
     body.login-active .bottom-nav{display:none}
     
-    .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:0 4px}
-    .carousel-track{display:flex;align-items:center;justify-content:space-between;width:100%;gap:0;transition:transform .3s ease}
+    .carousel-container{display:contents}
+    .carousel-track{display:contents}
     
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-width:0;padding:8px 2px;cursor:pointer;transition:all .3s ease}
-    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;margin-bottom:3px;transition:all .3s ease}
-    .nav-item .label{font-size:10px;font-weight:700;color:#9ca3af;transition:all .3s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;cursor:pointer;transition:all .2s ease;height:100%}
+    .nav-item .icon{font-family:'Material Symbols Rounded';font-size:24px;color:#9ca3af;margin-bottom:4px;transition:all .2s ease}
+    .nav-item .label{font-size:10px;font-weight:700;color:#9ca3af;transition:all .2s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center}
     
-    .nav-item.active .icon{font-size:30px;color:#2563eb}
+    .nav-item.active .icon{font-size:28px;color:#2563eb}
     .nav-item.active .label{color:#2563eb;font-weight:900}
     
     @media (min-width:768px){
       .bottom-nav{max-width:550px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}
       .bottom-nav.hide{transform:translateX(-50%) translateY(100%)}
-      .nav-item .icon{font-size:26px}
-      .nav-item .label{font-size:11px}
-      .nav-item.active .icon{font-size:34px}
+      .nav-item .icon{font-size:24px}
+      .nav-item .label{font-size:10px}
+      .nav-item.active .icon{font-size:28px}
     }
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;will-change:opacity;transform:translateZ(0)}
     .overlay .modal-box{will-change:transform;transform:translateZ(0)}
-    .camera-box{width:100%;max-width:310px;background:#111827;border-radius:20px;padding:16px;position:relative}
-    @media (max-width:400px){.camera-box{max-width:280px}}
+    .camera-box{width:100%;max-width:340px;background:#111827;border-radius:20px;padding:20px;position:relative}
+    @media (max-width:400px){.camera-box{max-width:300px}}
     #cameraOverlay .modal-x{background:#374151}
 
     .modal-box{width:100%;max-width:720px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
     .cart-table{display:block;overflow-y:auto;max-height:calc(85vh - 240px)}
     .cart-table thead{display:table;width:100%;table-layout:fixed}
     .cart-table tbody{display:table;width:100%;table-layout:fixed}
-    .modal-x{position:absolute;top:10px;right:10px;width:46px;height:46px;border:none;border-radius:12px;background:#111827;color:#fff;font-size:22px;font-weight:900;cursor:pointer;z-index:1;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .2s}
+    .modal-x{position:absolute;top:12px;right:12px;width:56px;height:56px;border:none;border-radius:14px;background:#111827;color:#fff;font-size:24px;font-weight:900;cursor:pointer;z-index:1;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .2s}
     .modal-x:active{transform:scale(.95)}
     .modal-x:hover{background:#1f2937}
 
@@ -159,7 +165,7 @@
     .calc-header{padding:6px 52px 10px 6px}
     .calc-title{font-weight:900;font-size:18px}
     .calc-sub{color:#6b7280;font-size:12px;margin-top:4px}
-    .calc-close{position:absolute;top:8px;right:8px;width:46px;height:46px;border:none;border-radius:12px;background:#111827;color:#fff;font-size:22px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .2s}
+    .calc-close{position:absolute;top:8px;right:8px;width:56px;height:56px;border:none;border-radius:12px;background:#111827;color:#fff;font-size:24px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .2s}
     .calc-close:active{transform:scale(.95)}
     .calc-close:hover{background:#1f2937}
     
@@ -378,7 +384,7 @@
     <div class="camera-box">
       <button class="modal-x" onclick="closeCamera()">✕</button>
       <div style="color:#fff;font-size:20px;font-weight:900;margin-bottom:16px;text-align:center">Skanuj kod kreskowy</div>
-      <div id="cameraReader" style="width:100%;height:360px;max-height:60vh;background:#000;border-radius:12px;overflow:hidden"></div>
+      <div id="cameraReader" style="width:100%;height:450px;max-height:65vh;background:#000;border-radius:12px;overflow:hidden"></div>
       <div id="cameraStatus" style="color:rgba(255,255,255,0.8);text-align:center;margin-top:12px;font-size:14px">Przybliż kod do kamery</div>
     </div>
   </div>
@@ -2107,7 +2113,7 @@ function openCamera() {
   // Zoptymalizowana konfiguracja dla szybszego skanowania
   const config = {
     fps: 10,                          // Mniej FPS = mniej obciążenia CPU
-    qrbox: { width: 220, height: 80 }, // Mniejsze białe ramki
+    qrbox: { width: 250, height: 100 }, // Szeroka ale NISKA ramka
     aspectRatio: 1.777778,            // 16:9 - lepsze dla kodów EAN
     disableFlip: false,
     formatsToSupport: [
