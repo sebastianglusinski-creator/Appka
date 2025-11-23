@@ -2258,16 +2258,16 @@ closeCalc = function() {
 </body>
 </html>
 
-/* Unified topbar */
-.topbar {
+/* Remove gradient from topbar + search area */
+.topbar,
+.search-bar,
+.search-wrapper,
+.header,
+.header-wrapper {
   background: #2563eb !important;
 }
 
-/* Smooth gradient start below topbar for iOS 26.1 */
+/* Optional: gradient only in main content */
 .main-content, .content, main {
-  padding-top: 12px !important;
-  background-color: #2563eb !important;
-  background-image: linear-gradient(135deg, #2563eb, #1e40af) !important;
-  background-repeat: no-repeat !important;
-  background-position: 0 12px !important;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
 }
