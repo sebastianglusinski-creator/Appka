@@ -2258,7 +2258,12 @@ closeCalc = function() {
 </body>
 </html>
 
-/* Gradient moved to body for iOS 26.1 */
-body {
+/* Ensure topbar matches status bar */
+.topbar {
+  background: #2563eb !important;
+}
+
+/* Gradient starts BELOW topbar to avoid iOS 26.1 cutoff */
+.main-content, .content, main {
   background: linear-gradient(135deg, #2563eb, #1e40af) !important;
 }
