@@ -702,7 +702,7 @@ function rebuildIndex() {
   }
 }
 
-function debounce(fn, delay=300){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
+function debounce(fn, delay=150){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
 
 // Funkcja pomocnicza do wywołań API
 async function callAPI(action, params = {}) {
@@ -944,7 +944,7 @@ function renderProducts(data){
     add.onclick=(e)=>{
       e.preventDefault();
       // Użyj setTimeout aby przerwać blokowanie głównego wątku
-      setTimeout(()=>openCalc(p), 0);
+      openCalc(p);
     };
     actions.append(add); row.append(left,actions);
     list.append(row);
