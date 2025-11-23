@@ -2258,12 +2258,16 @@ closeCalc = function() {
 </body>
 </html>
 
-/* Ensure topbar matches status bar */
+/* Unified topbar */
 .topbar {
   background: #2563eb !important;
 }
 
-/* Gradient starts BELOW topbar to avoid iOS 26.1 cutoff */
+/* Smooth gradient start below topbar for iOS 26.1 */
 .main-content, .content, main {
-  background: linear-gradient(135deg, #2563eb, #1e40af) !important;
+  padding-top: 12px !important;
+  background-color: #2563eb !important;
+  background-image: linear-gradient(135deg, #2563eb, #1e40af) !important;
+  background-repeat: no-repeat !important;
+  background-position: 0 12px !important;
 }
