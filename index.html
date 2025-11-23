@@ -2258,33 +2258,11 @@ closeCalc = function() {
 </body>
 </html>
 
-/* COMPLETE FIX FOR TOP LINE / SHADOW / BORDER */
+/* Force all top elements to solid blue */
 .topbar,
 .header,
 .header-wrapper,
-.search-wrapper,
-.search-bar {
-    background: #2563eb !important;
-    border: none !important;
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-    outline: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-/* ENLARGED BOTTOM TAB BAR */
-.bottom-nav,
-.tab-bar,
-.footer-nav {
-    height: 80px !important;
-    padding-bottom: env(safe-area-inset-bottom);
-    background: #ffffff !important;
-}
-
-.bottom-nav a,
-.tab-bar a,
-.footer-nav a {
-    font-size: 15px !important;
-    padding-top: 14px !important;
+.search-bar,
+.search-wrapper {
+  background: #2563eb !important;
 }
