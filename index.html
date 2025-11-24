@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v1.0.9 - POS NAPRAWIONY</title>
+  <title>PDA DEDRA v9 MINIMAL - Szybkie przyciski</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -702,7 +702,7 @@ function rebuildIndex() {
   }
 }
 
-function debounce(fn, delay=150){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
+function debounce(fn, delay=300){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
 
 // Funkcja pomocnicza do wywołań API
 async function callAPI(action, params = {}) {
@@ -943,7 +943,6 @@ function renderProducts(data){
     add.style.background = qtyIn>0 ? '#2563eb' : 'var(--success)';
     add.onclick=(e)=>{
       e.preventDefault();
-      // Użyj setTimeout aby przerwać blokowanie głównego wątku
       openCalc(p);
     };
     actions.append(add); row.append(left,actions);
