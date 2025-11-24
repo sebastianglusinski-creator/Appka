@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v9 MINIMAL - Szybkie przyciski</title>
+  <title>PDA DEDRA v9 - Szybkie + Naprawiona wyszukiwarka</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -114,8 +114,8 @@
     .search-icon-btn.clear-btn{background:transparent!important;color:#374151!important}
     .search-icon-btn.clear-btn:hover{background:rgba(0,0,0,0.05)!important;color:#111!important}
 
-    #productList{padding:8px 12px calc(var(--nav-h) + 20px)}
-    .product{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:background .15s,box-shadow .15s;max-width:100%}
+    #productList{padding:8px 12px calc(var(--nav-h) + 20px);padding-top:12px}
+    .product{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:background .15s,box-shadow .15s;max-width:100%;scroll-margin-top:140px}
     .product:hover{box-shadow:0 4px 12px rgba(0,0,0,.12)}
     .product-left{display:flex;gap:12px;align-items:center;flex:1;min-width:0}
     .product-thumb{width:60px;height:60px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#f3f4f6}
@@ -948,6 +948,17 @@ function renderProducts(data){
     actions.append(add); row.append(left,actions);
     list.append(row);
   });
+  
+  // FIX v9: Jeśli użytkownik wyszukuje, przewiń do pierwszego wyniku
+  const searchInput = $('searchInput');
+  if (searchInput && searchInput.value.trim() && data.length > 0) {
+    setTimeout(() => {
+      const firstProduct = list.querySelector('.product');
+      if (firstProduct) {
+        firstProduct.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
 }
 
 function renderPOS(data){
