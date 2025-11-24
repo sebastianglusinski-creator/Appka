@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v9 - 3 tryby wyszukiwania + Fix iOS</title>
+  <title>PDA DEDRA v9 FINAL - 3 tryby + Fix szary pasek logowania</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -31,7 +31,7 @@
     
     /* === FIX iOS 18.2.6 - Status bar + LoginScreen === */
     html {
-      background: #2563eb;
+      background: #2563eb !important;
       padding-top: env(safe-area-inset-top);
     }
     
@@ -114,6 +114,12 @@
     .bottom-nav.hide{transform:translateY(100%)}
     
     body.login-active .bottom-nav{display:none}
+    
+    /* === FIX iOS 18.2.6 - EKRAN LOGOWANIA === */
+    body.login-active {
+      background: #2563eb !important;
+      padding-top: env(safe-area-inset-top);
+    }
     
     .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:0 4px}
     .carousel-track{display:flex;align-items:center;justify-content:space-between;width:100%;gap:0;transition:transform .3s ease}
