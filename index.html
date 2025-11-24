@@ -555,6 +555,11 @@ const LS_PRODUCTS='DR_PRODUCTS_V2';
 const LS_CART='DR_CART_V2';
 const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
+
+// === INFINITE SCROLL dla produktów ===
+let allProductsToRender = [];
+let currentRenderLimit = 100;
+let isLoadingMore = false;
 // === SYSTEM 3 TRYBÓW WYSZUKIWANIA ===
 // 0 = Czytnik EAN (barcode, klawiatura OFF)
 // 1 = Tryb pojedynczy (keyboard, czyści search po dodaniu)
@@ -843,58 +848,117 @@ function renderCurrentTab(){
 }
 
 function renderProducts(data){
-  const list=$('productList'); list.innerHTML='';
-  if(!data.length){ list.innerHTML='<div style="padding:6px 0;opacity:.8">Brak produktów</div>'; return; }
-  data.forEach(p=>{
-    const row=document.createElement('div'); row.className='product';
-    const left=document.createElement('div'); left.className='product-left';
-    const info=document.createElement('div'); info.className='product-info';
-    
-    // SYSTEM KOLORÓW v3.0.1 - zastosuj kolor do nazwy
-    const colorHex = parseColor(p.kolor);
-    const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
-    
-    // BADGES v3.0.5 - NOWOŚĆ, PROMOCJA, GAZETKA, TOP
-    let badgesHTML = '';
-    const isNew = p.NEW === 'NEW';
-    const isPromo = p.PROMO === 'PROMO';
-    const isGazetka = p.GAZETKA === 'GAZETKA';
-    const isTop = p.TOP === 'TOP';
-    
-    if (isNew || isPromo || isGazetka || isTop) {
-      badgesHTML = '<div class="product-badges">';
-      if (isNew) {
-        badgesHTML += '<span class="product-badge badge-new">🌟 NOWOŚĆ</span>';
-      }
-      if (isPromo) {
-        badgesHTML += '<span class="product-badge badge-promo">🔥 PROMOCJA</span>';
-      }
-      if (isGazetka) {
-        badgesHTML += '<span class="product-badge badge-gazetka">📄 W GAZETCE</span>';
-      }
-      if (isTop) {
-        badgesHTML += '<span class="product-badge badge-top">🎯 TOP</span>';
-      }
-      badgesHTML += '</div>';
-    }
-    
-    info.innerHTML = `
-      <div class="name" ${nameStyle}>${p.nazwa||'—'}</div>
-      <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>
-      ${badgesHTML}`;
-    left.append(info);
-    const actions=document.createElement('div'); actions.className='actions';
-    const qtyIn=getQtyInCart(p.symbol);
-    const add=document.createElement('button'); add.className='add-btn'; add.textContent=(qtyIn || '+');
-    add.style.background = qtyIn>0 ? '#2563eb' : 'var(--success)';
-    add.onclick=(e)=>{
-      e.preventDefault();
-      // Użyj setTimeout aby przerwać blokowanie głównego wątku
-      setTimeout(()=>openCalc(p), 0);
-    };
-    actions.append(add); row.append(left,actions);
+  // Zapisz dane i zresetuj limit
+  allProductsToRender = data;
+  currentRenderLimit = 100;
+  isLoadingMore = false;
+  
+  // Wyczyść listę
+  const list=$('productList'); 
+  list.innerHTML='';
+  
+  if(!data.length){ 
+    list.innerHTML='<div style="padding:6px 0;opacity:.8">Brak produktów</div>'; 
+    return; 
+  }
+  
+  // Renderuj pierwszą partię
+  renderProductsBatch();
+}
+
+function renderProductsBatch(){
+  const list=$('productList');
+  
+  // Usuń stary sentinel jeśli istnieje
+  const oldSentinel = document.getElementById('scroll-sentinel');
+  if(oldSentinel) oldSentinel.remove();
+  
+  // Renderuj produkty od początku do currentRenderLimit
+  const toRender = allProductsToRender.slice(0, currentRenderLimit);
+  
+  // Wyczyść i renderuj wszystko od nowa
+  list.innerHTML = '';
+  
+  toRender.forEach(p=>{
+    const row = createProductElement(p);
     list.append(row);
   });
+  
+  // Jeśli są jeszcze produkty, dodaj sentinel
+  if(allProductsToRender.length > currentRenderLimit){
+    const sentinel = document.createElement('div');
+    sentinel.id = 'scroll-sentinel';
+    sentinel.style.cssText = 'height:1px;';
+    list.append(sentinel);
+    
+    // Obserwuj sentinel
+    if(window.productScrollObserver){
+      window.productScrollObserver.disconnect();
+    }
+    window.productScrollObserver = new IntersectionObserver((entries)=>{
+      if(entries[0].isIntersecting && !isLoadingMore && allProductsToRender.length > currentRenderLimit){
+        isLoadingMore = true;
+        setTimeout(()=>{
+          currentRenderLimit += 100;
+          renderProductsBatch();
+          isLoadingMore = false;
+        }, 100);
+      }
+    }, { rootMargin: '200px' });
+    
+    window.productScrollObserver.observe(sentinel);
+  }
+}
+
+function createProductElement(p){
+  const row=document.createElement('div'); row.className='product';
+  const left=document.createElement('div'); left.className='product-left';
+  const info=document.createElement('div'); info.className='product-info';
+  
+  // SYSTEM KOLORÓW v3.0.1 - zastosuj kolor do nazwy
+  const colorHex = parseColor(p.kolor);
+  const nameStyle = colorHex ? `style="color: ${colorHex};"` : '';
+  
+  // BADGES v3.0.5 - NOWOŚĆ, PROMOCJA, GAZETKA, TOP
+  let badgesHTML = '';
+  const isNew = p.NEW === 'NEW';
+  const isPromo = p.PROMO === 'PROMO';
+  const isGazetka = p.GAZETKA === 'GAZETKA';
+  const isTop = p.TOP === 'TOP';
+  
+  if (isNew || isPromo || isGazetka || isTop) {
+    badgesHTML = '<div class="product-badges">';
+    if (isNew) {
+      badgesHTML += '<span class="product-badge badge-new">🌟 NOWOŚĆ</span>';
+    }
+    if (isPromo) {
+      badgesHTML += '<span class="product-badge badge-promo">🔥 PROMOCJA</span>';
+    }
+    if (isGazetka) {
+      badgesHTML += '<span class="product-badge badge-gazetka">📄 W GAZETCE</span>';
+    }
+    if (isTop) {
+      badgesHTML += '<span class="product-badge badge-top">🎯 TOP</span>';
+    }
+    badgesHTML += '</div>';
+  }
+  
+  info.innerHTML = `
+    <div class="name" ${nameStyle}>${p.nazwa||'—'}</div>
+    <div class="codes"><div>${p.symbol||''}</div><div style="font-size:12px;">${p.ean||''}</div></div>
+    ${badgesHTML}`;
+  left.append(info);
+  const actions=document.createElement('div'); actions.className='actions';
+  const qtyIn=getQtyInCart(p.symbol);
+  const add=document.createElement('button'); add.className='add-btn'; add.textContent=(qtyIn || '+');
+  add.style.background = qtyIn>0 ? '#2563eb' : 'var(--success)';
+  add.onclick=(e)=>{
+    e.preventDefault();
+    setTimeout(()=>openCalc(p), 0);
+  };
+  actions.append(add); 
+  row.append(left,actions);
+  return row;
 }
 
 function renderPOS(data){
