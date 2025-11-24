@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v9 ULTRA MINIMAL - Tylko zamiana gradientów</title>
+  <title>PDA DEDRA v9 - 3 tryby wyszukiwania + Fix iOS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -28,6 +28,13 @@
       --q1:#e0f2fe;--q2:#dcfce7;--q3:#fee2e2;
       --orange:#f97316;
     }
+    
+    /* === FIX iOS 18.2.6 - Status bar + LoginScreen === */
+    html {
+      background: #2563eb;
+      padding-top: env(safe-area-inset-top);
+    }
+    
     html,body{height:100%;overflow-x:hidden}
     body{
       margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
@@ -541,7 +548,11 @@ const LS_PRODUCTS='DR_PRODUCTS_V2';
 const LS_CART='DR_CART_V2';
 const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
-let scannerMode = false; // Globalny tryb: false=klawiatura, true=czytnik
+// === SYSTEM 3 TRYBÓW WYSZUKIWANIA ===
+// 0 = Czytnik EAN (barcode, klawiatura OFF)
+// 1 = Tryb pojedynczy (keyboard, czyści search po dodaniu)
+// 2 = Tryb ciągły (keyboard_lock, NIE czyści search)
+let searchMode = 0;
 
 // === SYSTEM KOLORÓW v3.0.1 ===
 const COLOR_MAP = {
@@ -984,8 +995,8 @@ function initSearch(){
   if (now - lastKeyTime < 35) { 
     scanBuffer += key;
     // AUTOMATYCZNE WYKRYWANIE CZYTNIKA
-    if (scanBuffer.length >= 3 && !scannerMode) {
-      scannerMode = true;
+    if (scanBuffer.length >= 3 && searchMode !== 0) {
+      searchMode = 0; // Przełącz na tryb czytnika EAN
       const btn = document.getElementById('toggleModeBtn');
       if (btn) {
         btn.textContent = 'barcode';
@@ -1114,8 +1125,8 @@ function initSearch(){
       // Jeśli wklejono 13 cyfr (kod EAN)
       if (/^\d{13}$/.test(value)) {
         // Przełącz na tryb czytnika (jeśli jeszcze nie)
-        if (!scannerMode) {
-          scannerMode = true;
+        if (searchMode !== 0) {
+          searchMode = 0;
           const btn = document.getElementById('toggleModeBtn');
           if (btn) {
             btn.textContent = 'barcode';
@@ -1125,7 +1136,7 @@ function initSearch(){
           toast('📊 Wykryto kod EAN');
         }
         
-        // Szukaj produktu ZAWSZE (nawet jeśli scannerMode był już true)
+        // Szukaj produktu ZAWSZE (nawet jeśli searchMode był już 0)
         const cand = products.find(p => (p.ean||'').replace(/\s+/g,'') === value);
         if (cand) {
           openCalc(cand);
@@ -1691,12 +1702,18 @@ $('calcAdd').onclick = function(){
       resetProductButtons();
       closeCalc(); 
       toast('Usunięto z koszyka'); 
-      clearSearch(true); 
+      // TRYB POJEDYNCZY (1) - czyści search | TRYB CIĄGŁY (2) - NIE czyści
+      if(searchMode === 1) {
+        clearSearch(true);
+      }
       focusSearch();
     } else {
       closeCalc(); 
       toast('Produkt nie był w koszyku');
-      clearSearch(true); 
+      // TRYB POJEDYNCZY (1) - czyści search | TRYB CIĄGŁY (2) - NIE czyści
+      if(searchMode === 1) {
+        clearSearch(true);
+      }
       focusSearch();
     }
     return;
@@ -1705,7 +1722,10 @@ $('calcAdd').onclick = function(){
   addToCart(calcProduct, calcVal);
   closeCalc(); 
   toast('Dodano do koszyka'); 
-  clearSearch(true);
+  // TRYB POJEDYNCZY (1) - czyści search | TRYB CIĄGŁY (2) - NIE czyści
+  if(searchMode === 1) {
+    clearSearch(true);
+  }
   focusSearch();
 };
 
@@ -2011,26 +2031,35 @@ function toggleScannerMode() {
   const input = document.getElementById('searchInput');
   const btn = document.getElementById('toggleModeBtn');
   
-  scannerMode = !scannerMode;
+  // ROTACJA: 0 → 1 → 2 → 0 → 1 → 2...
+  searchMode = (searchMode + 1) % 3;
   
-  if (scannerMode) {
-    // TRYB CZYTNIKA - ukryj klawiaturę
+  if (searchMode === 0) {
+    // TRYB 1: CZYTNIK EAN
     btn.textContent = 'barcode';
     btn.style.color = '#059669';
     input.inputMode = 'none';
     input.setAttribute('readonly', 'readonly');
     input.blur();
     toast('📊 Tryb czytnika EAN');
-  } else {
-    // TRYB KLAWIATURY - WYMUŚ pokazanie
+    
+  } else if (searchMode === 1) {
+    // TRYB 2: TRYB POJEDYNCZY (czyści search po dodaniu)
     btn.textContent = 'keyboard';
-    btn.style.color = '#6b7280';
+    btn.style.color = '#3b82f6';
     input.removeAttribute('readonly');
     input.inputMode = 'text';
-    
-    // Natychmiastowe wymuszenie klawiatury
     forceShowKeyboard();
-    toast('⌨️ Wymuszam klawiaturę...');
+    toast('📝 Tryb pojedynczy');
+    
+  } else if (searchMode === 2) {
+    // TRYB 3: TRYB CIĄGŁY (NIE czyści search po dodaniu)
+    btn.textContent = 'keyboard_lock';
+    btn.style.color = '#f59e0b';
+    input.removeAttribute('readonly');
+    input.inputMode = 'text';
+    forceShowKeyboard();
+    toast('🔒 Tryb ciągły');
   }
 }
 
