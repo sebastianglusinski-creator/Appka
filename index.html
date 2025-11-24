@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v9 FINAL - 3 tryby + Fix szary pasek logowania</title>
+  <title>PDA DEDRA v9 FINAL - Fix over-scroll + 3 tryby</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -32,13 +32,12 @@
     /* === FIX iOS 18.2.6 - Status bar + LoginScreen === */
     html {
       background: #2563eb !important;
-      padding-top: env(safe-area-inset-top);
     }
     
     html,body{height:100%;overflow-x:hidden}
     body{
       margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-      background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%;
+      background:#2563eb !important;color:var(--ink);-webkit-text-size-adjust:100%;
       -webkit-user-select:none;user-select:none;touch-action:manipulation;
     }
     input,select,textarea{font-size:18px!important}
@@ -46,6 +45,7 @@
     @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
     #loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#2563eb;padding:24px;color:#fff}
+    #mainScreen{background:#f5f7fb;min-height:100vh}
     .card{width:100%;max-width:600px;background:#fff;color:#111;border-radius:22px;padding:28px 26px;box-shadow:0 12px 36px rgba(0,0,0,.18)}
     .title{font-size:30px;font-weight:900;margin-bottom:8px}
     .subtitle{opacity:.8;margin-bottom:16px;color:#374151}
@@ -87,7 +87,7 @@
     .search-icon-btn.clear-btn{background:transparent!important;color:#374151!important}
     .search-icon-btn.clear-btn:hover{background:rgba(0,0,0,0.05)!important;color:#111!important}
 
-    #productList{padding:8px 12px calc(var(--nav-h) + 20px)}
+    #productList{padding:8px 12px calc(var(--nav-h) + 20px);background:#f5f7fb}
     .product{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:background .15s,box-shadow .15s;max-width:100%}
     .product:hover{box-shadow:0 4px 12px rgba(0,0,0,.12)}
     .product-left{display:flex;gap:12px;align-items:center;flex:1;min-width:0}
@@ -118,7 +118,6 @@
     /* === FIX iOS 18.2.6 - EKRAN LOGOWANIA === */
     body.login-active {
       background: #2563eb !important;
-      padding-top: env(safe-area-inset-top);
     }
     
     .carousel-container{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:0 4px}
@@ -376,8 +375,8 @@
     </div>
   </div>
 
-  <!-- Biała strona dla ZADANIA -->
-  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85">
+  <!-- Szara strona dla ZADANIA -->
+  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:#f5f7fb;z-index:85">
     <div style="max-width:600px;margin:0 auto;padding:80px 20px;text-align:center">
       <div style="font-size:64px;margin-bottom:24px">✅</div>
       <div style="font-size:28px;font-weight:900;color:#111827;margin-bottom:12px">Zadania</div>
