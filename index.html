@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v9 FINAL - Solidny niebieski pasek (iOS fix)</title>
+  <title>PDA DEDRA v9 ULTRA MINIMAL - Tylko zamiana gradientów</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -28,13 +28,6 @@
       --q1:#e0f2fe;--q2:#dcfce7;--q3:#fee2e2;
       --orange:#f97316;
     }
-    
-    /* === FIX iOS 18.2.6 - SOLIDNE NIEBIESKIE TŁO === */
-    html {
-      background: #2563eb !important;
-      padding-top: env(safe-area-inset-top);
-    }
-    
     html,body{height:100%;overflow-x:hidden}
     body{
       margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
@@ -45,7 +38,7 @@
     
     @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
-    #loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:24px;color:#fff}
+    #loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#2563eb;padding:24px;color:#fff}
     .card{width:100%;max-width:600px;background:#fff;color:#111;border-radius:22px;padding:28px 26px;box-shadow:0 12px 36px rgba(0,0,0,.18)}
     .title{font-size:30px;font-weight:900;margin-bottom:8px}
     .subtitle{opacity:.8;margin-bottom:16px;color:#374151}
@@ -56,7 +49,7 @@
     .btn-primary{background:var(--blue);color:#fff;box-shadow:0 8px 22px rgba(37,99,235,.35)}
     .login-footer{margin-top:14px;font-size:14px;opacity:.9;text-align:center;color:#e5e7eb}
 
-    .topbar{position:sticky;top:0;z-index:100;background:#2563eb!important;background-image:none!important;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15);display:flex;flex-direction:column}
+    .topbar{position:sticky;top:0;z-index:100;background:#2563eb;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15);display:flex;flex-direction:column}
     .topbar-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 10px 6px 10px !important;gap:8px;max-width:100%;position:relative}
     .topbar-left{justify-content:flex-start}
     .topbar-right{justify-content:flex-end}
@@ -70,7 +63,7 @@
     .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 0 2px var(--blue-dark)}
     .badge-blue{background:#0ea5e9}
 
-    .topbar-search{position:sticky;top:0;z-index:100;background:#2563eb!important;background-image:none!important;padding:6px 6px 14px}
+    .topbar-search{position:sticky;top:0;z-index:100;background:#2563eb;padding:6px 6px 14px}
     .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:46px;overflow:visible;padding:0 2px}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
     #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 6px;height:46px;line-height:46px;-webkit-appearance:none;min-width:0}
@@ -279,23 +272,6 @@
     height: 50px !important;
     font-size: 22px !important;
   }
-}
-
-/* === FIX iOS 18.2.6 - WYMUSZENIE SOLIDNEGO TŁA === */
-/* Wszystkie elementy u góry MUSZĄ mieć jednolity kolor */
-.topbar,
-.header,
-.header-wrapper,
-.search-bar,
-.search-wrapper,
-.brand-bar,
-.product-controls,
-.topbar-header,
-.topbar-search {
-  background: #2563eb !important;
-  background-image: none !important;
-  border: none !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,.15) !important;
 }
   </style>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
