@@ -67,7 +67,7 @@
     /* HOME */
 
     .home-header {
-      margin-bottom: 24px;
+      margin-bottom: 12px;
       text-align: center;
     }
     .home-date-day {
@@ -204,7 +204,8 @@
     /* Zadania */
 
     .task-item {
-      background: #fff;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
       border-radius: 12px;
       padding: 14px 12px;
       margin-bottom: 8px;
@@ -214,7 +215,7 @@
       gap: 10px;
       position: relative;
       cursor: pointer;
-      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.12s ease-out;
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.12s ease-out, background 0.12s ease-out, border 0.12s ease-out;
       will-change: transform, opacity, box-shadow;
       contain: layout paint;
     }
@@ -229,6 +230,17 @@
     .task-item:active {
       transform: scale(.98);
       box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+    
+    .task-item.dragging {
+      background: #e5e7eb !important;
+      border: 2px solid #9ca3af !important;
+      border-radius: 14px !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25) !important;
+      transform: scale(1.05) !important;
+      opacity: 0.95 !important;
+      z-index: 1000;
+      cursor: grabbing !important;
     }
 
     .task-checkbox {
@@ -491,7 +503,7 @@
     .fab {
       position: fixed;
       right: 35px;
-      bottom: 160px;
+      bottom: 120px;
       width: 68px;
       height: 68px;
       border-radius: 50%;
@@ -913,10 +925,12 @@
     /* Kompakt Nadchodzące / Ten tydzień */
 
     .task-item.upcoming-compact {
-      box-shadow: none;
-      border-radius: 0;
-      padding: 5px 0;
-      margin-bottom: 3px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      padding: 10px 12px;
+      margin-bottom: 6px;
       align-items: center;
       transform: none;
       margin-left: 18px;
@@ -2330,20 +2344,43 @@
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', id);
 
+      // Tworzę pełny kafelek jako ghost image
       const ghost = document.createElement('div');
       ghost.style.position = 'fixed';
       ghost.style.top = '-999px';
       ghost.style.left = '-999px';
-      ghost.style.padding = '6px 10px';
-      ghost.style.borderRadius = '10px';
-      ghost.style.background = '#ffffff';
-      ghost.style.boxShadow = '0 3px 8px rgba(15,23,42,.25)';
-      ghost.style.fontSize = '12px';
-      ghost.style.fontWeight = '500';
+      ghost.style.padding = '14px 12px';
+      ghost.style.borderRadius = '14px';
+      ghost.style.background = '#e5e7eb';
+      ghost.style.border = '2px solid #9ca3af';
+      ghost.style.boxShadow = '0 8px 24px rgba(0,0,0,.25)';
+      ghost.style.fontSize = '15px';
+      ghost.style.fontWeight = '400';
       ghost.style.color = '#111827';
-      ghost.textContent = t.title || 'Zadanie';
+      ghost.style.display = 'flex';
+      ghost.style.alignItems = 'center';
+      ghost.style.gap = '10px';
+      ghost.style.minWidth = '350px';
+      ghost.style.maxWidth = '500px';
+      
+      // Dodaj checkbox
+      const checkbox = document.createElement('div');
+      checkbox.style.width = '28px';
+      checkbox.style.height = '28px';
+      checkbox.style.borderRadius = '50%';
+      checkbox.style.border = '3px solid #d1d5db';
+      checkbox.style.background = '#fff';
+      checkbox.style.flexShrink = '0';
+      ghost.appendChild(checkbox);
+      
+      // Dodaj tekst zadania
+      const text = document.createElement('div');
+      text.style.flex = '1';
+      text.textContent = t.title || 'Zadanie';
+      ghost.appendChild(text);
+      
       document.body.appendChild(ghost);
-      e.dataTransfer.setDragImage(ghost, 10, 10);
+      e.dataTransfer.setDragImage(ghost, 20, 20);
       setTimeout(() => document.body.removeChild(ghost), 0);
     }
   }
