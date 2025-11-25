@@ -1728,6 +1728,7 @@
 
   function normalizeDateForTodayLike(val, todayStr) {
     if (val === 'DZISIAJ' || val === 'WIECZOREM') return todayStr;
+    if (val === 'W_AUCIE' || val === 'KIEDYKOLWIEK') return null;
     return val;
   }
 
@@ -2045,6 +2046,7 @@
       const tasksForDay = allTasks.filter(t => {
         if (t.status !== 'DO_ZROBIENIA') return false;
         if (!t.date || t.date === 'KIEDYKOLWIEK') return false;
+        if (t.date === 'W_AUCIE' || t.inCar) return false;
         const real = normalizeDateForTodayLike(t.date, todayStr);
         return real === dateStr;
       });
@@ -2060,6 +2062,7 @@
     allTasks.forEach(t => {
       if (t.status !== 'DO_ZROBIENIA') return;
       if (!t.date || t.date === 'KIEDYKOLWIEK') return;
+      if (t.date === 'W_AUCIE' || t.inCar) return;
       const real = normalizeDateForTodayLike(t.date, todayStr);
       if (real > endOfMonthStr) future.push({ ...t, realDate: real });
     });
