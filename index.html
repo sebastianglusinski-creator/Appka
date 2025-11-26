@@ -342,35 +342,19 @@
     }
 
     /* === FIX iPhone 14: Biały pasek w zakładce Zadania === */
-    /* iPhone 14 (iOS 17/18) nadaje iframe niebieski kolor z theme-color */
-    /* Ten fix wymusza białe tło tylko w zakładce Zadania */
+    /* === FIX iPhone 14: niebieski pasek w zakładce Zadania === */
+    /* ROZWIĄZANIE UŻYTKOWNIKA - DOKŁADNA KOPIA */
     #zadaniaScreen {
       background: #ffffff !important;
-      background-color: #ffffff !important;
     }
     
-    /* Białe tło dla iframe + wymuszenie jasnego motywu */
-    #zadaniaScreen iframe,
-    #taskIframe {
+    /* Tło iframe + bezpieczna strefa na notch */
+    #zadaniaScreen iframe {
       background: #ffffff !important;
-      background-color: #ffffff !important;
       color-scheme: light !important;
-      -webkit-color-scheme: light !important;
+      padding-top: env(safe-area-inset-top) !important;
     }
-    
-    /* iOS Safari specifics */
-    @supports (-webkit-touch-callout: none) {
-      #zadaniaScreen {
-        background: #ffffff !important;
-        -webkit-background-color: #ffffff !important;
-      }
-      
-      #zadaniaScreen iframe,
-      #taskIframe {
-        background: #ffffff !important;
-        -webkit-background-color: #ffffff !important;
-      }
-    }
+
 
 
   </style>
