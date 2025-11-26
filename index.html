@@ -341,6 +341,19 @@
       .card { padding: 20px 18px; }
     }
 
+    /* === FIX iPhone 14: Biały pasek w zakładce Zadania === */
+    /* iPhone 14 (iOS 17/18) nadaje iframe niebieski kolor z theme-color */
+    /* Ten fix wymusza białe tło tylko w zakładce Zadania */
+    #zadaniaScreen {
+      background: #ffffff !important;
+    }
+    
+    /* Białe tło dla iframe + wymuszenie jasnego motywu */
+    #zadaniaScreen iframe {
+      background: #ffffff !important;
+      color-scheme: light !important;
+    }
+
   </style>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
