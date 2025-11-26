@@ -346,13 +346,32 @@
     /* Ten fix wymusza białe tło tylko w zakładce Zadania */
     #zadaniaScreen {
       background: #ffffff !important;
+      background-color: #ffffff !important;
     }
     
     /* Białe tło dla iframe + wymuszenie jasnego motywu */
-    #zadaniaScreen iframe {
+    #zadaniaScreen iframe,
+    #taskIframe {
       background: #ffffff !important;
+      background-color: #ffffff !important;
       color-scheme: light !important;
+      -webkit-color-scheme: light !important;
     }
+    
+    /* iOS Safari specifics */
+    @supports (-webkit-touch-callout: none) {
+      #zadaniaScreen {
+        background: #ffffff !important;
+        -webkit-background-color: #ffffff !important;
+      }
+      
+      #zadaniaScreen iframe,
+      #taskIframe {
+        background: #ffffff !important;
+        -webkit-background-color: #ffffff !important;
+      }
+    }
+
 
   </style>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -445,11 +464,11 @@
   </div>
 
   <!-- TODO przez iframe -->
-  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85;padding:0">
+  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:#ffffff;z-index:85;padding:0">
     <iframe 
       id="taskIframe" 
       src="zadania.html" 
-      style="width:100%;height:100%;border:none;display:block"
+      style="width:100%;height:100%;border:none;display:block;background:#ffffff!important"
       loading="lazy">
     </iframe>
   </div>
@@ -884,7 +903,26 @@ function renderCurrentTab(){
   
   // Jeśli ZADANIA - biała strona
   if(currentTab === 'zadania'){
-    if(zadaniaScreen) zadaniaScreen.style.display = 'block';
+    if(zadaniaScreen) {
+      zadaniaScreen.style.display = 'block';
+      
+      // WYMUSZENIE BIAŁEGO TŁA - FIX dla iPhone 14
+      zadaniaScreen.style.backgroundColor = '#ffffff';
+      zadaniaScreen.style.background = '#ffffff';
+      
+      // Wymuszenie białego tła dla iframe
+      const taskIframe = document.getElementById('taskIframe');
+      if(taskIframe) {
+        taskIframe.style.backgroundColor = '#ffffff';
+        taskIframe.style.background = '#ffffff';
+        
+        // Dodatkowe wymuszenie po 100ms (dla iOS 14)
+        setTimeout(() => {
+          taskIframe.style.backgroundColor = '#ffffff';
+          taskIframe.style.background = '#ffffff';
+        }, 100);
+      }
+    }
     if(productList) productList.style.display = 'none';
     if(topbar) topbar.style.display = 'none';
     return;
