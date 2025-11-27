@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA 3.0.8</title>
+  <title>PDA DEDRA v9 FINAL - 3 tryby + Fix szary pasek logowania</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -377,7 +377,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v3.0.8 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.2.2 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -632,7 +632,7 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbxj1TMgAhl0yBXtd9uvjPSkI0H_eu6vecFX7H3k-0eoivnz0ZomRFhYR8u4hjL_HZuz5g/exec';
 
 // Wersja aplikacji - zmień gdy dodajesz GAZETKA lub inne ważne zmiany
-const APP_VERSION = 'v3.0.8';
+const APP_VERSION = 'v3.0.9';
 const LS_VERSION = 'DR_VERSION';
 
 // Sprawdź wersję i wyczyść stare dane jeśli wersja się zmieniła
@@ -861,11 +861,18 @@ async function syncAllBlocking(){
       PROMO: p.PROMO || '',
       GAZETKA: p.GAZETKA || '',
       TOP: p.TOP || '',
+      STATUS: p.STATUS || 'AKTYWNY',
       q1:Number(p.Q1||p.q1)||1, q2:Number(p.Q2||p.q2)||0, q3:Number(p.Q3||p.q3)||0,
       qco1:String(p.QCO1||p.qco1||'szt.'), qco2:String(p.QCO2||p.qco2||''), qco3:String(p.QCO3||p.qco3||''),
       min: Number(p.MinimumZam||p.minimumZam||p.Q1||p.q1||1) || 1,
       hashtag: String(p.Hashtag||p.hashtag||''),
-      kolor: String(p.kolor || p.Kolor || '')
+      kolor: String(p.kolor || p.Kolor || ''),
+      powiazane: String(p.powiazane || p.Powiazane || ''),
+      cechy: String(p.cechy || p.Cechy || ''),
+      dane: String(p.dane || p.Dane || ''),
+      kompl: String(p.kompl || p.Kompl || ''),
+      czesci: String(p.czesci || p.Czesci || ''),
+      img: String(p.img || p.IMG || '')
     }));
     
     setSyncProgress(40);
