@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dedra-pwa-v3.0.8';
+const CACHE_NAME = 'dedra-pwa-v3.0.9';
 const urlsToCache = [
   '/Appka/',
   '/Appka/index.html',
@@ -8,7 +8,7 @@ const urlsToCache = [
 
 // Instalacja Service Workera - cachowanie plików
 self.addEventListener('install', event => {
-  console.log('[SW] Instalacja v2.1.0...');
+  console.log('[SW] Instalacja v3.0.9...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -21,7 +21,7 @@ self.addEventListener('install', event => {
 
 // Aktywacja - czyszczenie starych cache'y
 self.addEventListener('activate', event => {
-  console.log('[SW] Aktywacja v2.1.0...');
+  console.log('[SW] Aktywacja v3.0.9...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
