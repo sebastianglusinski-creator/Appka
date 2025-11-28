@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v9 FINAL - 3 tryby + Fix szary pasek logowania</title>
+  <title>PDA DEDRA v3.3.1 - Statusy + Zamienniki (Clean)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -114,13 +114,13 @@
     .add-btn{min-width:60px;height:60px;border:none;border-radius:14px;cursor:pointer;font-size:26px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;background:var(--success);box-shadow:0 2px 6px rgba(0,0,0,.15);transition:transform .08s}
     .add-btn:active{transform:scale(.97)}
     .add-btn.orange{background:var(--orange)}
-    
+
     /* === STATUSY PRODUKTÓW === */
-    .add-btn.status-aktywny{background:#10b981}      /* Zielony */
-.add-btn.status-planowany{background:#6b7280}    /* Szary */
-.add-btn.status-nieaktywny{background:#ec4899}   /* Różowy */
-.add-btn.status-anulowany{background:#ec4899}    /* Różowy */
-.add-btn.status-blokada{background:#ec4899}      /* Różowy */
+    .add-btn.status-aktywny{background:#10b981}
+    .add-btn.status-planowany{background:#6b7280}
+    .add-btn.status-nieaktywny{background:#ec4899}
+    .add-btn.status-anulowany{background:#ec4899}
+    .add-btn.status-blokada{background:#ec4899}
 
 
     /* === KARUZELA - CLEAN VERSION === */
@@ -349,22 +349,6 @@
       .card { padding: 20px 18px; }
     }
 
-    /* === FIX iPhone 14: Biały pasek w zakładce Zadania === */
-    /* === FIX iPhone 14: niebieski pasek w zakładce Zadania === */
-    /* ROZWIĄZANIE UŻYTKOWNIKA - DOKŁADNA KOPIA */
-    #zadaniaScreen {
-      background: #ffffff !important;
-    }
-    
-    /* Tło iframe + bezpieczna strefa na notch */
-    #zadaniaScreen iframe {
-      background: #ffffff !important;
-      color-scheme: light !important;
-      padding-top: env(safe-area-inset-top) !important;
-    }
-
-
-
   </style>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
@@ -377,7 +361,7 @@
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v2.2.2 PWA</div>
+    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v3.3.1 PWA</div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -456,11 +440,11 @@
   </div>
 
   <!-- TODO przez iframe -->
-  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:#ffffff;z-index:85;padding:0">
+  <div id="zadaniaScreen" style="display:none;position:fixed;inset:0;background:white;z-index:85;padding:0">
     <iframe 
       id="taskIframe" 
       src="zadania.html" 
-      style="width:100%;height:100%;border:none;display:block;background:#ffffff!important"
+      style="width:100%;height:100%;border:none;display:block"
       loading="lazy">
     </iframe>
   </div>
@@ -500,6 +484,25 @@
           <button class="btn-send" onclick="sendOrder()">Wyślij zamówienie</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Popup zamienników -->
+  <div id="replacementsOverlay" class="overlay" style="display:none">
+    <div class="calc-box" style="max-height:85vh;display:flex;flex-direction:column">
+      <button class="calc-close" onclick="closeReplacements()">✕</button>
+      <div class="calc-header">
+        <div id="replTitle" class="calc-title">—</div>
+        <div id="replSub" class="calc-sub">—</div>
+      </div>
+      
+      <div style="padding:16px;background:#fef2f2;border-radius:12px;margin:12px 0;text-align:center">
+        <div style="font-size:16px;font-weight:700;color:#991b1b" id="replStatus">⚠️ Produkt jest NIEAKTYWNY</div>
+      </div>
+      
+      <div style="font-size:14px;font-weight:700;color:#6b7280;margin-bottom:8px;padding:0 4px">Podpowiedź zamiennika:</div>
+      
+      <div id="replacementsList" style="flex:1;overflow-y:auto;padding:0 4px"></div>
     </div>
   </div>
 
@@ -579,25 +582,6 @@
     </div>
   </div>
 
-  <!-- POPUP ZAMIENNIKÓW -->
-  <div id="replacementsOverlay" class="overlay" style="display:none">
-    <div class="calc-box" style="max-height:85vh;display:flex;flex-direction:column">
-      <button class="calc-close" onclick="closeReplacements()">✕</button>
-      <div class="calc-header">
-        <div id="replTitle" class="calc-title">—</div>
-        <div id="replSub" class="calc-sub">—</div>
-      </div>
-      
-      <div style="padding:16px;background:#fef2f2;border-radius:12px;margin:12px 0;text-align:center">
-        <div style="font-size:16px;font-weight:700;color:#991b1b" id="replStatus">⚠️ Produkt jest NIEAKTYWNY</div>
-      </div>
-      
-      <div style="font-size:14px;font-weight:700;color:#6b7280;margin-bottom:8px;padding:0 4px">Podpowiedź zamiennika:</div>
-      
-      <div id="replacementsList" style="flex:1;overflow-y:auto;padding:0 4px"></div>
-    </div>
-  </div>
-
   <div id="queueOverlay" class="overlay">
     <div class="modal-box">
       <button class="modal-x" onclick="closeQueue()">✕</button>
@@ -629,17 +613,17 @@
 
 <script>
 // API URL do Google Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbxj1TMgAhl0yBXtd9uvjPSkI0H_eu6vecFX7H3k-0eoivnz0ZomRFhYR8u4hjL_HZuz5g/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwXXWtOoE9tPFzQyFXzFSKY1tDnw6rVQn1F3sN9HKIT7tYp0MfQ1-pH-mfNRJaOotxZ/exec';
 
 // Wersja aplikacji - zmień gdy dodajesz GAZETKA lub inne ważne zmiany
-const APP_VERSION = 'v3.0.9';
+const APP_VERSION = 'v3.0.6';
 const LS_VERSION = 'DR_VERSION';
 
 // Sprawdź wersję i wyczyść stare dane jeśli wersja się zmieniła
 const savedVersion = localStorage.getItem(LS_VERSION);
 if (savedVersion !== APP_VERSION) {
   console.log('🔄 Nowa wersja! Czyszczę stare dane...', savedVersion, '→', APP_VERSION);
-  localStorage.removeItem('DR_PRODUCTS_V3');
+  localStorage.removeItem('DR_PRODUCTS_V2');
   localStorage.setItem(LS_VERSION, APP_VERSION);
 }
 
@@ -649,7 +633,7 @@ document.addEventListener('gesturestart', e=>e.preventDefault(), {passive:false}
 
 let currentUser=null,currentEmail=null;
 let products=[],posItems=[],sets=[];
-const LS_PRODUCTS='DR_PRODUCTS_V3';
+const LS_PRODUCTS='DR_PRODUCTS_V2';
 const LS_CART='DR_CART_V2';
 const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
@@ -867,12 +851,7 @@ async function syncAllBlocking(){
       min: Number(p.MinimumZam||p.minimumZam||p.Q1||p.q1||1) || 1,
       hashtag: String(p.Hashtag||p.hashtag||''),
       kolor: String(p.kolor || p.Kolor || ''),
-      powiazane: String(p.powiazane || p.Powiazane || ''),
-      cechy: String(p.cechy || p.Cechy || ''),
-      dane: String(p.dane || p.Dane || ''),
-      kompl: String(p.kompl || p.Kompl || ''),
-      czesci: String(p.czesci || p.Czesci || ''),
-      img: String(p.img || p.IMG || '')
+      zamienniki: String(p.zamienniki || p.Zamienniki || '')
     }));
     
     setSyncProgress(40);
@@ -921,26 +900,7 @@ function renderCurrentTab(){
   
   // Jeśli ZADANIA - biała strona
   if(currentTab === 'zadania'){
-    if(zadaniaScreen) {
-      zadaniaScreen.style.display = 'block';
-      
-      // WYMUSZENIE BIAŁEGO TŁA - FIX dla iPhone 14
-      zadaniaScreen.style.backgroundColor = '#ffffff';
-      zadaniaScreen.style.background = '#ffffff';
-      
-      // Wymuszenie białego tła dla iframe
-      const taskIframe = document.getElementById('taskIframe');
-      if(taskIframe) {
-        taskIframe.style.backgroundColor = '#ffffff';
-        taskIframe.style.background = '#ffffff';
-        
-        // Dodatkowe wymuszenie po 100ms (dla iOS 14)
-        setTimeout(() => {
-          taskIframe.style.backgroundColor = '#ffffff';
-          taskIframe.style.background = '#ffffff';
-        }, 100);
-      }
-    }
+    if(zadaniaScreen) zadaniaScreen.style.display = 'block';
     if(productList) productList.style.display = 'none';
     if(topbar) topbar.style.display = 'none';
     return;
@@ -1076,7 +1036,7 @@ function createProductElement(p){
   const qtyIn=getQtyInCart(p.symbol);
   const add=document.createElement('button'); add.className='add-btn'; add.textContent=(qtyIn || '+');
   
-  // STATUS - ustawianie koloru przycisku
+  // STATUS - kolorowanie przycisku
   const status = (p.STATUS || 'AKTYWNY').toLowerCase();
   if (status === 'aktywny') {
     add.classList.add('status-aktywny');
@@ -1090,7 +1050,7 @@ function createProductElement(p){
     add.classList.add('status-blokada');
   }
   
-  // Jeśli produkt jest w koszyku, ustaw niebieski kolor
+  // Jeśli w koszyku - niebieski (nadpisuje status)
   if (qtyIn > 0) {
     add.style.background = '#2563eb';
   }
@@ -1275,7 +1235,7 @@ function initSearch(){
       renderProducts(filtered);
       return;
     }
-    if (q === 'nowosc' || q === 'nowosci' || q === 'new' || q === 'nowość' || q === 'nowości') {
+    if (q === 'nowosc' || q === 'nowosci' || q === 'new') {
       const filtered = products.filter(p => p.NEW === 'NEW');
       renderProducts(filtered);
       return;
@@ -1353,7 +1313,7 @@ function initSearch(){
         // Szukaj produktu ZAWSZE (nawet jeśli searchMode był już 0)
         const cand = products.find(p => (p.ean||'').replace(/\s+/g,'') === value);
         if (cand) {
-          checkProductStatus(cand);
+          openCalc(cand);
           clearSearch(true);
           focusSearch();
         } else {
@@ -1799,6 +1759,116 @@ function editQueueItem(idx){
   $('uiOverlay').style.display = 'flex';
 }
 
+// === SYSTEM STATUSÓW I ZAMIENNIKÓW ===
+
+function checkProductStatus(p) {
+  const status = (p.STATUS || 'AKTYWNY').toUpperCase();
+  
+  // AKTYWNY i PLANOWANY → normalny kalkulator
+  if (status === 'AKTYWNY' || status === 'PLANOWANY') {
+    openCalc(p);
+    return;
+  }
+  
+  // NIEAKTYWNY, ANULOWANY, BLOKADA → popup z zamiennikami
+  if (status === 'NIEAKTYWNY' || status === 'ANULOWANY' || status === 'BLOKADA') {
+    showReplacementsPopup(p, status);
+    return;
+  }
+  
+  // Domyślnie (jeśli brak statusu) → normalny kalkulator
+  openCalc(p);
+}
+
+function showReplacementsPopup(product, status) {
+  const overlay = document.getElementById('replacementsOverlay');
+  const title = document.getElementById('replTitle');
+  const sub = document.getElementById('replSub');
+  const statusDiv = document.getElementById('replStatus');
+  const listDiv = document.getElementById('replacementsList');
+  
+  // Górna część
+  title.textContent = product.nazwa || '—';
+  sub.textContent = `${product.symbol || ''} ${product.ean ? ('| EAN ' + product.ean) : ''}`;
+  
+  // Komunikat statusu
+  if (status === 'NIEAKTYWNY') {
+    statusDiv.textContent = '⚠️ Produkt jest NIEAKTYWNY';
+  } else if (status === 'ANULOWANY') {
+    statusDiv.textContent = '⚠️ Produkt jest ANULOWANY';
+  } else if (status === 'BLOKADA') {
+    statusDiv.textContent = '⚠️ Produkt jest ZABLOKOWANY';
+  }
+  
+  // Znajdź zamienniki
+  const replacements = findReplacements(product);
+  
+  // Renderuj listę
+  listDiv.innerHTML = '';
+  
+  if (replacements.length === 0) {
+    listDiv.innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280">Brak dostępnych zamienników</div>';
+  } else {
+    replacements.forEach(repl => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#f9fafb;border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:background 0.2s';
+      item.onmouseenter = () => { item.style.background = '#f3f4f6'; };
+      item.onmouseleave = () => { item.style.background = '#f9fafb'; };
+      
+      const info = document.createElement('div');
+      info.style.cssText = 'flex:1;min-width:0';
+      info.innerHTML = `
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px">${repl.nazwa || '—'}</div>
+        <div style="font-size:13px;color:#6b7280">${repl.symbol || ''} | ${repl.ean || ''}</div>
+      `;
+      
+      const btn = document.createElement('button');
+      btn.className = 'add-btn status-aktywny';
+      btn.style.cssText = 'min-width:50px;height:50px;margin-left:12px';
+      btn.textContent = '+';
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        closeReplacements();
+        openCalc(repl);
+      };
+      
+      item.append(info, btn);
+      listDiv.append(item);
+    });
+  }
+  
+  overlay.style.display = 'flex';
+}
+
+function closeReplacements() {
+  document.getElementById('replacementsOverlay').style.display = 'none';
+}
+
+function findReplacements(product) {
+  const replacements = [];
+  
+  // Pobierz zamienniki (format: "SYMBOL1,SYMBOL2,SYMBOL3")
+  const replacementsStr = product.zamienniki || '';
+  if (!replacementsStr.trim()) {
+    return replacements;
+  }
+  
+  // Parsuj symbole
+  const replSymbols = replacementsStr.split(',')
+    .map(s => s.trim().toUpperCase())
+    .filter(s => s.length > 0);
+  
+  // Znajdź produkty
+  replSymbols.forEach(sym => {
+    const repl = products.find(p => p.symbol === sym);
+    if (repl) {
+      replacements.push(repl);
+    }
+  });
+  
+  return replacements;
+}
+
 let calcProduct=null, calcVal=0, calcMin=1;
 
 function openCalc(p){
@@ -1855,104 +1925,6 @@ function openCalc(p){
     updDisp(); 
     updAddBtn();
   }, 0);
-}
-
-// === SYSTEM STATUSÓW I ZAMIENNIKÓW ===
-
-function checkProductStatus(p) {
-  const status = (p.STATUS || 'AKTYWNY').toUpperCase();
-  
-  // AKTYWNY i PLANOWANY → normalny kalkulator
-  if (status === 'AKTYWNY' || status === 'PLANOWANY') {
-    openCalc(p);
-    return;
-  }
-  
-  // NIEAKTYWNY, ANULOWANY, BLOKADA → popup z zamiennikami
-  if (status === 'NIEAKTYWNY' || status === 'ANULOWANY' || status === 'BLOKADA') {
-    showReplacementsPopup(p, status);
-    return;
-  }
-  
-  // Domyślnie (jeśli brak statusu) → normalny kalkulator
-  openCalc(p);
-}
-
-function showReplacementsPopup(product, status) {
-  const overlay = document.getElementById('replacementsOverlay');
-  const title = document.getElementById('replTitle');
-  const sub = document.getElementById('replSub');
-  const statusDiv = document.getElementById('replStatus');
-  const listDiv = document.getElementById('replacementsList');
-  
-  // Górna część - jak w kalkulatorze
-  title.textContent = product.nazwa || '—';
-  sub.textContent = `${product.symbol || ''} ${product.ean ? ('| EAN ' + product.ean) : ''}`;
-  
-  // Status info
-  if (status === 'NIEAKTYWNY') {
-    statusDiv.textContent = '⚠️ Produkt jest NIEAKTYWNY';
-  } else if (status === 'ANULOWANY') {
-    statusDiv.textContent = '⚠️ Produkt jest ANULOWANY';
-  } else if (status === 'BLOKADA') {
-    statusDiv.textContent = '⚠️ Produkt jest ZABLOKOWANY';
-  }
-  
-  // Znajdź zamienniki
-  const replacements = findReplacements(product);
-  
-  // Renderuj listę zamienników
-  listDiv.innerHTML = '';
-  
-  if (replacements.length === 0) {
-    listDiv.innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280">Brak dostępnych zamienników</div>';
-  } else {
-    replacements.forEach(repl => {
-      const item = document.createElement('div');
-      item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#f9fafb;border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:background 0.2s';
-      item.onmouseenter = () => { item.style.background = '#f3f4f6'; };
-      item.onmouseleave = () => { item.style.background = '#f9fafb'; };
-      
-      const info = document.createElement('div');
-      info.style.cssText = 'flex:1;min-width:0';
-      info.innerHTML = `
-        <div style="font-weight:700;font-size:15px;margin-bottom:4px">${repl.nazwa || '—'}</div>
-        <div style="font-size:13px;color:#6b7280">${repl.symbol || ''} | ${repl.ean || ''}</div>
-      `;
-      
-      const btn = document.createElement('button');
-      btn.className = 'add-btn status-aktywny';
-      btn.style.cssText = 'min-width:50px;height:50px;margin-left:12px';
-      btn.textContent = '+';
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        closeReplacements();
-        openCalc(repl);
-      };
-      
-      item.append(info, btn);
-      listDiv.append(item);
-    });
-  }
-  
-  // Pokaż overlay
-  overlay.style.display = 'flex';
-}
-
-function closeReplacements() {
-  const overlay = document.getElementById('replacementsOverlay');
-  overlay.style.display = 'none';
-}
-
-function findReplacements(product) {
-  const replacements = [];
-  
-  // TODO: W przyszłości dodać logikę szukania zamienników
-  // 1. Z kolumny "Zamienniki" w Produkty_INFO (kolumna O)
-  // 2. Szukanie po nazwie w tym samym arkuszu
-  
-  // Na razie zwracamy pustą tablicę - to będzie dodane jak arkusz będzie gotowy
-  return replacements;
 }
 
 function setQuick(id, v, lbl){
@@ -2482,7 +2454,7 @@ function openCamera() {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         cameraActive = false;
         overlay.style.visibility = 'hidden';
-        checkProductStatus(p);
+        openCalc(p);
       } else {
         if (navigator.vibrate) navigator.vibrate(200);
         toast('❌ Brak w bazie: ' + ean);
