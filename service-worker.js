@@ -1,4 +1,4 @@
-// === PDA DEDRA – SERVICE WORKER (opcja C – pełny) ===
+// === PDA DEDRA – SERVICE WORKER ( ===
 
 const CACHE_STATIC = "dedra-static-v1";
 const CACHE_API = "dedra-api-v1";
