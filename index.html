@@ -633,50 +633,50 @@ async function loadZadania() {
     </div>
   </div>
 
-  <!-- v5.0.0 - PRELOAD ZDJĘĆ - Modal pytający -->
-  <div id="preloadModal" class="overlay" style="display:none">
-    <div class="modal-box" style="max-width:400px">
-      <div style="text-align:center;padding:20px">
-        <div style="font-size:48px;margin-bottom:12px">📸</div>
-        <div style="font-size:20px;font-weight:700;color:#111827;margin-bottom:8px">
-          Załadować wszystkie zdjęcia?
-        </div>
-        <div style="font-size:14px;color:#6b7280;margin-bottom:20px">
-          Pobierze ~<span id="preloadCount">0</span> zdjęć w tle
-        </div>
-        <div style="display:flex;gap:12px;justify-content:center">
-          <button class="btn" style="background:#e5e7eb;font-weight:700;border-radius:10px;padding:12px 24px" onclick="userDeclinedPreload()">
-            NIE, PÓŹNIEJ
-          </button>
-          <button class="btn" style="background:#3b82f6;color:#fff;font-weight:700;border-radius:10px;padding:12px 24px" onclick="userAcceptedPreload()">
-            TAK, ZAŁADUJ
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- v5.0.0 - PRELOAD ZDJĘĆ - Modal sukcesu -->
-  <div id="preloadSuccessModal" class="overlay" style="display:none">
-    <div class="modal-box" style="max-width:350px">
-      <div style="text-align:center;padding:20px">
-        <div style="font-size:64px;margin-bottom:12px">✅</div>
-        <div style="font-size:20px;font-weight:700;color:#111827;margin-bottom:8px">
-          GOTOWE!
-        </div>
-        <div style="font-size:14px;color:#6b7280;margin-bottom:20px">
-          Wszystkie zdjęcia załadowane!
-        </div>
-        <button class="btn" style="background:#3b82f6;color:#fff;font-weight:700;border-radius:10px;padding:12px 32px;width:100%" onclick="closePreloadSuccess()">
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
 
   <div id="toastWrap" class="toast-wrap"><div id="toast" class="toast">OK</div></div>
 
 <script>
+// === INDEXEDDB - Funkcje do zarządzania bazą danych ===
+const DB_NAME = "dedraDB";
+const DB_VERSION = 5;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains("products"))
+        db.createObjectStore("products", { keyPath: "symbol" });
+
+      if (!db.objectStoreNames.contains("pos"))
+        db.createObjectStore("pos", { keyPath: "symbol" });
+
+      if (!db.objectStoreNames.contains("sets"))
+        db.createObjectStore("sets", { keyPath: "symbol" });
+    };
+
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveData(store, items) {
+  const db = await openDB();
+  const tx = db.transaction(store, "readwrite");
+  const st = tx.objectStore(store);
+  items.forEach(i => st.put(i));
+  return tx.complete;
+}
+
+async function loadData(store) {
+  const db = await openDB();
+  const tx = db.transaction(store, "readonly");
+  return tx.objectStore(store).getAll();
+}
+// === KONIEC INDEXEDDB ===
+
 // API URL do Google Apps Script
 const API_URL = 'https://script.google.com/macros/s/AKfycbznpVc3Kbx97AgdHsANLRpV3x5PU5iJyiXcewyi1-hLAyd4eW0aSauWqeAZsm-nFv5lvQ/exec';
 
@@ -832,7 +832,7 @@ window.onload=function(){
   loadCart(); 
   loadQueue(); 
   updateBadges();
-  $('refreshBtn').addEventListener('click', () => syncAllBlocking(true)); // v5.0.0
+  $('refreshBtn').addEventListener('click', () => syncAllBlocking()); // Odświeżenie danych
   $('cartOverlay').addEventListener('click', (e)=>{ if (e.target === $('cartOverlay')) closeCart(); });
   $('calcOverlay').addEventListener('click', (e)=>{ if (e.target === $('calcOverlay')) closeCalc(); });
   $('queueOverlay').addEventListener('click', (e)=>{ if (e.target === $('queueOverlay')) closeQueue(); });
@@ -893,19 +893,19 @@ function focusSearch(){ const el=$('searchInput'); if (el){ el.focus(); el.selec
 function setSyncStep(step){ $('syncStep').textContent=step; }
 function setSyncProgress(pct){ $('syncText').textContent = `${pct}%`; }
 
-async function syncAllBlocking(manualRefresh = false){
-  let shouldLoadImages = false;
-    // === ODCZYT PRODUKTÓW Z INDEXEDDB PRZED SYNCHRONIZACJĄ ===
-  products = await loadData("products") || [];
-
+async function syncAllBlocking(){
+  console.log('[Sync] 🔄 Start synchronizacji');
   
-  // v5.0.0 - Jeśli ręczne odświeżenie - zapytaj o zdjęcia
-  if (manualRefresh) {
-    const decision = await askAboutPreload();
-    if (decision === null) return; // User anulował
-    shouldLoadImages = decision;
+  // Załaduj dane z IndexedDB jako fallback (offline support)
+  const cachedProducts = await loadData("products") || [];
+  if (cachedProducts.length > 0) {
+    console.log('[Sync] 💾 Załadowano z cache:', cachedProducts.length, 'produktów');
+    products = cachedProducts;
+    rebuildIndex();
+    renderCurrentTab();
   }
   
+  // Pokaż overlay synchronizacji natychmiast
   show($('syncOverlay'));
   $('syncTitle').textContent='Ładowanie danych…';
   setSyncProgress(0);
@@ -913,9 +913,10 @@ async function syncAllBlocking(manualRefresh = false){
 
   try {
     setSyncStep('Pobieranie produktów…');
-    setSyncProgress(shouldLoadImages ? 5 : 10);
+    setSyncProgress(10);
     
     const prod = await callAPI('getProdukty');
+    console.log('[Sync] ✅ Pobrano produkty:', prod?.length || 0);
     products = (prod||[]).map(p=>({
       symbol:p.symbol||'', ean:p.ean||'', nazwa:p.nazwa||'',
       NEW: p.NEW || '',
@@ -932,11 +933,11 @@ async function syncAllBlocking(manualRefresh = false){
       img: ((p.img ?? p.IMG ?? "").toString().trim())
     }));
     
-    setSyncProgress(shouldLoadImages ? 25 : 40);
+    setSyncProgress(40);
     setSyncStep('Pobieranie POS…');
     
     const pos = await callAPI('getPOS');
-    console.log('🔍 POS API Response:', pos);
+    console.log('[Sync] ✅ Pobrano POS:', pos?.length || 0);
     posItems = (pos||[]).map(x=>({ 
       lp: x.lp || x.LP || 0,
       symbol: x.symbol || x.Symbol || '', 
@@ -944,39 +945,36 @@ async function syncAllBlocking(manualRefresh = false){
       opis: x.opis || x.Opis || '', 
       zdjecie: x.zdjecie || x.Zdjecie || x.zdjęcie || x.Zdjęcie || '' 
     }));
-    console.log('📦 POS Items after mapping:', posItems);
     
-    setSyncProgress(shouldLoadImages ? 40 : 70);
+    setSyncProgress(70);
     setSyncStep('Pobieranie zestawów…');
     
     const zs = await callAPI('getZestawy');
+    console.log('[Sync] ✅ Pobrano zestawy:', zs?.length || 0);
     sets = (zs||[]).map(s=>({ ...s }));
     
-   await saveData("products", products);
+    await saveData("products", products);
+    console.log('[Sync] 💾 Zapisano do IndexedDB');
 
     
-    setSyncProgress(shouldLoadImages ? 50 : 85);
+    setSyncProgress(85);
     setSyncStep('Budowanie indeksu…');
     rebuildIndex();
     
-    setSyncProgress(shouldLoadImages ? 60 : 100);
-    
-    // v5.0.0 - Jeśli user wybrał załadowanie zdjęć
-    if (shouldLoadImages) {
-      await loadImagesWithProgress();
-    }
-    
+    setSyncProgress(100);
     setSyncStep('Gotowe!');
-    renderCurrentTab();
-    setTimeout(()=>hide($('syncOverlay')),250);
-    toast('Dane zaktualizowane');
-    focusSearch();
     
-    // v5.0.0 - Modal sukcesu po załadowaniu zdjęć
-    if (shouldLoadImages) {
-      setTimeout(() => show($('preloadSuccessModal')), 500);
-    }
+    console.log('[Sync] 🎉 Synchronizacja zakończona');
+    
+    setTimeout(()=>{
+      hide($('syncOverlay'));
+      renderCurrentTab();
+      toast('Dane zaktualizowane');
+      focusSearch();
+    }, 250);
+    
   } catch (error) {
+    console.error('[Sync] ❌ Błąd synchronizacji:', error);
     $('syncTitle').textContent='Błąd synchronizacji';
     $('syncText').textContent=String(error.message);
     setTimeout(()=>hide($('syncOverlay')),2000);
@@ -2688,144 +2686,6 @@ renderProductsBatch = function() {
   setTimeout(() => initLazyImages(), 50);
 };
 
-// === v5.0.0 - SYSTEM PRELOADINGU ZDJĘĆ ===
-let preloadResolver = null;
-
-// Zapytaj użytkownika czy załadować zdjęcia
-async function askAboutPreload() {
-  const imagesWithUrl = products.filter(p => p.img && p.img.length > 6);
-  if (imagesWithUrl.length === 0) {
-    console.log('[Preload] Brak zdjęć');
-    return false;
-  }
-  
-  // Sprawdź cache przez Service Worker
-  try {
-    if (!('caches' in window)) {
-      console.log('[Preload] Cache API niedostępne');
-      return false;
-    }
-    
-    const cache = await caches.open('dedra-images-v1');
-    const cachedRequests = await cache.keys();
-    const cachedUrls = cachedRequests.map(req => req.url);
-    
-    // Policz ile zostało do załadowania
-    const uncachedImages = imagesWithUrl.filter(p => {
-      return !cachedUrls.some(cachedUrl => {
-        const normalizedCached = cachedUrl.toLowerCase().replace(/\/$/, '');
-        const normalizedImg = p.img.toLowerCase().replace(/\/$/, '');
-        return normalizedCached === normalizedImg;
-      });
-    });
-    
-    console.log(`[Preload] Zdjęć do załadowania: ${uncachedImages.length}/${imagesWithUrl.length}`);
-    console.log(`[Preload] W cache: ${cachedUrls.length} zdjęć`);
-    
-    // Jeśli wszystkie w cache - nie pytaj
-    if (uncachedImages.length === 0) {
-      console.log('[Preload] ✅ Wszystkie zdjęcia w cache!');
-      return false;
-    }
-    
-    // Pokaż modal
-    $('preloadCount').textContent = uncachedImages.length;
-    show($('preloadModal'));
-    
-    return new Promise((resolve) => {
-      preloadResolver = resolve;
-    });
-    
-  } catch (error) {
-    console.error('[Preload] Błąd sprawdzania cache:', error);
-    return false;
-  }
-}
-
-// User kliknął TAK
-function userAcceptedPreload() {
-  hide($('preloadModal'));
-  if (preloadResolver) {
-    preloadResolver(true);
-    preloadResolver = null;
-  }
-}
-
-// User kliknął NIE
-function userDeclinedPreload() {
-  hide($('preloadModal'));
-  if (preloadResolver) {
-    preloadResolver(false);
-    preloadResolver = null;
-  }
-}
-
-// Załaduj zdjęcia z progress barem
-async function loadImagesWithProgress() {
-  const imagesWithUrl = products.filter(p => p.img && p.img.length > 6);
-
-  if (imagesWithUrl.length === 0) {
-    setSyncProgress(100);
-    return;
-  }
-
-  console.log(`[Preload] 🚀 Rozpoczynam ładowanie ${imagesWithUrl.length} zdjęć...`);
-
-  setSyncStep('Ładowanie zdjęć…');
-  setSyncProgress(60);
-
-  let loaded = 0;
-  let errors = 0;
-
-  const totalImages = imagesWithUrl.length;
-  const BATCH_SIZE = 5;
-
-  function preloadSingle(product) {
-    return new Promise((resolve) => {
-      try {
-        const img = new Image();
-        img.onload = () => {
-          loaded++;
-          resolve();
-        };
-        img.onerror = () => {
-          errors++;
-          resolve();
-        };
-        // To uruchamia pobieranie obrazu bez CORS
-        img.src = product.img;
-      } catch (e) {
-        errors++;
-        resolve();
-      }
-    });
-  }
-
-  for (let i = 0; i < totalImages; i += BATCH_SIZE) {
-    const batch = imagesWithUrl.slice(i, i + BATCH_SIZE);
-
-    // Ładuj po kilka naraz
-    await Promise.all(batch.map(preloadSingle));
-
-    // Aktualizuj progress (60-100%)
-    const progress = 60 + Math.floor((loaded / totalImages) * 40);
-    setSyncProgress(progress);
-    setSyncStep(`Ładowanie zdjęć… ${loaded}/${totalImages}`);
-
-    if (loaded > 0 && loaded % 100 === 0) {
-      console.log(`[Preload] 📸 Załadowano: ${loaded}/${totalImages}`);
-    }
-  }
-
-  setSyncProgress(100);
-  console.log(`[Preload] ✅ Zakończono! Loaded: ${loaded}, Errors: ${errors}`);
-}
-
-
-// Zamknij modal sukcesu
-function closePreloadSuccess() {
-  hide($('preloadSuccessModal'));
-}
 
 // === v5.0.0 - SERVICE WORKER ===
 if ('serviceWorker' in navigator) {
@@ -2861,7 +2721,6 @@ if ('serviceWorker' in navigator) {
 <!-- Ukryty trigger do wymuszania klawiatury -->
 <div id="keyboardTrigger" contenteditable="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></div>
 
-<script src="indexedDB.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js")
