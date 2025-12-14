@@ -418,7 +418,8 @@ async function loadZadania() {
     <div class="search-separator"></div>
     <div class="search-icons">
       <button class="search-icon-btn" id="toggleModeBtn" onclick="toggleScannerMode()" title="Przełącz tryb">keyboard</button>
-      <button class="search-icon-btn camera-btn-mobile" onclick="openCamera()" title="Skanuj aparatem">photo_camera</button>
+      <!-- KAMERA WYŁĄCZONA - aby przywrócić usuń style="display:none" -->
+      <button class="search-icon-btn camera-btn-mobile" onclick="openCamera()" title="Skanuj aparatem" style="display:none">photo_camera</button>
       <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść">close</button>
     </div>
   </div>
@@ -678,7 +679,7 @@ async function loadData(store) {
 // === KONIEC INDEXEDDB ===
 
 // API URL do Google Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbxj1TMgAhl0yBXtd9uvjPSkI0H_eu6vecFX7H3k-0eoivnz0ZomRFhYR8u4hjL_HZuz5g/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbznpVc3Kbx97AgdHsANLRpV3x5PU5iJyiXcewyi1-hLAyd4eW0aSauWqeAZsm-nFv5lvQ/exec';
 
 // Wersja aplikacji - zmień gdy dodajesz GAZETKA lub inne ważne zmiany
 const APP_VERSION = 'v5.0.0';
@@ -1020,8 +1021,33 @@ function renderCurrentTab(){
 }
 
 function renderProducts(data){
-  // Zapisz dane i zresetuj limit
-  allProductsToRender = data;
+  // SORTOWANIE według statusu - zielone i szare na górze, różowe na dole
+  const sortedData = data.slice().sort((a, b) => {
+    const statusA = (a.STATUS || 'AKTYWNY').toUpperCase();
+    const statusB = (b.STATUS || 'AKTYWNY').toUpperCase();
+    
+    // Oblicz priorytet statusu
+    const getPriority = (status) => {
+      if (status === 'AKTYWNY' || status === 'PLANOWANY') {
+        return 0; // Zielone i szare - na górze
+      }
+      return 100; // Różowe - na dole
+    };
+    
+    const priorityA = getPriority(statusA);
+    const priorityB = getPriority(statusB);
+    
+    // Jeśli różne priorytety - sortuj po priorytecie
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+    
+    // Jeśli ten sam priorytet - sortuj po symbolu
+    return (a.symbol || '').localeCompare(b.symbol || '');
+  });
+  
+  // Zapisz posortowane dane i zresetuj limit
+  allProductsToRender = sortedData;
   currentRenderLimit = 100;
   isLoadingMore = false;
   
@@ -1029,7 +1055,7 @@ function renderProducts(data){
   const list=$('productList'); 
   list.innerHTML='';
   
-  if(!data.length){ 
+  if(!sortedData.length){ 
     list.innerHTML='<div style="padding:6px 0;opacity:.8">Brak produktów</div>'; 
     return; 
   }
@@ -1392,6 +1418,18 @@ function initSearch(){
       } else if (eanNorm.includes(q)) {
         priority = 4;
       }
+      
+      // SORTOWANIE PO STATUSIE - AKTYWNY/PLANOWANY na górze (ten sam poziom), NIEAKTYWNY na dole
+      const status = (p.STATUS || 'AKTYWNY').toUpperCase();
+      let statusBonus = 0;
+      if (status === 'AKTYWNY' || status === 'PLANOWANY') {
+        statusBonus = 0; // Zielone i szare - ten sam poziom (sortują się po symbolu)
+      } else {
+        // NIEAKTYWNY, ANULOWANY, BLOKADA - różowe - najniższy priorytet
+        statusBonus = 100; // Na sam dół!
+      }
+      
+      priority = priority + statusBonus;
       
       results.push({ product: p, priority: priority });
     });
@@ -1969,11 +2007,19 @@ function findReplacements(product) {
     .map(s => s.trim().toUpperCase())
     .filter(s => s.length > 0);
   
-  // Znajdź produkty
+  // Znajdź produkty i FILTRUJ tylko AKTYWNE i PLANOWANE
   replSymbols.forEach(sym => {
     const repl = products.find(p => p.symbol === sym);
     if (repl) {
-      replacements.push(repl);
+      const status = (repl.STATUS || 'AKTYWNY').toUpperCase();
+      // Pokazuj tylko aktywne i planowane
+      if (status === 'AKTYWNY' || status === 'PLANOWANY') {
+        replacements.push(repl);
+      } else {
+        console.log(`[Zamienniki] Pominięto ${sym} - status: ${status}`);
+      }
+    } else {
+      console.log(`[Zamienniki] Nie znaleziono produktu: ${sym}`);
     }
   });
   
