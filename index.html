@@ -2,7 +2,8 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>PDA DEDRA v5.0.0 - Zdjecia</title>
+  <title>v5.0.2</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes">
@@ -81,16 +82,16 @@
     .badge-blue{background:#0ea5e9}
 
     .topbar-search{position:sticky;top:0;z-index:100;background:#2563eb;padding:6px 6px 14px}
-    .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:46px;overflow:visible;padding:0 2px}
+    .search-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;border:2px solid #d1d5db;height:46px;overflow:visible;padding:0 2px 0 2px}
     .search-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring)}
-    #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 6px;height:46px;line-height:46px;-webkit-appearance:none;min-width:0}
+    #searchInput{flex:1;border:none;outline:none;background:transparent;font-size:16px;padding:0 4px 0 12px;height:46px;line-height:46px;-webkit-appearance:none;min-width:0}
     #searchInput::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
     #searchInput::-webkit-search-decoration{display:none;-webkit-appearance:none}
     
-    .search-separator{width:1px;height:28px;background:#d1d5db;margin:0 1px;flex-shrink:0}
+    .search-separator{width:1px;height:28px;background:#d1d5db;margin:0 3px 0 2px;flex-shrink:0}
     
-    .search-icons{display:flex;align-items:center;gap:1px;flex-shrink:0}
-    .search-icon-btn{width:42px!important;height:42px!important;border:none!important;outline:none!important;border-radius:10px;background:transparent!important;color:#6b7280!important;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:24px!important;transition:background .2s,transform .1s,color .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+    .search-icons{display:flex;align-items:center;gap:0;flex-shrink:0;margin-right:0}
+    .search-icon-btn{width:46px!important;height:46px!important;border:none!important;outline:none!important;border-radius:10px;background:transparent!important;color:#6b7280!important;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:28px!important;transition:background .2s,transform .1s,color .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
     .search-icon-btn:active{transform:scale(.95)}
     .search-icon-btn:hover{background:rgba(0,0,0,0.05)!important;color:#374151!important}
     .search-icon-btn.mode-scanner{background:transparent!important;color:#059669!important}
@@ -380,7 +381,10 @@ async function loadZadania() {
       <select id="handlowiecSelect" style="margin-bottom:12px;"><option value="">Ładowanie…</option></select>
       <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Rozpocznij</button>
     </div>
-    <div class="login-footer">Created by Sebastian Głusiński | PDA DEDRA v5.0.0 PWA</div>
+    <div class="login-footer" style="display:flex;flex-direction:column;gap:4px;">
+      <div>Created by Sebastian Głusiński</div>
+      <div style="font-size:13px;opacity:0.8;">Version 5.0.2</div>
+    </div>
   </section>
 
   <section id="mainScreen" style="display:none;">
@@ -415,12 +419,12 @@ async function loadZadania() {
   <div class="search-wrap">
     <span class="material-symbols-rounded" style="color:#6b7280;font-size:20px;flex-shrink:0;margin-left:4px">search</span>
     <input id="searchInput" type="text" placeholder="Szukaj..." autocomplete="off" inputmode="text">
+    <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść">close</button>
     <div class="search-separator"></div>
     <div class="search-icons">
       <button class="search-icon-btn" id="toggleModeBtn" onclick="toggleScannerMode()" title="Przełącz tryb">keyboard</button>
       <!-- KAMERA WYŁĄCZONA - aby przywrócić usuń style="display:none" -->
       <button class="search-icon-btn camera-btn-mobile" onclick="openCamera()" title="Skanuj aparatem" style="display:none">photo_camera</button>
-      <button class="search-icon-btn clear-btn" id="clearX" title="Wyczyść">close</button>
     </div>
   </div>
 </div>
@@ -704,6 +708,9 @@ const LS_CART='DR_CART_V2';
 const LS_QUEUE='DR_QUEUE_V1';
 let cart=[],queue=[],currentTab='produkty';
 
+// === v5.0.2 ULTRA FAST - Inteligentny cache zakładek (nie danych) ===
+let lastRenderedTab = null;
+
 // === INFINITE SCROLL dla produktów ===
 let allProductsToRender = [];
 let currentRenderLimit = 50;
@@ -848,6 +855,35 @@ window.onload=function(){
   hide($('syncOverlay'));
   
   loadHandlowcy();
+  
+  // === FIX #7: CLEANUP PRZY ZAMYKANIU APLIKACJI ===
+  window.addEventListener('beforeunload', () => {
+    console.log('[Cleanup] 🧹 Czyszczę przed zamknięciem aplikacji');
+    cleanupLazyImages();
+    if(window.productScrollObserver) {
+      window.productScrollObserver.disconnect();
+      window.productScrollObserver = null;
+    }
+  });
+  
+  // === FIX #8: CLEANUP PO BEZCZYNNOŚCI (5 minut) ===
+  let inactivityTimer;
+  const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minut
+  
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+      console.log('[Cleanup] 🧹 Cleanup po bezczynności');
+      cleanupLazyImages();
+    }, INACTIVITY_TIMEOUT);
+  }
+  
+  // Reset timer przy każdej aktywności
+  ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(event => {
+    document.addEventListener(event, resetInactivityTimer, { passive: true });
+  });
+  
+  resetInactivityTimer();
 };
 
 async function loadHandlowcy() {
@@ -969,6 +1005,14 @@ async function syncAllBlocking(){
     
     setTimeout(()=>{
       hide($('syncOverlay'));
+      
+      // Wyczyść wyszukiwarkę po odświeżeniu
+      const searchInput = $('searchInput');
+      if (searchInput) {
+        searchInput.value = '';
+        $('clearX').style.display = 'none';
+      }
+      
       renderCurrentTab();
       toast('Dane zaktualizowane');
       focusSearch();
@@ -1021,6 +1065,8 @@ function renderCurrentTab(){
 }
 
 function renderProducts(data){
+  console.log(`[Render] 📦 Renderuję ${data.length} produktów`);
+  
   // SORTOWANIE według statusu - zielone i szare na górze, różowe na dole
   const sortedData = data.slice().sort((a, b) => {
     const statusA = (a.STATUS || 'AKTYWNY').toUpperCase();
@@ -1062,14 +1108,24 @@ function renderProducts(data){
   
   // Renderuj pierwszą partię
   renderProductsBatch();
+  
+  console.log(`[Render] ✅ Załadowano pierwszą partię (${Math.min(currentRenderLimit, sortedData.length)}/${sortedData.length})`);
 }
 
 function renderProductsBatch(){
   const list=$('productList');
   
+  // === FIX #4: CLEANUP STAREGO SCROLL OBSERVER ===
   // Usuń stary sentinel jeśli istnieje
   const oldSentinel = document.getElementById('scroll-sentinel');
   if(oldSentinel) oldSentinel.remove();
+  
+  // WYCZYŚĆ STARY OBSERVER jeśli istnieje
+  if(window.productScrollObserver){
+    console.log('[Scroll] 🧹 Czyszczę stary productScrollObserver');
+    window.productScrollObserver.disconnect();
+    window.productScrollObserver = null;
+  }
   
   // Renderuj produkty od początku do currentRenderLimit
   const toRender = allProductsToRender.slice(0, currentRenderLimit);
@@ -1082,17 +1138,15 @@ function renderProductsBatch(){
     list.append(row);
   });
   
-  // Jeśli są jeszcze produkty, dodaj sentinel
+  // Jeśli są jeszcze produkty, dodaj sentinel i nowy observer
   if(allProductsToRender.length > currentRenderLimit){
     const sentinel = document.createElement('div');
     sentinel.id = 'scroll-sentinel';
     sentinel.style.cssText = 'height:1px;';
     list.append(sentinel);
     
-    // Obserwuj sentinel
-    if(window.productScrollObserver){
-      window.productScrollObserver.disconnect();
-    }
+    // UTWÓRZ NOWY OBSERVER
+    console.log('[Scroll] ✨ Tworzę nowy productScrollObserver');
     window.productScrollObserver = new IntersectionObserver((entries)=>{
       if(entries[0].isIntersecting && !isLoadingMore && allProductsToRender.length > currentRenderLimit){
         isLoadingMore = true;
@@ -1231,7 +1285,9 @@ function renderPOS(data){
     actions.append(add); row.append(left,actions);
     list.append(row);
   });
-  setTimeout(() => initLazyImages(), 50);
+  
+  // === FIX #6: INICJALIZACJA LAZY IMAGES DLA POS ===
+  requestAnimationFrame(() => initLazyImages());
 }
 
 function renderSets(data){
@@ -2448,10 +2504,40 @@ function confirmSet(){
 }
 
 function activateTab(el){
+  const newTab = el.getAttribute('data-tab') || 'produkty';
+  
+  // === v5.0.2 ULTRA FAST - Skip cleanup jeśli klikamy tę samą zakładkę ===
+  if (newTab === currentTab) {
+    console.log('[Tab] ⚡ Ta sama zakładka - skip cleanup!');
+    // Tylko zmień visual (active class)
+    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+    el.classList.add('active');
+    return;
+  }
+  
+  console.log('[Tab] 🔄 Przełączam zakładkę:', currentTab, '→', newTab);
+  
+  // === CLEANUP przy zmianie zakładki ===
+  cleanupLazyImages();
+  
+  if(window.productScrollObserver){
+    window.productScrollObserver.disconnect();
+    window.productScrollObserver = null;
+  }
+  
+  loadingQueue = [];
+  currentlyLoading = 0;
+  
+  // Zmień aktywną zakładkę
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
   el.classList.add('active');
-  currentTab = el.getAttribute('data-tab') || 'produkty';
+  currentTab = newTab;
+  lastRenderedTab = newTab;
+  
+  // Renderuj nową zakładkę
   renderCurrentTab();
+  
+  console.log('[Tab] ✅ Zakładka załadowana');
 }
 
 function switchTab(el){
@@ -2659,7 +2745,7 @@ closeCalc = function() {
   }
 };
 
-// === OPTYMALIZACJA ZDJĘĆ - Throttled Lazy Loading ===
+// === OPTYMALIZACJA ZDJĘĆ - Throttled Lazy Loading Z POPRAWKAMI MEMORY LEAKS ===
 let loadingQueue = [];
 let currentlyLoading = 0;
 const MAX_CONCURRENT_IMAGES = 10; // Max 10 zdjęć naraz
@@ -2696,40 +2782,87 @@ function processQueue() {
   }
 }
 
-// Intersection Observer - ładuje zdjęcia gdy są widoczne
-const imageObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const img = entry.target;
-      imageObserver.unobserve(img);
-      
-      // Dodaj do kolejki
-      if (!loadingQueue.includes(img)) {
-        loadingQueue.push(img);
-        processQueue();
-      }
-    }
-  });
-}, {
-  rootMargin: '200px', // Załaduj 200px przed widocznością
-  threshold: 0.01
-});
+// === FIX #1: GLOBALNY OBSERVER Z PROPER CLEANUP ===
+let imageObserver = null;
 
-// Funkcja do inicjalizacji lazy loading dla wszystkich obrazków
+function createImageObserver() {
+  // Usuń stary observer jeśli istnieje
+  if (imageObserver) {
+    console.log('[LazyLoad] 🧹 Czyszczę stary imageObserver');
+    imageObserver.disconnect();
+    imageObserver = null;
+  }
+  
+  // Utwórz nowy observer
+  imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        imageObserver.unobserve(img);
+        
+        // Dodaj do kolejki
+        if (!loadingQueue.includes(img)) {
+          loadingQueue.push(img);
+          processQueue();
+        }
+      }
+    });
+  }, {
+    rootMargin: '200px', // Załaduj 200px przed widocznością
+    threshold: 0.01
+  });
+  
+  console.log('[LazyLoad] ✨ Utworzono nowy imageObserver');
+  return imageObserver;
+}
+
+// === FIX #2: INTELIGENTNA INICJALIZACJA LAZY IMAGES ===
 function initLazyImages() {
-  document.querySelectorAll('img.lazy-img:not(.loaded)').forEach(img => {
-    if (!img.dataset.observed) {
+  // === v5.0.2 ULTRA FAST - Smart observer reuse ===
+  // Upewnij się że mamy observer (ale nie twórz jeśli już istnieje!)
+  if (!imageObserver) {
+    console.log('[LazyLoad] ✨ Tworzę NOWY imageObserver');
+    createImageObserver();
+  }
+  
+  // Znajdź nowe obrazki (tylko te bez data-observed)
+  const newImages = document.querySelectorAll('img.lazy-img:not([data-observed])');
+  
+  if (newImages.length > 0) {
+    console.log(`[LazyLoad] ⚡ Dodaję ${newImages.length} nowych obrazków`);
+    
+    newImages.forEach(img => {
       imageObserver.observe(img);
       img.dataset.observed = 'true';
-    }
-  });
+    });
+  } else {
+    console.log('[LazyLoad] ✓ Wszystkie obrazki już obserwowane');
+  }
+}
+
+// === FIX #3: CLEANUP PRZY PRZEŁĄCZANIU ZAKŁADEK ===
+function cleanupLazyImages() {
+  console.log('[LazyLoad] 🧹 Czyszczę stare obrazki');
+  
+  // Wyczyść kolejkę ładowania
+  loadingQueue = [];
+  
+  // Disconnect observer - nowy zostanie utworzony przy następnym renderowaniu
+  if (imageObserver) {
+    imageObserver.disconnect();
+    imageObserver = null;
+  }
 }
 
 // Hook do renderProducts - inicjalizuj lazy loading po renderowaniu
 const origRenderProductsBatch = renderProductsBatch;
 renderProductsBatch = function() {
   origRenderProductsBatch();
-  setTimeout(() => initLazyImages(), 50);
+  
+  // Użyj requestAnimationFrame zamiast setTimeout dla lepszej wydajności
+  requestAnimationFrame(() => {
+    initLazyImages();
+  });
 };
 
 
